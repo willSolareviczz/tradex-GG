@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Abrir Caixa - tradexGG</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/roulette.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Case header -->
+    <div class="case-open-header" id="case-header">
+      <div class="loading">Carregando...</div>
+    </div>
+
+    <!-- Roulette area -->
+    <div class="roulette-wrapper" id="roulette-wrapper" style="display: none;">
+      <div class="roulette-indicator"></div>
+      <div class="roulette-strip" id="roulette-strip"></div>
+    </div>
+
+    <!-- Open button -->
+    <div style="text-align: center; margin: 1.5rem 0;">
+      <button class="open-btn" id="open-btn" style="display: none;">ABRIR CAIXA</button>
+    </div>
+
+    <!-- Possible skins -->
+    <div class="possible-skins" id="possible-skins" style="display: none;">
+      <h3>Itens Possíveis</h3>
+      <div class="possible-skins-grid" id="skins-grid"></div>
+    </div>
+  </div>
+
+  <!-- Result popup -->
+  <div class="result-popup" id="result-popup">
+    <div class="result-content">
+      <img id="result-img" class="result-skin-img" src="" alt="">
+      <div id="result-name" class="result-skin-name"></div>
+      <div id="result-rarity" class="result-skin-rarity"></div>
+      <div id="result-price" class="result-skin-price"></div>
+      <div class="result-actions">
+        <button class="btn btn-primary" id="btn-keep">Guardar no Inventário</button>
+        <button class="btn btn-secondary" id="btn-sell">Vender</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/roulette.js"></script>
+</body>
+</html>

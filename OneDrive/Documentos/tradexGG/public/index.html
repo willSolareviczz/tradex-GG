@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>tradexGG - Abertura de Caixas CS2</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <section class="hero">
+    <h1>tradexGG</h1>
+    <p>Abra caixas de CS2, ganhe skins incríveis e converta em saldo. A melhor experiência de unboxing do Brasil.</p>
+    <a href="/cases.html" class="btn btn-primary" style="padding: 0.8rem 2rem; font-size: 1.1rem;">Abrir Caixas</a>
+  </section>
+
+  <section class="latest-drops" id="latest-drops">
+    <h3>Últimos Drops</h3>
+    <div class="drops-ticker" id="drops-ticker">
+      <div class="loading">Carregando...</div>
+    </div>
+  </section>
+
+  <div class="container">
+    <h2 class="page-title" style="margin-top: 1rem;">Caixas Disponíveis</h2>
+    <div class="card-grid" id="home-cases">
+      <div class="loading">Carregando caixas...</div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Load cases
+      try {
+        const cases = await apiFetch('/cases');
+        const grid = document.getElementById('home-cases');
+        if (cases.length === 0) {
+          grid.innerHTML = '<div class="empty-state"><p>Nenhuma caixa disponível no momento.</p></div>';
+          return;
+        }
+        grid.innerHTML = cases.map(c => `
+          <a href="/open.html?id=${c.id}" class="case-card">
+            <img src="${c.image_url}" alt="${c.name}" class="case-card-img">
+            <div class="case-card-info">
+              <div class="case-card-name">${c.name}</div>
+              <div class="case-card-price">${formatPrice(c.price)}</div>
+            </div>
+          </a>
+        `).join('');
+      } catch {
+        document.getElementById('home-cases').innerHTML = '<div class="empty-state"><p>Erro ao carregar caixas.</p></div>';
+      }
+
+      // Load latest drops
+      try {
+        const drops = await apiFetch('/ranking');
+        const ticker = document.getElementById('drops-ticker');
+        if (drops.length === 0) {
+          ticker.innerHTML = '<div style="color: var(--text-secondary); padding: 0 2rem;">Nenhum drop ainda. Seja o primeiro!</div>';
+          return;
+        }
+        ticker.innerHTML = drops.slice(0, 15).map(d => `
+          <div class="drop-item">
+            <img src="${d.image_url}" alt="${d.skin_name}">
+            <div class="drop-item-info">
+              <div class="drop-item-user">${d.username}</div>
+              <div class="drop-item-skin" style="color: ${d.rarity_color}">${d.skin_name}</div>
+            </div>
+          </div>
+        `).join('');
+      } catch {
+        document.getElementById('drops-ticker').innerHTML = '';
+      }
+    });
+  </script>
+</body>
+</html>
