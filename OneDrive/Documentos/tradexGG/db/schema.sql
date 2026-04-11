@@ -8,6 +8,8 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash VARCHAR(255) NOT NULL,
     balance       INTEGER NOT NULL DEFAULT 0,
     avatar_url    VARCHAR(512),
+    steam_id      VARCHAR(20),
+    trade_url     VARCHAR(512),
     created_at    TIMESTAMP DEFAULT NOW()
 );
 
@@ -63,9 +65,23 @@ CREATE TABLE IF NOT EXISTS payments (
     updated_at            TIMESTAMP DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS steam_trades (
+    id         SERIAL PRIMARY KEY,
+    user_id    INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    offer_id   VARCHAR(20) NOT NULL,
+    type       VARCHAR(10) NOT NULL,
+    asset_ids  JSONB NOT NULL,
+    amount     INTEGER,
+    status     VARCHAR(20) NOT NULL DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_openings_user ON openings(user_id);
 CREATE INDEX IF NOT EXISTS idx_openings_created ON openings(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_payments_user ON payments(user_id);
 CREATE INDEX IF NOT EXISTS idx_payments_mp_id ON payments(mp_payment_id);
 CREATE INDEX IF NOT EXISTS idx_case_skins_case ON case_skins(case_id);
+CREATE INDEX IF NOT EXISTS idx_steam_trades_user ON steam_trades(user_id);
+CREATE INDEX IF NOT EXISTS idx_steam_trades_offer ON steam_trades(offer_id);

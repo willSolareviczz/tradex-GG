@@ -1,15 +1,15 @@
 -- ===== tradexGG Seed Data =====
 -- 5 caixas populares do CS2 com skins reais
 -- Preços aproximados do mercado em centavos (BRL)
--- Imagens do Steam CDN
+-- Imagens placeholder (substituir por URLs reais quando integrar com Steam API)
 
 -- ===== CASES =====
 INSERT INTO cases (name, slug, image_url, price) VALUES
-('Caixa Kilowatt', 'kilowatt', 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UXp-JOjPO0KDiFIbcBdIsq-cSU1_w9aGaMSFcbx9op07YCHaSeLUXfj2EZrHSbRthxhbZEDMTuT_h52DHE5tKgpot7HxfAhjxszJemkV09-5lpKKqPrxN7LEmyVQ7MEpiLuSrYmnjQO3-UdsZGHyd4_Bd1RvNQ7T_FDrw-_ng5Pu75ic1zI97bhLkvQz/256fx256f', 990),
-('Caixa Revolution', 'revolution', 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UXp-JOjPO0KDiFIbcBdIsq-cSU1_w9aGaMSFcbx9op07YCHaSeLUXfj2EZrHSbRthxhbZEDMTeq_h52CHFp7KAC5O1sgYazZeyIzMdvIW0xtexkdTSxa_Ye-KFxj4J7MQj2rqUrg_h_0Zmam97Z4mVdAM4NwmD-ATWkvDSjJC3ucjGl9C3tA/256fx256f', 890),
-('Caixa Dreams & Nightmares', 'dreams-nightmares', 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UXp-JOjPO0KDiFIbcBdIsq-cSU1_w9aGaMSFcbx9op07YCHaSeLUXfj2EZrHSbRthxhbZEDMTuT_h52DB0d-KhJatwqk1hV7D_zxVbUxO4ciyYI2JhPL6MbmDw28AvsN337vEoYz2jlHg-EdoYzz3JNKdcFA6aF2F-APoxb3u0Ja5tJ_MmHJk6CUr5XjblxzghhxKa7Vu/256fx256f', 1290),
-('Caixa Fracture', 'fracture', 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UXp-JOjPO0KDiFIbcBdIsq-cSU1_w9aGaMSFcbx9op07YCHaSeLUXfj2EZrHSbRthxhbZEDMTeqn1c9eQQFR6LLofq63xJgUyaTMIW0S0972oWwktTgYbnQ3jMBbMEm3u-TpYnw3Qbt80RramD7cNKSIVU5aV6E-1S_k-q60MSouszFwCs/256fx256f', 690),
-('Caixa Clutch', 'clutch', 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UXp-JOjPO0KDiFIbcBdIsq-cSU1_w9aGaMSFcbx9op07YCHaSeLUXfj2EZrHSbRthxhbZEDMTeLrhQ5dQPll6NgtYu7DxfAhjxszMdUEV7925pNKfk6b1a77TwmsIvpN337vEoYz2jFGx-EVkYDvzJYDDewQ3ZVzR_1O5kOy9hZ_v78ycynYx6CQlsCiLzhfk0RxSbuBxxavIcxjC-wc/256fx256f', 590);
+('Caixa Kilowatt', 'kilowatt', 'https://placehold.co/256x256/1a1a2e/00ff88?text=Kilowatt', 990),
+('Caixa Revolution', 'revolution', 'https://placehold.co/256x256/1a1a2e/00d4ff?text=Revolution', 890),
+('Caixa Dreams & Nightmares', 'dreams-nightmares', 'https://placehold.co/256x256/1a1a2e/d32ce6?text=Dreams', 1290),
+('Caixa Fracture', 'fracture', 'https://placehold.co/256x256/1a1a2e/4b69ff?text=Fracture', 690),
+('Caixa Clutch', 'clutch', 'https://placehold.co/256x256/1a1a2e/eb4b4b?text=Clutch', 590);
 
 -- ===== SKINS =====
 

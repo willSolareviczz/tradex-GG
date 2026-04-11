@@ -82,6 +82,7 @@ function renderNavbar() {
     <a href="/" class="navbar-logo">tradex<span>GG</span></a>
     <div class="navbar-links">
       <a href="/cases.html">Caixas</a>
+      <a href="/market.html">Marketplace</a>
       <a href="/ranking.html">Ranking</a>
       ${logged ? `<a href="/inventory.html">Inventário</a>` : ''}
     </div>
