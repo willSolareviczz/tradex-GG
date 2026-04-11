@@ -2,8 +2,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const casesDir = path.join(__dirname, '..', 'public', 'assets', 'images', 'cases');
-const skinsDir = path.join(__dirname, '..', 'public', 'assets', 'images', 'skins');
+const casesDir = path.join(__dirname, '..', 'frontend', 'assets', 'images', 'cases');
+const skinsDir = path.join(__dirname, '..', 'frontend', 'assets', 'images', 'skins');
 
 fs.mkdirSync(casesDir, { recursive: true });
 fs.mkdirSync(skinsDir, { recursive: true });

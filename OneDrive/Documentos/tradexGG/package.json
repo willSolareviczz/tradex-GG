@@ -2,10 +2,10 @@
   "name": "tradexgg",
   "version": "1.0.0",
   "description": "Site de abertura de caixas CS2",
-  "main": "server.js",
+  "main": "backend/server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js"
+    "start": "node backend/server.js",
+    "dev": "node --watch backend/server.js"
   },
   "author": "willSolareviczz",
   "license": "ISC",
