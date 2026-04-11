@@ -3,9 +3,29 @@ const { openCase } = require('../services/caseOpeningService');
 
 exports.listCases = async (req, res) => {
   try {
-    const result = await pool.query(
-      'SELECT id, name, slug, image_url, price FROM cases WHERE is_active = true ORDER BY id'
-    );
+    const result = await pool.query(`
+      SELECT c.id, c.name, c.slug, c.image_url, c.price,
+             top_skin.skin_image_url AS best_skin_image,
+             top_skin.skin_name AS best_skin_name,
+             top_skin.skin_rarity AS best_skin_rarity,
+             top_skin.skin_rarity_color AS best_skin_rarity_color,
+             top_skin.skin_price AS best_skin_price
+      FROM cases c
+      LEFT JOIN LATERAL (
+        SELECT s.image_url AS skin_image_url,
+               s.name AS skin_name,
+               s.rarity AS skin_rarity,
+               s.rarity_color AS skin_rarity_color,
+               s.market_price AS skin_price
+        FROM case_skins cs
+        JOIN skins s ON cs.skin_id = s.id
+        WHERE cs.case_id = c.id
+        ORDER BY s.market_price DESC
+        LIMIT 1
+      ) top_skin ON true
+      WHERE c.is_active = true
+      ORDER BY c.id
+    `);
     res.json(result.rows);
   } catch (err) {
     console.error('Erro ao listar caixas:', err);

@@ -182,7 +182,36 @@
   margin-bottom: 1rem;
 }
 
-.case-open-header img {
+.case-open-hero {
+  --hero-color: #4b69ff;
+  position: relative;
+  width: 280px;
+  height: 200px;
+  margin: 0 auto 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: var(--bg-secondary);
+  overflow: hidden;
+}
+
+.case-open-hero-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.case-open-hero-img {
+  width: 200px;
+  height: 160px;
+  object-fit: contain;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 4px 25px color-mix(in srgb, var(--hero-color) 50%, transparent));
+}
+
+.case-open-header img:not(.case-open-hero-img) {
   width: 200px;
   height: 150px;
   object-fit: contain;

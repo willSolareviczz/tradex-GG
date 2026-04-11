@@ -20,9 +20,15 @@ async function loadCaseDetail(caseId) {
   try {
     caseData = await apiFetch(`/cases/${caseId}`);
 
-    // Render header
+    // Find best skin (most expensive)
+    const bestSkin = caseData.skins.reduce((best, s) => s.market_price > best.market_price ? s : best, caseData.skins[0]);
+
+    // Render header with best skin image
     document.getElementById('case-header').innerHTML = `
-      <img src="${caseData.image_url}" alt="${caseData.name}">
+      <div class="case-open-hero" style="--hero-color: ${bestSkin.rarity_color}">
+        <div class="case-open-hero-glow" style="background: radial-gradient(ellipse at center, ${bestSkin.rarity_color}20 0%, transparent 70%)"></div>
+        <img src="${bestSkin.image_url}" alt="${caseData.name}" class="case-open-hero-img">
+      </div>
       <h2>${caseData.name}</h2>
       <div class="case-open-price">${formatPrice(caseData.price)}</div>
     `;

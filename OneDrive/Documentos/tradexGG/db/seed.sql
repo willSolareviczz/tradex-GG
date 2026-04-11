@@ -5,11 +5,11 @@
 
 -- ===== CASES =====
 INSERT INTO cases (name, slug, image_url, price) VALUES
-('Caixa Kilowatt', 'kilowatt', 'https://placehold.co/256x256/1a1a2e/00ff88?text=Kilowatt', 990),
-('Caixa Revolution', 'revolution', 'https://placehold.co/256x256/1a1a2e/00d4ff?text=Revolution', 890),
-('Caixa Dreams & Nightmares', 'dreams-nightmares', 'https://placehold.co/256x256/1a1a2e/d32ce6?text=Dreams', 1290),
-('Caixa Fracture', 'fracture', 'https://placehold.co/256x256/1a1a2e/4b69ff?text=Fracture', 690),
-('Caixa Clutch', 'clutch', 'https://placehold.co/256x256/1a1a2e/eb4b4b?text=Clutch', 590);
+('Caixa Kilowatt', 'kilowatt', '/assets/images/cases/kilowatt.svg', 990),
+('Caixa Revolution', 'revolution', '/assets/images/cases/revolution.svg', 890),
+('Caixa Dreams & Nightmares', 'dreams-nightmares', '/assets/images/cases/dreams-nightmares.svg', 1290),
+('Caixa Fracture', 'fracture', '/assets/images/cases/fracture.svg', 690),
+('Caixa Clutch', 'clutch', '/assets/images/cases/clutch.svg', 590);
 
 -- ===== SKINS =====
 

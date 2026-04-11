@@ -257,11 +257,12 @@ a:hover {
 
 /* ===== CASE CARD ===== */
 .case-card {
+  --rarity-glow: #4b69ff;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 12px;
   overflow: hidden;
-  transition: transform 0.2s, border-color 0.2s;
+  transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
   cursor: pointer;
   text-decoration: none;
   color: inherit;
@@ -269,27 +270,76 @@ a:hover {
 }
 
 .case-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--accent);
+  transform: translateY(-6px);
+  border-color: var(--rarity-glow);
+  box-shadow: 0 8px 30px -5px color-mix(in srgb, var(--rarity-glow) 35%, transparent);
   color: inherit;
 }
 
-.case-card-img {
+.case-card-visual {
+  position: relative;
   width: 100%;
-  height: 180px;
-  object-fit: contain;
+  height: 200px;
   background: var(--bg-secondary);
-  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.case-card-bg-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.case-card-img {
+  width: 180px;
+  height: 140px;
+  object-fit: contain;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 4px 20px color-mix(in srgb, var(--rarity-glow) 40%, transparent));
+  transition: transform 0.25s;
+}
+
+.case-card:hover .case-card-img {
+  transform: scale(1.08);
+}
+
+.case-card-rarity-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  z-index: 2;
+  opacity: 0.9;
 }
 
 .case-card-info {
-  padding: 1rem;
+  padding: 0.8rem 1rem;
+  border-top: 1px solid var(--border);
 }
 
 .case-card-name {
   font-weight: 600;
-  font-size: 1rem;
-  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+  margin-bottom: 0.2rem;
+}
+
+.case-card-best-skin {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.4rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .case-card-price {
