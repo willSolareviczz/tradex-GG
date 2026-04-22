@@ -1,3 +1,9 @@
+/**
+ * tradex-GG
+ * @author willSolareviczz
+ * @github https://github.com/willSolareviczz/tradex-GG
+ * @section backend
+ */
 const pool = require('../config/db');
 const { createPixPayment, getPaymentStatus } = require('../services/mercadoPagoService');
 

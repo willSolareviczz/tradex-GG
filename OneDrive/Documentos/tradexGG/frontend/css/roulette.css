@@ -1,101 +1,509 @@
-/* ===== Case Opening Roulette ===== */
+/* =====================================================
+   Case Opening — Armory Terminal
+   Drama belongs to rarity reveal. Surface stays quiet.
+   ===================================================== */
+
+/* ===== Hero ===== */
+.open-hero {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border);
+  padding: 2rem 1.5rem;
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Remove the radial glow background; armory doesn't glow ambient */
+.open-hero-bg { display: none; }
+.open-case-visual-orb { display: none; }
+
+.open-hero-content {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+  max-width: 900px;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+/* Case image viewport — bordered crate, no float animation */
+.open-case-visual {
+  flex-shrink: 0;
+  width: 220px;
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: var(--bg-well);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  padding: 0.75rem;
+}
+
+/* Corner crosshair marks — signature element reused */
+.open-case-visual::before,
+.open-case-visual::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--text-tertiary);
+  opacity: 0.6;
+}
+.open-case-visual::before {
+  top: 6px; left: 6px;
+  border-right: none;
+  border-bottom: none;
+}
+.open-case-visual::after {
+  bottom: 6px; right: 6px;
+  border-left: none;
+  border-top: none;
+}
+
+.open-case-visual-img {
+  width: 180px;
+  height: 150px;
+  object-fit: contain;
+  position: relative;
+  z-index: 1;
+}
+
+.open-case-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.open-case-title {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.4rem;
+  line-height: 1.15;
+  color: var(--text-primary);
+}
+
+.open-case-price {
+  font-family: var(--font-mono);
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: var(--brass);
+  margin-bottom: 1.25rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.open-actions {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 0.6rem;
+}
+
+/* Open button — flat brass, technical */
+.open-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.8rem;
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: var(--brass);
+  color: #1a1408;
+  border: 1px solid var(--brass);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.open-btn:hover {
+  background: var(--brass-hover);
+  border-color: var(--brass-hover);
+}
+
+.open-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.open-hint {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ===== Roulette strip ===== */
+.open-roulette-section {
+  background: var(--bg-primary);
+  padding: 1.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
 
 .roulette-wrapper {
   position: relative;
   overflow: hidden;
-  border-radius: 12px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border);
-  margin: 2rem 0;
-  height: 180px;
+  background: var(--bg-well);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  height: 210px;
 }
 
-/* Center indicator arrow */
+.roulette-fade-left,
+.roulette-fade-right {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 180px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.roulette-fade-left {
+  left: 0;
+  background: linear-gradient(to right, var(--bg-well) 0%, transparent 100%);
+}
+
+.roulette-fade-right {
+  right: 0;
+  background: linear-gradient(to left, var(--bg-well) 0%, transparent 100%);
+}
+
+/* Center indicator — crisp brass line, no glow halo */
 .roulette-indicator {
   position: absolute;
   top: 0;
+  bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 3px;
-  height: 100%;
-  background: var(--accent);
-  z-index: 10;
-  box-shadow: 0 0 15px var(--accent), 0 0 30px rgba(0, 255, 136, 0.3);
+  width: 2px;
+  z-index: 20;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.roulette-indicator::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  border-left: 10px solid transparent;
-  border-right: 10px solid transparent;
-  border-top: 14px solid var(--accent);
+.roulette-indicator-line {
+  flex: 1;
+  width: 2px;
+  background: var(--brass);
 }
 
+.roulette-indicator-arrow-top {
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 10px solid var(--brass);
+}
+
+.roulette-indicator-arrow-bot {
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-bottom: 10px solid var(--brass);
+}
+
+/* Strip */
 .roulette-strip {
   display: flex;
-  gap: 4px;
+  gap: 6px;
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
   will-change: transform;
+  padding: 0 8px;
 }
 
 .roulette-strip.spinning {
-  transition: transform 5s cubic-bezier(0.15, 0.80, 0.40, 1.00);
+  transition: transform 5.5s cubic-bezier(0.12, 0.85, 0.35, 1.00);
 }
 
+/* Individual item — flat crate, rarity shows as bottom stripe */
 .roulette-item {
   flex-shrink: 0;
-  width: 130px;
-  height: 160px;
+  width: 150px;
+  height: 190px;
   background: var(--bg-card);
-  border-radius: 8px;
-  border: 2px solid var(--border);
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  border-bottom: 3px solid var(--item-glow, var(--border-strong));
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem;
-  transition: border-color 0.3s;
+  padding: 0.6rem 0.5rem 0.45rem;
+  transition: border-color 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Kill old radial glow behind item */
+.roulette-item::before { display: none; }
+
+.roulette-item::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('/assets/images/logo-watermark.png') center center / 70% auto no-repeat;
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: 0;
 }
 
 .roulette-item img {
-  width: 90px;
-  height: 80px;
+  width: 110px;
+  height: 85px;
   object-fit: contain;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4rem;
+  position: relative;
+  z-index: 1;
 }
 
 .roulette-item-name {
-  font-size: 0.65rem;
+  font-size: 0.66rem;
   text-align: center;
   color: var(--text-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 120px;
+  max-width: 138px;
+  position: relative;
+  z-index: 1;
+  font-weight: 500;
 }
 
+.roulette-item-wear {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-tertiary);
+  margin-top: 0.2rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* Winner highlight — rarity becomes the drama. Border only, no box-shadow halo. */
 .roulette-item.winner {
-  border-color: var(--accent);
-  box-shadow: 0 0 20px rgba(0, 255, 136, 0.4), 0 0 40px rgba(0, 255, 136, 0.1);
+  border-color: var(--win-color, var(--brass)) !important;
+  border-bottom-color: var(--win-color, var(--brass)) !important;
+  background: color-mix(in srgb, var(--win-color, var(--brass)) 6%, var(--bg-card));
+  animation: winnerPulse 1.6s ease-in-out infinite;
 }
 
-/* Result popup */
+@keyframes winnerPulse {
+  0%, 100% { background: color-mix(in srgb, var(--win-color, var(--brass)) 6%, var(--bg-card)); }
+  50%      { background: color-mix(in srgb, var(--win-color, var(--brass)) 12%, var(--bg-card)); }
+}
+
+/* =====================================================
+   Possible Skins
+   ===================================================== */
+.possible-skins {
+  margin-top: 2.25rem;
+  padding-bottom: 3rem;
+}
+
+.possible-skins-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.1rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.possible-skins-header h3 {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.possible-skins-sort {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.skins-sort-btn {
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.skins-sort-btn:hover,
+.skins-sort-btn.active {
+  border-color: var(--brass);
+  color: var(--brass);
+  background: rgba(201, 168, 106, 0.06);
+}
+
+.possible-skins-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+  gap: 0.75rem;
+}
+
+.possible-skin-item {
+  background: var(--bg-card);
+  border-radius: var(--r-sm);
+  padding: 0.7rem 0.55rem 0.55rem;
+  text-align: center;
+  border: 1px solid var(--border);
+  border-bottom: 2px solid var(--item-rarity, var(--border-strong));
+  transition: border-color 0.15s ease, background 0.15s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* No radial glow tint on items */
+.possible-skin-item::before { display: none; }
+
+.possible-skin-item::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('/assets/images/logo-watermark.png') center 40% / 65% auto no-repeat;
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.possible-skin-item:hover {
+  background: var(--bg-well);
+  border-color: var(--border-strong);
+  border-bottom-color: var(--item-rarity, var(--brass));
+}
+
+.possible-skin-item img {
+  width: 90px;
+  height: 70px;
+  object-fit: contain;
+  position: relative;
+  z-index: 1;
+}
+
+.possible-skin-item .name {
+  font-size: 0.72rem;
+  color: var(--text-primary);
+  margin-top: 0.35rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+  position: relative;
+  z-index: 1;
+}
+
+.possible-skin-item .possible-skin-meta {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.3rem;
+  position: relative;
+  z-index: 1;
+}
+
+.possible-skin-item .price {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--brass);
+  margin-top: 0.25rem;
+  position: relative;
+  z-index: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Probability bar — sits at the bottom as structural data */
+.drop-bar-track {
+  width: 100%;
+  height: 3px;
+  background: var(--bg-input);
+  border-radius: 99px;
+  margin-top: 0.5rem;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+.drop-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: var(--item-rarity, var(--brass));
+  opacity: 0.8;
+  min-width: 2px;
+  transition: width 0.6s ease;
+}
+
+.drop-chance {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  color: var(--text-tertiary);
+  position: relative;
+  z-index: 1;
+  gap: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.drop-wear {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.drop-chance strong {
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  font-size: 0.68rem;
+  font-weight: 500;
+}
+
+/* =====================================================
+   Result Popup — THE moment. Rarity IS the drama.
+   No float animations, no gradient buttons, no chromatic glow-soup.
+   ===================================================== */
 .result-popup {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.85);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 300;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.4s;
+  transition: opacity 0.3s ease;
 }
 
 .result-popup.active {
@@ -103,204 +511,368 @@
   pointer-events: all;
 }
 
-.result-content {
-  text-align: center;
-  animation: resultBounce 0.5s ease-out;
+.result-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 9, 10, 0.88);
+  backdrop-filter: blur(4px);
 }
 
-@keyframes resultBounce {
-  0% { transform: scale(0.5); opacity: 0; }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); opacity: 1; }
+.result-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  border-top: 3px solid var(--result-glow-color, var(--brass));
+  border-radius: var(--r-lg);
+  padding: 2.25rem 1.75rem 1.75rem;
+  max-width: 420px;
+  width: 90%;
+  animation: resultReveal 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+  overflow: hidden;
+}
+
+@keyframes resultReveal {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Rarity color becomes a single subtle backdrop tint — not a blur orb */
+.result-rarity-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--result-glow-color, var(--brass)) 10%, transparent) 0%, transparent 100%);
+  pointer-events: none;
 }
 
 .result-skin-img {
-  width: 250px;
-  height: 200px;
+  width: 220px;
+  height: 170px;
   object-fit: contain;
   margin-bottom: 1rem;
-  filter: drop-shadow(0 0 30px rgba(0, 255, 136, 0.3));
+  position: relative;
+  z-index: 1;
 }
 
 .result-skin-name {
-  font-size: 1.5rem;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
   font-weight: 700;
+  letter-spacing: -0.01em;
   margin-bottom: 0.5rem;
+  position: relative;
+  z-index: 1;
+  color: var(--text-primary);
+}
+
+.result-skin-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
 }
 
 .result-skin-rarity {
-  font-size: 0.9rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
   text-transform: uppercase;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
 }
 
 .result-skin-price {
-  font-size: 1.8rem;
-  font-weight: 800;
-  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 1.75rem;
+  font-weight: 500;
+  color: var(--brass);
   margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 1;
+  font-variant-numeric: tabular-nums;
 }
 
 .result-actions {
   display: flex;
-  gap: 1rem;
+  gap: 0.6rem;
   justify-content: center;
-}
-
-/* Open button */
-.open-btn {
-  width: 100%;
-  max-width: 300px;
-  padding: 1rem;
-  font-size: 1.2rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, var(--accent), var(--accent-blue));
-  color: #000;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  font-family: inherit;
-}
-
-.open-btn:hover {
-  transform: scale(1.02);
-  box-shadow: 0 0 25px rgba(0, 255, 136, 0.3);
-}
-
-.open-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-/* Case info on open page */
-.case-open-header {
-  text-align: center;
+  position: relative;
+  z-index: 1;
   margin-bottom: 1rem;
 }
 
-.case-open-hero {
-  --hero-color: #4b69ff;
+.result-btn-keep {
+  flex: 1;
+  max-width: 160px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.btn-sell {
+  flex: 1;
+  max-width: 160px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  background: var(--brass);
+  color: #1a1408;
+  border: 1px solid var(--brass);
+  border-radius: var(--r-sm);
+  padding: 0.55rem 1.2rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  letter-spacing: 0.02em;
+}
+
+.btn-sell:hover {
+  background: var(--brass-hover);
+  border-color: var(--brass-hover);
+}
+
+.btn-open-again {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+  font-weight: 500;
   position: relative;
-  width: 280px;
-  height: 200px;
-  margin: 0 auto 1rem;
+  z-index: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.btn-open-again:hover {
+  border-color: var(--brass);
+  color: var(--brass);
+}
+
+/* ===== Skin Info Button ===== */
+.skin-info-btn {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  cursor: pointer;
+  z-index: 2;
+  padding: 0;
+  line-height: 1;
+  opacity: 0.7;
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+.skin-info-btn:hover {
+  opacity: 1;
+  color: var(--brass);
+}
+
+/* ===== Skin Info Modal ===== */
+.skin-info-modal {
+  position: fixed;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 12px;
-  background: var(--bg-secondary);
-  overflow: hidden;
+  z-index: 400;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
 }
 
-.case-open-hero-glow {
+.skin-info-modal.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.skin-info-backdrop {
   position: absolute;
   inset: 0;
-  pointer-events: none;
+  background: rgba(8, 9, 10, 0.85);
+  backdrop-filter: blur(3px);
 }
 
-.case-open-hero-img {
-  width: 200px;
-  height: 160px;
-  object-fit: contain;
+.skin-info-content {
   position: relative;
   z-index: 1;
-  filter: drop-shadow(0 4px 25px color-mix(in srgb, var(--hero-color) 50%, transparent));
-}
-
-.case-open-header img:not(.case-open-hero-img) {
-  width: 200px;
-  height: 150px;
-  object-fit: contain;
-  margin-bottom: 1rem;
-}
-
-.case-open-header h2 {
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.case-open-price {
-  color: var(--accent);
-  font-size: 1.2rem;
-  font-weight: 700;
-}
-
-/* Possible skins list */
-.possible-skins {
-  margin-top: 2rem;
-}
-
-.possible-skins h3 {
-  margin-bottom: 1rem;
-  color: var(--text-secondary);
-  font-size: 1rem;
-}
-
-.possible-skins-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 0.8rem;
-}
-
-.possible-skin-item {
   background: var(--bg-card);
-  border-radius: 8px;
-  padding: 0.5rem;
-  text-align: center;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  padding: 1.5rem;
+  width: 300px;
+  animation: resultReveal 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.skin-info-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  font-size: 1.3rem;
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.15s ease;
+}
+
+.skin-info-close:hover {
+  color: var(--text-primary);
+}
+
+.skin-info-img-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 110px;
+  margin-bottom: 0.9rem;
+  background: var(--bg-well);
+  border-radius: var(--r-sm);
   border: 1px solid var(--border);
 }
 
-.possible-skin-item img {
-  width: 80px;
-  height: 60px;
+.skin-info-img {
+  width: 190px;
+  height: 100px;
   object-fit: contain;
 }
 
-.possible-skin-item .name {
-  font-size: 0.7rem;
-  color: var(--text-secondary);
-  margin-top: 0.3rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.possible-skin-item .price {
-  font-size: 0.75rem;
+.skin-info-name {
+  font-family: var(--font-display);
+  text-align: center;
   font-weight: 600;
-  color: var(--accent);
-  margin-top: 0.2rem;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+  letter-spacing: -0.005em;
 }
 
+.skin-info-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.skin-info-table th {
+  text-align: left;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  padding: 0.35rem 0.5rem;
+  border-bottom: 1px solid var(--border-strong);
+  text-transform: uppercase;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+}
+
+.skin-info-table th:last-child {
+  text-align: right;
+}
+
+.skin-info-table td {
+  padding: 0.45rem 0.5rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+  font-size: 0.78rem;
+}
+
+.skin-info-table td:nth-child(2) {
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.skin-info-table td:last-child {
+  font-family: var(--font-mono);
+  color: var(--brass);
+  font-weight: 500;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===== Responsive ===== */
 @media (max-width: 768px) {
-  .roulette-item {
-    width: 100px;
+  .open-hero-content {
+    flex-direction: column;
+    gap: 1.25rem;
+    text-align: center;
+  }
+
+  .open-case-visual {
+    width: 160px;
     height: 130px;
   }
 
-  .roulette-item img {
-    width: 70px;
-    height: 60px;
+  .open-case-visual-img {
+    width: 140px;
+    height: 110px;
+  }
+
+  .open-case-title {
+    font-size: 1.35rem;
+  }
+
+  .open-actions {
+    justify-content: center;
   }
 
   .roulette-wrapper {
-    height: 150px;
+    height: 165px;
+  }
+
+  .roulette-item {
+    width: 115px;
+    height: 155px;
+  }
+
+  .roulette-item img {
+    width: 80px;
+    height: 65px;
+  }
+
+  .roulette-fade-left,
+  .roulette-fade-right {
+    width: 80px;
   }
 
   .result-skin-img {
-    width: 180px;
-    height: 150px;
+    width: 170px;
+    height: 130px;
   }
 
   .result-skin-name {
-    font-size: 1.2rem;
+    font-size: 1.05rem;
   }
 
   .result-skin-price {
     font-size: 1.4rem;
+  }
+
+  .possible-skins-grid {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
   }
 }

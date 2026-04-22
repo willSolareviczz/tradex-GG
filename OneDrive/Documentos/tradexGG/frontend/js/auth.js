@@ -1,3 +1,9 @@
+/**
+ * tradex-GG
+ * @author willSolareviczz
+ * @github https://github.com/willSolareviczz/tradex-GG
+ * @section frontend
+ */
 // ===== Login / Register page logic =====
 
 document.addEventListener('DOMContentLoaded', () => {

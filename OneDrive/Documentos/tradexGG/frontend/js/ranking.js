@@ -1,3 +1,9 @@
+/**
+ * tradex-GG
+ * @author willSolareviczz
+ * @github https://github.com/willSolareviczz/tradex-GG
+ * @section frontend
+ */
 document.addEventListener('DOMContentLoaded', async () => {
   const container = document.getElementById('ranking-content');
 

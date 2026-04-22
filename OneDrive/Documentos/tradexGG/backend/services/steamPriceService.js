@@ -1,3 +1,9 @@
+/**
+ * tradex-GG
+ * @author willSolareviczz
+ * @github https://github.com/willSolareviczz/tradex-GG
+ * @section backend
+ */
 // Steam Market price fetching
 // Uses Steam's own market API (free, but rate-limited)
 

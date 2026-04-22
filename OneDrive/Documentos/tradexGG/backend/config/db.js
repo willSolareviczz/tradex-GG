@@ -1,3 +1,9 @@
+/**
+ * tradex-GG
+ * @author willSolareviczz
+ * @github https://github.com/willSolareviczz/tradex-GG
+ * @section backend
+ */
 const { Pool } = require('pg');
 
 const pool = new Pool({

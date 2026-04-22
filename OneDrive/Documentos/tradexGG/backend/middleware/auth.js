@@ -1,3 +1,9 @@
+/**
+ * tradex-GG
+ * @author willSolareviczz
+ * @github https://github.com/willSolareviczz/tradex-GG
+ * @section backend
+ */
 const jwt = require('jsonwebtoken');
 
 function authMiddleware(req, res, next) {

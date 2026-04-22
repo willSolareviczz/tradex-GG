@@ -1,3 +1,7 @@
+-- tradex-GG
+-- @author willSolareviczz
+-- @github https://github.com/willSolareviczz/tradex-GG
+-- @section database
 -- Caixa Iniciante (R$1,99)
 INSERT INTO skins (name, weapon, skin_name, rarity, rarity_color, image_url, market_price) VALUES
 ('P250 | Sand Dune', 'P250', 'Sand Dune', 'consumer', '#b0c3d9', 'https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLhzMOwwjFU0OGvZqBSLfWXB3Kdj78n4rY-SX-wxhty4WzUwoqud32RPFUnDMR5RuRb4UXrmtznMOLrtgLAy9USoBHo4ag/256fx256f', 10),

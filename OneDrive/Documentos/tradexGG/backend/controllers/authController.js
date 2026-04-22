@@ -1,6 +1,14 @@
+/**
+ * tradex-GG
+ * @author willSolareviczz
+ * @github https://github.com/willSolareviczz/tradex-GG
+ * @section backend
+ */
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const pool = require('../config/db');
+const emailService = require('../services/emailService');
 
 exports.register = async (req, res) => {
   try {
@@ -38,6 +46,82 @@ exports.register = async (req, res) => {
     res.status(201).json({ user, token });
   } catch (err) {
     console.error('Erro no registro:', err);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+};
+
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Informe o email' });
+
+    const result = await pool.query(
+      'SELECT id, username, email FROM users WHERE email = $1',
+      [email]
+    );
+
+    // Sempre responde com sucesso — não revela se email existe
+    if (result.rows.length === 0) {
+      return res.json({ message: 'Se este email estiver cadastrado, você receberá as instruções em instantes.' });
+    }
+
+    const user = result.rows[0];
+
+    // Gerar token seguro (64 hex chars = 32 bytes)
+    const token = crypto.randomBytes(32).toString('hex');
+    const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hora
+
+    await pool.query(
+      'UPDATE users SET reset_token = $1, reset_token_expires = $2 WHERE id = $3',
+      [token, expires, user.id]
+    );
+
+    const baseUrl = process.env.SITE_URL || `http://localhost:${process.env.PORT || 3000}`;
+    const resetUrl = `${baseUrl}/reset-password.html?token=${token}`;
+
+    await emailService.sendPasswordReset(user.email, user.username, resetUrl);
+
+    res.json({ message: 'Se este email estiver cadastrado, você receberá as instruções em instantes.' });
+  } catch (err) {
+    console.error('Erro no forgotPassword:', err);
+    // Não expõe detalhes do erro para não vazar se email existe
+    res.status(500).json({ error: 'Erro ao enviar email. Verifique as configurações do servidor.' });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  try {
+    const { token, password } = req.body;
+
+    if (!token || !password) {
+      return res.status(400).json({ error: 'Token e nova senha são obrigatórios' });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Senha deve ter no mínimo 6 caracteres' });
+    }
+
+    const result = await pool.query(
+      'SELECT id, username FROM users WHERE reset_token = $1 AND reset_token_expires > NOW()',
+      [token]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(400).json({ error: 'Token inválido ou expirado. Solicite um novo link.' });
+    }
+
+    const user = result.rows[0];
+    const password_hash = await bcrypt.hash(password, 10);
+
+    // Atualiza senha e remove token
+    await pool.query(
+      'UPDATE users SET password_hash = $1, reset_token = NULL, reset_token_expires = NULL WHERE id = $2',
+      [password_hash, user.id]
+    );
+
+    res.json({ message: 'Senha redefinida com sucesso! Você já pode fazer login.' });
+  } catch (err) {
+    console.error('Erro no resetPassword:', err);
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 };

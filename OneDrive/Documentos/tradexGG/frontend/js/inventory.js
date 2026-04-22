@@ -1,3 +1,9 @@
+/**
+ * tradex-GG
+ * @author willSolareviczz
+ * @github https://github.com/willSolareviczz/tradex-GG
+ * @section frontend
+ */
 document.addEventListener('DOMContentLoaded', async () => {
   if (!isLoggedIn()) {
     window.location.href = '/login.html';
@@ -22,21 +28,29 @@ async function loadInventory() {
       return;
     }
 
-    grid.innerHTML = items.map(item => `
+    const wearLabels = { FN: 'Factory New', MW: 'Minimal Wear', FT: 'Field-Tested', WW: 'Well-Worn', BS: 'Battle-Scarred' };
+    grid.innerHTML = items.map(item => {
+      const price = item.site_price || item.market_price;
+      const wearText = wearLabels[item.wear] || item.wear || '';
+      return `
       <div class="skin-card" style="border-color: ${item.rarity_color}">
         <img src="${item.image_url}" alt="${item.name}" class="skin-card-img">
         <div class="skin-card-info">
-          <div class="skin-card-name">${item.name}</div>
-          <div class="skin-card-rarity" style="color: ${item.rarity_color}">${item.rarity.replace('_', ' ')}</div>
-          <div class="skin-card-price">${formatPrice(item.market_price)}</div>
+          <div class="skin-card-name">${item.weapon} | ${item.skin_name}</div>
+          <div class="skin-card-rarity-row">
+            <span class="skin-card-rarity" style="color: ${item.rarity_color}">${item.rarity.replace('_', ' ')}</span>
+            ${item.wear ? `<span class="wear-badge wear-${item.wear}">${wearText}</span>` : ''}
+          </div>
+          <div class="skin-card-price">${formatPrice(price)}</div>
+          <div class="skin-card-case">de: ${item.case_name}</div>
         </div>
         <div class="skin-card-actions">
           <button class="btn btn-primary btn-sm" style="width: 100%;" onclick="sellItem(${item.opening_id}, this)">
-            Vender por ${formatPrice(item.market_price)}
+            Vender por ${formatPrice(price)}
           </button>
         </div>
-      </div>
-    `).join('');
+      </div>`
+    }).join('');
   } catch {
     grid.innerHTML = '<div class="empty-state"><p>Erro ao carregar inventário.</p></div>';
   }

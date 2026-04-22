@@ -1,3 +1,9 @@
+/**
+ * tradex-GG
+ * @author willSolareviczz
+ * @github https://github.com/willSolareviczz/tradex-GG
+ * @section frontend
+ */
 document.addEventListener('DOMContentLoaded', async () => {
   if (!isLoggedIn()) {
     window.location.href = '/login.html';

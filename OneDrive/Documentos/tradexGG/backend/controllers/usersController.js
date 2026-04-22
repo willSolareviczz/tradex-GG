@@ -1,9 +1,15 @@
+/**
+ * tradex-GG
+ * @author willSolareviczz
+ * @github https://github.com/willSolareviczz/tradex-GG
+ * @section backend
+ */
 const pool = require('../config/db');
 
 exports.getMe = async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT id, username, email, balance, avatar_url, created_at FROM users WHERE id = $1',
+      'SELECT id, username, email, balance, avatar_url, created_at, COALESCE(xp, 0) AS xp, COALESCE(level, 1) AS level FROM users WHERE id = $1',
       [req.userId]
     );
 

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crash - tradexGG</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/games.css">
+</head>
+<body>
+
+  <div class="live-drops-bar" id="live-drops-bar">
+    <span class="live-drops-label"><span class="live-dot"></span>DROPS AO VIVO</span>
+    <div class="live-drops-track-wrap">
+      <div class="live-drops-track" id="live-drops-track">
+        <div class="live-drops-loading">Carregando drops...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- Game tabs -->
+    <div class="games-hero">
+      <h1>Jogos ao Vivo</h1>
+      <p>Aposte, ganhe e compita contra outros jogadores em tempo real</p>
+    </div>
+    <div class="game-tabs">
+      <a href="/crash.html"        class="game-tab active">Crash</a>
+      <a href="/coinflip.html"     class="game-tab">Coinflip</a>
+      <a href="/roulette-game.html" class="game-tab">Roleta</a>
+      <a href="/battle.html"       class="game-tab">Case Battle</a>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 320px;gap:24px;align-items:start" id="crash-layout">
+
+      <!-- Left: Crash display + bet -->
+      <div>
+        <!-- History bar -->
+        <div class="crash-history-bar" id="crash-history"></div>
+
+        <!-- Multiplier display -->
+        <div class="crash-display">
+          <div class="crash-glow" id="crash-glow"></div>
+          <div class="crash-multiplier waiting" id="crash-mult">
+            <span id="crash-mult-val">1.00x</span>
+            <small id="crash-status-label">AGUARDANDO...</small>
+          </div>
+        </div>
+
+        <!-- Cashout button (visible only when bet placed + game running) -->
+        <button class="crash-cashout-btn" id="crash-cashout-btn" onclick="doCashout()">
+          SACAR AGORA — <span id="cashout-preview">R$0,00</span>
+        </button>
+
+        <!-- Bet panel -->
+        <div class="game-panel" style="margin-top:16px">
+          <div class="game-panel-title">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            Fazer Aposta
+          </div>
+          <div class="bet-row">
+            <div class="bet-field">
+              <label>Valor da aposta</label>
+              <div class="bet-input-wrap">
+                <span>R$</span>
+                <input type="number" id="crash-amount" class="bet-input" placeholder="0,00" min="1" step="0.01">
+              </div>
+              <div class="quick-amounts">
+                <button onclick="setAmount(100)">R$1</button>
+                <button onclick="setAmount(500)">R$5</button>
+                <button onclick="setAmount(1000)">R$10</button>
+                <button onclick="setAmount(5000)">R$50</button>
+                <button onclick="setAmount(10000)">R$100</button>
+                <button onclick="doubleAmount()">2x</button>
+                <button onclick="halfAmount()">½</button>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;min-width:140px">
+              <button class="btn btn-primary" id="crash-bet-btn" onclick="placeBet()" style="width:100%;padding:12px">
+                APOSTAR
+              </button>
+              <p id="crash-bet-msg" style="font-size:0.8rem;color:var(--text-secondary);margin:0;text-align:center"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: bets list -->
+      <div class="game-panel" style="position:sticky;top:80px">
+        <div class="game-panel-title">
+          Apostas do Round
+          <span class="status-badge waiting" id="crash-status-badge">AGUARDANDO</span>
+        </div>
+        <div class="bets-list" id="crash-bets-list">
+          <div style="color:var(--text-secondary);font-size:0.85rem;text-align:center;padding:20px">Nenhuma aposta ainda</div>
+        </div>
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:0.82rem;color:var(--text-secondary)">
+          <span>Total apostado:</span>
+          <strong id="crash-total-bet" style="color:var(--accent)">R$0,00</strong>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /container -->
+
+  <script src="/js/api.js"></script>
+  <script src="/js/crash.js"></script>
+</body>
+</html>

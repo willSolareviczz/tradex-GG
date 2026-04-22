@@ -5,12 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>tradexGG - Abertura de Caixas CS2</title>
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/loader.css">
 </head>
 <body>
   <section class="hero">
-    <h1>tradexGG</h1>
-    <p>Abra caixas de CS2, ganhe skins incríveis e converta em saldo. A melhor experiência de unboxing do Brasil.</p>
-    <a href="/cases.html" class="btn btn-primary" style="padding: 0.8rem 2rem; font-size: 1.1rem;">Abrir Caixas</a>
+    <span class="hero-badge"><span class="live-dot"></span>SERVER LIVE &middot; BR-01</span>
+    <h1>Armaria de skins CS2.</h1>
+    <p>Abra caixas, saque skins, converta em saldo. Inventário operado no Brasil, sem ruído, sem firulas de cassino.</p>
+    <a href="/cases.html" class="btn btn-primary">Acessar caixas</a>
   </section>
 
   <section class="latest-drops" id="latest-drops">
@@ -22,42 +24,49 @@
 
   <div class="container">
     <h2 class="page-title" style="margin-top: 1rem;">Caixas Disponíveis</h2>
-    <div class="card-grid" id="home-cases">
+    <div id="home-cases">
       <div class="loading">Carregando caixas...</div>
     </div>
   </div>
 
   <script src="/js/api.js"></script>
+  <script src="/js/cases.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       // Load cases
       try {
         const cases = await apiFetch('/cases');
-        const grid = document.getElementById('home-cases');
+        const container = document.getElementById('home-cases');
         if (cases.length === 0) {
-          grid.innerHTML = '<div class="empty-state"><p>Nenhuma caixa disponível no momento.</p></div>';
+          container.innerHTML = '<div class="empty-state"><p>Nenhuma caixa disponivel no momento.</p></div>';
           return;
         }
-        grid.innerHTML = cases.map(c => {
-          const rarityColor = c.best_skin_rarity_color || '#4b69ff';
-          const skinImg = c.best_skin_image || c.image_url;
-          const skinName = c.best_skin_name || '';
-          const rarityMap = { consumer:'Consumer', industrial:'Industrial', mil_spec:'Mil-Spec', restricted:'Restricted', classified:'Classified', covert:'Covert', extraordinary:'Knife' };
-          const rarityLabel = rarityMap[c.best_skin_rarity] || '';
-          return `
-          <a href="/open.html?id=${c.id}" class="case-card" style="--rarity-glow: ${rarityColor}">
-            <div class="case-card-visual">
-              <div class="case-card-bg-glow" style="background: radial-gradient(ellipse at center, ${rarityColor}22 0%, transparent 70%)"></div>
-              <img src="${skinImg}" alt="${c.name}" class="case-card-img">
-              ${c.best_skin_rarity ? `<span class="case-card-rarity-badge" style="background: ${rarityColor}">${rarityLabel}</span>` : ''}
+
+        const grouped = { rifles:[], pistols:[], snipers:[], smg:[], knives:[], premium:[] };
+        cases.forEach(c => {
+          const cat = c.category || 'rifles';
+          if (grouped[cat]) grouped[cat].push(c);
+          else grouped.rifles.push(c);
+        });
+
+        let html = '';
+        Object.entries(grouped).forEach(([catKey, catCases]) => {
+          if (catCases.length === 0) return;
+          const colors = caseColors[catKey] || caseColors.rifles;
+          html += `
+            <div class="category-section">
+              <div class="category-header">
+                <span class="category-icon">${categoryIcons[catKey] || ''}</span>
+                <span class="category-title">${categoryLabels[catKey]}</span>
+                <span class="category-count">${catCases.length} ${catCases.length === 1 ? 'caixa' : 'caixas'}</span>
+              </div>
+              <div class="card-grid">
+                ${catCases.map((c, i) => buildCaseCard(c, colors[i % colors.length])).join('')}
+              </div>
             </div>
-            <div class="case-card-info">
-              <div class="case-card-name">${c.name}</div>
-              ${skinName ? `<div class="case-card-best-skin">${skinName}</div>` : ''}
-              <div class="case-card-price">${formatPrice(c.price)}</div>
-            </div>
-          </a>
-        `;}).join('');
+          `;
+        });
+        container.innerHTML = html;
       } catch {
         document.getElementById('home-cases').innerHTML = '<div class="empty-state"><p>Erro ao carregar caixas.</p></div>';
       }

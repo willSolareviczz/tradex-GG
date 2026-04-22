@@ -1,5 +1,12 @@
+/**
+ * tradex-GG
+ * @author willSolareviczz
+ * @github https://github.com/willSolareviczz/tradex-GG
+ * @section backend
+ */
 const crypto = require('crypto');
 const pool = require('../config/db');
+const { awardXP } = require('./xpService');
 
 async function openCase(userId, caseId) {
   const client = await pool.connect();
@@ -41,9 +48,12 @@ async function openCase(userId, caseId) {
     );
 
     // Get all skins for this case with weights
+    // site_price: preco real usado no site (atualizado via API, fallback = market_price)
     const skinsResult = await client.query(
-      `SELECT cs.weight, s.id as skin_id, s.name, s.weapon, s.skin_name,
-              s.rarity, s.rarity_color, s.image_url, s.market_price
+      `SELECT cs.weight, s.id as skin_id, s.name, s.weapon, s.skin_name, s.wear,
+              s.rarity, s.rarity_color, s.image_url,
+              s.market_price,
+              COALESCE(s.site_price, s.market_price) AS site_price
        FROM case_skins cs
        JOIN skins s ON cs.skin_id = s.id
        WHERE cs.case_id = $1`,
@@ -77,6 +87,16 @@ async function openCase(userId, caseId) {
       [userId, caseId, wonSkin.skin_id]
     );
 
+    // Record transaction
+    await client.query(
+      `INSERT INTO transactions (user_id, type, amount, description)
+       VALUES ($1, 'case_open', $2, $3)`,
+      [userId, casePrice, `Abertura: ${caseResult.rows[0].name}`]
+    );
+
+    // Conceder +10 XP pela abertura
+    await awardXP(userId, 10, client);
+
     await client.query('COMMIT');
 
     // Generate animation strip (cosmetic only)
@@ -88,10 +108,12 @@ async function openCase(userId, caseId) {
         name: wonSkin.name,
         weapon: wonSkin.weapon,
         skin_name: wonSkin.skin_name,
+        wear: wonSkin.wear,
         rarity: wonSkin.rarity,
         rarity_color: wonSkin.rarity_color,
         image_url: wonSkin.image_url,
         market_price: wonSkin.market_price,
+        site_price: wonSkin.site_price,
       },
       animation_items: animationItems,
       new_balance: userBalance - casePrice,

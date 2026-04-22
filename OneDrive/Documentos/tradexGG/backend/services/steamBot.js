@@ -1,3 +1,9 @@
+/**
+ * tradex-GG
+ * @author willSolareviczz
+ * @github https://github.com/willSolareviczz/tradex-GG
+ * @section backend
+ */
 const SteamUser = require('steam-user');
 const SteamTotp = require('steam-totp');
 const TradeOfferManager = require('steam-tradeoffer-manager');

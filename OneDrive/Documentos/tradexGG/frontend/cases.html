@@ -7,11 +7,90 @@
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
+
+  <!-- Live Drops Ticker -->
+  <div class="live-drops-bar" id="live-drops-bar">
+    <span class="live-drops-label">
+      <span class="live-dot"></span>
+      DROPS AO VIVO
+    </span>
+    <div class="live-drops-track-wrap">
+      <div class="live-drops-track" id="live-drops-track">
+        <div class="live-drops-loading">Carregando drops...</div>
+      </div>
+    </div>
+  </div>
+
   <div class="container">
-    <h1 class="page-title">Caixas Disponíveis</h1>
-    <div class="card-grid" id="cases-grid">
+
+    <!-- Page Header + Controls -->
+    <div class="cases-page-header">
+      <div class="cases-page-title-row">
+        <h1 class="page-title" style="margin-bottom:0">Caixas</h1>
+        <span class="cases-total-badge" id="cases-total-badge">...</span>
+      </div>
+
+      <!-- Search + Sort -->
+      <div class="cases-controls">
+        <div class="cases-search-wrap">
+          <svg class="cases-search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input type="text" id="cases-search" class="cases-search-input" placeholder="Buscar caixa...">
+        </div>
+        <div class="cases-sort-wrap">
+          <select id="cases-sort" class="cases-sort-select">
+            <option value="default">Padrão</option>
+            <option value="price-asc">Menor preço</option>
+            <option value="price-desc">Maior preço</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Category Filter Tabs -->
+      <div class="cases-filter-tabs" id="cases-filter-tabs">
+        <button class="filter-tab active" data-cat="all">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          Todas
+        </button>
+        <button class="filter-tab" data-cat="rifles">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12h4l2-3h8l2 3h4M6 12v4h12v-4M10 9V6h4v3"/></svg>
+          Fuzis
+        </button>
+        <button class="filter-tab" data-cat="pistols">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 11h10l2-2h6v4h-6l-1 1v4h-3v-4H3z"/></svg>
+          Pistolas
+        </button>
+        <button class="filter-tab" data-cat="snipers">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
+          Snipers
+        </button>
+        <button class="filter-tab" data-cat="smg">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 11h14l2-2h4v4h-4l-1 1v3h-2v-3H2z"/><path d="M6 11V8h4v3"/></svg>
+          SMG
+        </button>
+        <button class="filter-tab" data-cat="knives">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 19L19 5M19 5l-3 0M19 5l0 3M5 19l4-1l10-10"/></svg>
+          Facas
+        </button>
+        <button class="filter-tab" data-cat="premium">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+          Premium
+        </button>
+      </div>
+    </div>
+
+    <!-- Cases Grid -->
+    <div id="cases-grid">
       <div class="loading">Carregando caixas...</div>
     </div>
+
+    <!-- Empty state for filters -->
+    <div id="no-results" class="empty-state" style="display:none">
+      <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:1rem;opacity:0.4"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <p>Nenhuma caixa encontrada</p>
+    </div>
+
   </div>
 
   <script src="/js/api.js"></script>

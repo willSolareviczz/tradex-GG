@@ -1,10 +1,70 @@
+/**
+ * tradex-GG
+ * @author willSolareviczz
+ * @github https://github.com/willSolareviczz/tradex-GG
+ * @section backend
+ */
 const pool = require('../config/db');
 const { openCase } = require('../services/caseOpeningService');
+
+exports.createCase = async (req, res) => {
+  const client = await pool.connect();
+
+  try {
+    const { name, price, image_url, skins } = req.body;
+
+    if (!name || !price || !image_url || !skins || !Array.isArray(skins) || skins.length === 0) {
+      return res.status(400).json({ error: 'Campos obrigatórios: name, price, image_url, skins[]' });
+    }
+
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+    await client.query('BEGIN');
+
+    const caseResult = await client.query(
+      'INSERT INTO cases (name, slug, image_url, price) VALUES ($1, $2, $3, $4) RETURNING id',
+      [name, slug, image_url, Math.round(Number(price))]
+    );
+
+    const caseId = caseResult.rows[0].id;
+
+    for (const skin of skins) {
+      let skinId = skin.skin_id;
+
+      if (!skinId && skin.name) {
+        const skinResult = await client.query(
+          `INSERT INTO skins (name, weapon, skin_name, rarity, rarity_color, image_url, market_price)
+           VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
+          [skin.name, skin.weapon || '', skin.skin_name || skin.name, skin.rarity || 'consumer',
+           skin.rarity_color || '#b0c3d9', skin.image_url || '', Math.round(Number(skin.market_price || 0))]
+        );
+        skinId = skinResult.rows[0].id;
+      }
+
+      if (skinId) {
+        await client.query(
+          'INSERT INTO case_skins (case_id, skin_id, weight) VALUES ($1, $2, $3)',
+          [caseId, skinId, skin.weight || 100]
+        );
+      }
+    }
+
+    await client.query('COMMIT');
+
+    res.status(201).json({ message: 'Caixa criada com sucesso', case_id: caseId });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Erro ao criar caixa:', err);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  } finally {
+    client.release();
+  }
+};
 
 exports.listCases = async (req, res) => {
   try {
     const result = await pool.query(`
-      SELECT c.id, c.name, c.slug, c.image_url, c.price,
+      SELECT c.id, c.name, c.slug, c.image_url, c.price, c.category,
              top_skin.skin_image_url AS best_skin_image,
              top_skin.skin_name AS best_skin_name,
              top_skin.skin_rarity AS best_skin_rarity,
@@ -16,11 +76,11 @@ exports.listCases = async (req, res) => {
                s.name AS skin_name,
                s.rarity AS skin_rarity,
                s.rarity_color AS skin_rarity_color,
-               s.market_price AS skin_price
+               COALESCE(s.site_price, s.market_price) AS skin_price
         FROM case_skins cs
         JOIN skins s ON cs.skin_id = s.id
         WHERE cs.case_id = c.id
-        ORDER BY s.market_price DESC
+        ORDER BY COALESCE(s.site_price, s.market_price) DESC
         LIMIT 1
       ) top_skin ON true
       WHERE c.is_active = true
@@ -47,12 +107,14 @@ exports.getCaseDetail = async (req, res) => {
     }
 
     const skinsResult = await pool.query(
-      `SELECT s.id, s.name, s.weapon, s.skin_name, s.rarity, s.rarity_color,
-              s.image_url, s.market_price, cs.weight
+      `SELECT s.id, s.name, s.weapon, s.skin_name, s.wear, s.rarity, s.rarity_color,
+              s.image_url, s.market_price,
+              COALESCE(s.site_price, s.market_price) AS site_price,
+              cs.weight
        FROM case_skins cs
        JOIN skins s ON cs.skin_id = s.id
        WHERE cs.case_id = $1
-       ORDER BY cs.weight ASC`,
+       ORDER BY s.market_price DESC`,
       [id]
     );
 
@@ -75,6 +137,36 @@ exports.openCase = async (req, res) => {
       return res.status(err.status).json({ error: err.message });
     }
     console.error('Erro ao abrir caixa:', err);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+};
+
+// GET /api/cases/recent-drops - ultimos drops da comunidade para o feed ao vivo
+exports.recentDrops = async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT
+        o.id,
+        u.username,
+        s.name AS skin_name,
+        s.weapon,
+        s.skin_name AS skin_skin_name,
+        s.rarity,
+        s.rarity_color,
+        s.image_url,
+        COALESCE(s.site_price, s.market_price) AS price,
+        c.name AS case_name,
+        o.created_at
+      FROM openings o
+      JOIN users u ON o.user_id = u.id
+      JOIN skins s ON o.skin_id = s.id
+      JOIN cases c ON o.case_id = c.id
+      ORDER BY o.created_at DESC
+      LIMIT 30
+    `);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Erro ao buscar drops recentes:', err);
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 };
