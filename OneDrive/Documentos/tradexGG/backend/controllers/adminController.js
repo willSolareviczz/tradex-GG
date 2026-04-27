@@ -6,7 +6,6 @@
  */
 const pool = require('../config/db');
 const { updateSkinPrices } = require('../services/priceService');
-const pricempire = require('../services/pricempireService');
 
 // =====================================================
 // CASES CRUD
@@ -326,22 +325,8 @@ exports.triggerPriceUpdate = async (req, res) => {
   }
 };
 
-exports.getPricempireStatus = async (req, res) => {
-  try {
-    const configured = pricempire.isConfigured();
-    if (!configured) {
-      return res.json({
-        configured: false,
-        message: 'PRICEMPIRE_API_KEY nao configurada no .env',
-        docs: 'https://pricempire.com — crie conta gratuita > Settings > API',
-      });
-    }
-    const test = await pricempire.testConnection();
-    res.json({ configured: true, ...test });
-  } catch (err) {
-    console.error('Admin getPricempireStatus:', err);
-    res.status(500).json({ error: 'Erro interno' });
-  }
+exports.getPricempireStatus = (req, res) => {
+  res.json({ message: 'Pricempire removido. Fonte de precos: Skinport API.' });
 };
 
 exports.getPriceStatus = async (req, res) => {

@@ -5,7 +5,7 @@
  * @section backend
  */
 const pool = require('../config/db');
-const { openCase } = require('../services/caseOpeningService');
+const { openCase, openCaseBatch } = require('../services/caseOpeningService');
 
 exports.createCase = async (req, res) => {
   const client = await pool.connect();
@@ -128,6 +128,46 @@ exports.getCaseDetail = async (req, res) => {
   }
 };
 
+exports.searchSkins = async (req, res) => {
+  try {
+    const q = (req.query.q || '').trim();
+    if (q.length < 2) return res.json([]);
+
+    const terms = q.split(/\s+/).filter(Boolean);
+    const conditions = terms.map((_, i) =>
+      `(s.name ILIKE $${i + 1} OR s.weapon ILIKE $${i + 1})`
+    );
+    const params = terms.map(t => `%${t}%`);
+
+    const result = await pool.query(
+      `SELECT
+         s.id AS skin_id,
+         s.name AS skin_name,
+         s.weapon,
+         s.wear,
+         s.rarity,
+         s.rarity_color,
+         s.image_url AS skin_image,
+         COALESCE(s.site_price, s.market_price) AS price,
+         c.id   AS case_id,
+         c.name AS case_name,
+         c.image_url AS case_image
+       FROM skins s
+       JOIN case_skins cs ON cs.skin_id = s.id
+       JOIN cases c ON c.id = cs.case_id AND c.is_active = true
+       WHERE ${conditions.join(' AND ')}
+       ORDER BY COALESCE(s.site_price, s.market_price) DESC
+       LIMIT 10`,
+      params
+    );
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Erro ao buscar skins:', err);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+};
+
 exports.openCase = async (req, res) => {
   try {
     const result = await openCase(req.userId, parseInt(req.params.id));
@@ -137,6 +177,20 @@ exports.openCase = async (req, res) => {
       return res.status(err.status).json({ error: err.message });
     }
     console.error('Erro ao abrir caixa:', err);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+};
+
+exports.openBatch = async (req, res) => {
+  try {
+    const quantity = parseInt(req.body.quantity) || 1;
+    const result = await openCaseBatch(req.userId, parseInt(req.params.id), quantity);
+    res.json(result);
+  } catch (err) {
+    if (err.status) {
+      return res.status(err.status).json({ error: err.message });
+    }
+    console.error('Erro ao abrir caixas em lote:', err);
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 };

@@ -56,7 +56,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         : `<div class="card-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
             ${data.recent_openings.map(o => `
               <div class="skin-card" style="border-color: ${o.rarity_color}">
-                <img src="${o.image_url}" alt="${o.name}" class="skin-card-img">
+                <div class="skin-card-visual">
+                  <img src="/api/image/weapon-crop?url=${encodeURIComponent(o.image_url)}" alt="${o.name}" class="skin-card-img">
+                </div>
                 <div class="skin-card-info">
                   <div class="skin-card-name">${o.name}</div>
                   <div class="skin-card-rarity" style="color: ${o.rarity_color}">${o.rarity.replace('_', ' ')}</div>

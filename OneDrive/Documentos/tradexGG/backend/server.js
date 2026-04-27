@@ -18,14 +18,8 @@ const rankingRoutes = require('./routes/ranking');
 const historyRoutes = require('./routes/history');
 const walletRoutes = require('./routes/wallet');
 const adminRoutes = require('./routes/admin');
-const dailyRoutes = require('./routes/daily');
-const upgradeRoutes = require('./routes/upgrade');
-const crashRoutes = require('./routes/crash');
-const coinflipRoutes = require('./routes/coinflip');
-const rouletteGameRoutes = require('./routes/rouletteGame');
-const battleRoutes = require('./routes/battle');
+const imageProxyRoutes = require('./routes/imageProxy');
 const { startPriceUpdateLoop } = require('./services/priceService');
-const { startBotService } = require('./services/botService');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -44,12 +38,7 @@ app.use('/api/ranking', rankingRoutes);
 app.use('/api/history', historyRoutes);
 app.use('/api/wallet', walletRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/daily', dailyRoutes);
-app.use('/api/upgrade', upgradeRoutes);
-app.use('/api/crash', crashRoutes);
-app.use('/api/coinflip', coinflipRoutes);
-app.use('/api/roulette-game', rouletteGameRoutes);
-app.use('/api/battle', battleRoutes);
+app.use('/api/image', imageProxyRoutes);
 
 // SPA fallback - serve index.html for non-API routes
 app.get('/{*splat}', (req, res) => {
@@ -60,7 +49,5 @@ app.get('/{*splat}', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`tradexGG rodando na porta ${PORT}`);
-  // Iniciar loop de atualizacao de precos em background
   startPriceUpdateLoop();
-  startBotService();
 });

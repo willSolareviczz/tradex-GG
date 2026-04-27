@@ -34,7 +34,9 @@ async function loadInventory() {
       const wearText = wearLabels[item.wear] || item.wear || '';
       return `
       <div class="skin-card" style="border-color: ${item.rarity_color}">
-        <img src="${item.image_url}" alt="${item.name}" class="skin-card-img">
+        <div class="skin-card-visual">
+          <img src="/api/image/weapon-crop?url=${encodeURIComponent(item.image_url)}" alt="${item.name}" class="skin-card-img">
+        </div>
         <div class="skin-card-info">
           <div class="skin-card-name">${item.weapon} | ${item.skin_name}</div>
           <div class="skin-card-rarity-row">

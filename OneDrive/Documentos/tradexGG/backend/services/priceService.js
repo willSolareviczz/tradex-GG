@@ -5,160 +5,55 @@
  * @section backend
  */
 // =====================================================
-// tradexGG Price Service
+// tradexGG Price Service — Skinport
 //
-// Estrategia de precos (em ordem de prioridade):
-//   1. Waxpeer API    — bulk, gratuito, sem key, ~24k itens
-//   2. Pricempire API — bulk, requer plano pago
-//   3. Steam API      — fallback individual, rate limited
-//
-// market_price = referencia interna para calculos de EV (nunca alterado aqui)
-// site_price   = preco real exibido ao usuario (atualizado por este servico)
+// Fonte unica: api.skinport.com/v1/items
+// Busca todos os itens CS2 em BRL de uma vez (bulk).
+// site_price = min_price da Skinport * PRICE_ADJUST_FACTOR
 // =====================================================
 
-const pool       = require('../config/db');
-const waxpeer    = require('./waxpeerService');
-const pricempire = require('./pricempireService');
+const pool = require('../config/db');
 
+const SKINPORT_URL     = 'https://api.skinport.com/v1/items?app_id=730&currency=BRL';
 const PRICE_ADJUST_FACTOR = parseFloat(process.env.PRICE_ADJUST_FACTOR || '1.0');
 const PRICE_CACHE_HOURS   = parseInt(process.env.PRICE_CACHE_HOURS || '6');
-const STEAM_DELAY_MS      = 3200;
 
 let updateRunning = false;
 
-function calcSitePrice(rawPrice) {
-  return Math.max(1, Math.round(rawPrice * PRICE_ADJUST_FACTOR));
-}
+// Busca todos os precos da Skinport e retorna Map: market_hash_name -> centavos
+async function fetchSkinportPrices() {
+  const res = await fetch(SKINPORT_URL, {
+    headers: {
+      'Accept': 'application/json',
+      'Accept-Encoding': 'gzip,br,deflate',
+    },
+    signal: AbortSignal.timeout(30_000),
+  });
 
-// =====================================================
-// Fonte 1: Waxpeer (gratuito, bulk, sem autenticacao)
-// =====================================================
-async function updateViaWaxpeer(skins) {
-  console.log('[prices] Usando Waxpeer API (bulk, gratuito)...');
+  if (!res.ok) throw new Error(`Skinport API retornou ${res.status}`);
 
-  const hashNames = skins.map(s => s.market_hash_name).filter(Boolean);
-  const priceMap  = await waxpeer.fetchPricesForSkins(hashNames);
+  const items = await res.json();
+  if (!Array.isArray(items)) throw new Error('Skinport retornou resposta inesperada');
 
-  if (!priceMap || Object.keys(priceMap).length === 0) {
-    console.warn('[prices] Waxpeer nao retornou precos. Tentando proximo fallback...');
-    return false;
-  }
-
-  let updated = 0, notFound = 0;
-
-  for (const skin of skins) {
-    const raw = priceMap[skin.market_hash_name];
-    if (raw) {
-      const sitePrice = calcSitePrice(raw);
-      await pool.query(
-        `UPDATE skins SET market_price = $1, site_price = $1, price_updated_at = NOW() WHERE id = $2`,
-        [sitePrice, skin.id]
-      );
-      console.log(`[prices] ✓ [waxpeer] ${skin.name}: R$ ${(sitePrice / 100).toFixed(2)}`);
-      updated++;
-    } else {
-      console.warn(`[prices] ✗ [waxpeer] ${skin.name}: sem preco`);
-      notFound++;
+  const priceMap = new Map();
+  for (const item of items) {
+    if (item.market_hash_name && item.min_price != null && item.min_price > 0) {
+      const centavos = Math.max(1, Math.round(item.min_price * 100 * PRICE_ADJUST_FACTOR));
+      const imageUrl = item.icon_url
+        ? `https://community.akamai.steamstatic.com/economy/image/${item.icon_url}/960fx960f`
+        : null;
+      priceMap.set(item.market_hash_name, { price: centavos, imageUrl });
     }
   }
-
-  console.log(`[prices] Waxpeer: ${updated} atualizadas, ${notFound} sem preco`);
-  return updated > 0;
+  console.log(`[prices] Skinport: ${priceMap.size} itens carregados`);
+  return priceMap;
 }
 
-// =====================================================
-// Fonte 2: Pricempire (plano pago, bulk)
-// =====================================================
-async function updateViaPricempire(skins) {
-  console.log('[prices] Usando Pricempire API (bulk)...');
-
-  const hashNames = skins.map(s => s.market_hash_name).filter(Boolean);
-  const priceMap  = await pricempire.fetchPricesForSkins(hashNames);
-
-  if (!priceMap || Object.keys(priceMap).length === 0) {
-    console.warn('[prices] Pricempire nao retornou precos.');
-    return false;
-  }
-
-  let updated = 0, notFound = 0;
-
-  for (const skin of skins) {
-    const raw = priceMap[skin.market_hash_name];
-    if (raw) {
-      const sitePrice = calcSitePrice(raw);
-      await pool.query(
-        `UPDATE skins SET market_price = $1, site_price = $1, price_updated_at = NOW() WHERE id = $2`,
-        [sitePrice, skin.id]
-      );
-      console.log(`[prices] ✓ [pricempire] ${skin.name}: R$ ${(sitePrice / 100).toFixed(2)}`);
-      updated++;
-    } else {
-      console.warn(`[prices] ✗ [pricempire] ${skin.name}: sem preco`);
-      notFound++;
-    }
-  }
-
-  console.log(`[prices] Pricempire: ${updated} atualizadas, ${notFound} sem preco`);
-  return updated > 0;
-}
-
-// =====================================================
-// Fonte 3: Steam Market API (fallback individual, lento)
-// =====================================================
-async function fetchSteamPrice(marketHashName) {
-  try {
-    const encoded = encodeURIComponent(marketHashName);
-    const url = `https://steamcommunity.com/market/priceoverview/?currency=7&appid=730&market_hash_name=${encoded}`;
-    const res = await fetch(url, {
-      signal: AbortSignal.timeout(8000),
-      headers: { 'User-Agent': 'Mozilla/5.0' },
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    if (!data.success) return null;
-    const rawStr = data.median_price || data.lowest_price || '';
-    const cleaned = rawStr.replace('R$', '').replace(/\s/g, '').replace(/\./g, '').replace(',', '.');
-    const value = Math.round(parseFloat(cleaned) * 100);
-    return isNaN(value) || value <= 0 ? null : value;
-  } catch {
-    return null;
-  }
-}
-
-async function updateViaSteam(skins) {
-  console.log(`[prices] Usando Steam Market API (${skins.length} skins, lento)...`);
-  let updated = 0, failed = 0;
-
-  for (const skin of skins) {
-    const price = await fetchSteamPrice(skin.market_hash_name);
-    if (price !== null) {
-      const sitePrice = calcSitePrice(price);
-      await pool.query(
-        `UPDATE skins SET market_price = $1, site_price = $1, price_updated_at = NOW() WHERE id = $2`,
-        [sitePrice, skin.id]
-      );
-      console.log(`[prices] ✓ [steam] ${skin.name}: R$ ${(sitePrice / 100).toFixed(2)}`);
-      updated++;
-    } else {
-      if (!skin.site_price) {
-        await pool.query(`UPDATE skins SET site_price = $1 WHERE id = $2`, [calcSitePrice(skin.market_price), skin.id]);
-      }
-      console.warn(`[prices] ✗ [steam] ${skin.name}: falhou`);
-      failed++;
-    }
-    await new Promise(r => setTimeout(r, STEAM_DELAY_MS));
-  }
-
-  console.log(`[prices] Steam: ${updated} atualizadas, ${failed} falhas`);
-}
-
-// =====================================================
-// Atualizar precos de todas as skins
-// =====================================================
+// Atualiza site_price de todas as skins que precisam de atualizacao
 async function updateSkinPrices({ force = false } = {}) {
   if (updateRunning) {
     console.log('[prices] Atualizacao ja em andamento, ignorando');
-    return { updated: 0, failed: 0, skipped: 0 };
+    return { updated: 0, notFound: 0, skipped: 0 };
   }
 
   updateRunning = true;
@@ -170,67 +65,79 @@ async function updateSkinPrices({ force = false } = {}) {
          AND (price_updated_at IS NULL OR price_updated_at < NOW() - INTERVAL '${PRICE_CACHE_HOURS} hours')`;
 
     const { rows: skins } = await pool.query(
-      `SELECT id, name, market_hash_name, market_price, site_price FROM skins ${whereClause} ORDER BY id`
+      `SELECT id, name, market_hash_name, image_url FROM skins ${whereClause} ORDER BY id`
     );
 
     if (skins.length === 0) {
       console.log('[prices] Nenhuma skin precisa de atualizacao');
-      return { updated: 0, failed: 0, skipped: 0 };
+      return { updated: 0, notFound: 0, skipped: 0 };
     }
 
-    console.log(`[prices] Atualizando ${skins.length} skins...`);
+    console.log(`[prices] Atualizando ${skins.length} skins via Skinport...`);
 
-    // 1. Tentar Waxpeer (gratuito, sem key)
-    const waxpeerOk = await updateViaWaxpeer(skins);
-    if (waxpeerOk) return { updated: skins.length, failed: 0, skipped: 0 };
+    const priceMap = await fetchSkinportPrices();
 
-    // 2. Tentar Pricempire (plano pago)
-    if (pricempire.isConfigured()) {
-      const pricempireOk = await updateViaPricempire(skins);
-      if (pricempireOk) return { updated: skins.length, failed: 0, skipped: 0 };
+    let updated = 0, notFound = 0;
+
+    for (const skin of skins) {
+      const entry = priceMap.get(skin.market_hash_name);
+      if (entry != null) {
+        const { price, imageUrl } = entry;
+        if (imageUrl && !skin.image_url) {
+          await pool.query(
+            `UPDATE skins SET site_price = $1, image_url = $2, price_updated_at = NOW() WHERE id = $3`,
+            [price, imageUrl, skin.id]
+          );
+        } else {
+          await pool.query(
+            `UPDATE skins SET site_price = $1, price_updated_at = NOW() WHERE id = $2`,
+            [price, skin.id]
+          );
+        }
+        console.log(`[prices] ✓ ${skin.name}: R$ ${(price / 100).toFixed(2)}`);
+        updated++;
+      } else {
+        console.warn(`[prices] ✗ ${skin.name}: nao encontrado na Skinport`);
+        notFound++;
+      }
     }
 
-    // 3. Fallback: Steam API individual (lento)
-    await updateViaSteam(skins);
-    return { updated: skins.length, failed: 0, skipped: 0 };
+    console.log(`[prices] Concluido: ${updated} atualizadas, ${notFound} nao encontradas`);
+    return { updated, notFound, skipped: 0 };
 
   } finally {
     updateRunning = false;
   }
 }
 
-// =====================================================
-// Garantir que todas as skins tem site_price preenchido
-// =====================================================
+// Garante que todas as skins tenham site_price preenchido (fallback para market_price)
 async function ensureSitePrices() {
   try {
     const result = await pool.query(
       `UPDATE skins SET site_price = market_price WHERE site_price IS NULL`
     );
     if (result.rowCount > 0) {
-      console.log(`[prices] ${result.rowCount} skins sem site_price corrigidas`);
+      console.log(`[prices] ${result.rowCount} skins sem site_price corrigidas com market_price`);
     }
   } catch (err) {
     console.error('[prices] Erro ao garantir site_price:', err.message);
   }
 }
 
-// =====================================================
-// Iniciar ciclo automatico de atualizacao de precos
-// =====================================================
+// Inicia ciclo automatico de atualizacao de precos
 function startPriceUpdateLoop() {
   ensureSitePrices();
-  console.log('[prices] Fonte: Waxpeer (gratuito) → Pricempire → Steam API (fallback)');
+  console.log('[prices] Fonte: Skinport API (bulk, BRL)');
 
   setTimeout(async () => {
     console.log('[prices] Iniciando primeira atualizacao de precos...');
-    await updateSkinPrices();
+    await updateSkinPrices().catch(err => console.error('[prices] Erro na primeira atualizacao:', err.message));
 
     setInterval(() => {
       console.log('[prices] Ciclo automatico de atualizacao de precos');
-      updateSkinPrices();
+      updateSkinPrices().catch(err => console.error('[prices] Erro no ciclo automatico:', err.message));
     }, PRICE_CACHE_HOURS * 60 * 60 * 1000);
   }, 10_000);
 }
 
-module.exports = { updateSkinPrices, ensureSitePrices, startPriceUpdateLoop, calcSitePrice };
+module.exports = { updateSkinPrices, ensureSitePrices, startPriceUpdateLoop, fetchSkinportPrices };
