@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="360" viewBox="0 0 512 360">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#050a0f"/>
+      <stop offset="50%" style="stop-color:#0a1a12"/>
+      <stop offset="100%" style="stop-color:#061210"/>
+    </linearGradient>
+    <linearGradient id="glow1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00ff88;stop-opacity:0"/>
+      <stop offset="50%" style="stop-color:#00ff88;stop-opacity:0.8"/>
+      <stop offset="100%" style="stop-color:#00ff88;stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="weapon" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00ff88"/>
+      <stop offset="100%" style="stop-color:#00aa55"/>
+    </linearGradient>
+    <linearGradient id="caseGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#00ff88;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#00aa55;stop-opacity:0.05"/>
+    </linearGradient>
+    <filter id="neon">
+      <feGaussianBlur stdDeviation="6" result="blur1"/>
+      <feGaussianBlur stdDeviation="12" result="blur2"/>
+      <feMerge>
+        <feMergeNode in="blur2"/>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="softGlow">
+      <feGaussianBlur stdDeviation="20" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="innerGlow">
+      <feGaussianBlur stdDeviation="3"/>
+    </filter>
+    <clipPath id="caseClip">
+      <rect x="30" y="40" width="452" height="240" rx="12"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="360" fill="url(#bg)" rx="16"/>
+
+  <!-- Background energy lines -->
+  <g opacity="0.15">
+    <line x1="0" y1="180" x2="512" y2="180" stroke="#00ff88" stroke-width="0.5"/>
+    <line x1="0" y1="120" x2="512" y2="200" stroke="#00ff88" stroke-width="0.3"/>
+    <line x1="0" y1="240" x2="512" y2="160" stroke="#00ff88" stroke-width="0.3"/>
+    <line x1="256" y1="0" x2="256" y2="360" stroke="#00ff88" stroke-width="0.3"/>
+  </g>
+
+  <!-- Central glow orb -->
+  <ellipse cx="256" cy="160" rx="180" ry="100" fill="#00ff88" opacity="0.04" filter="url(#softGlow)"/>
+
+  <!-- Case body -->
+  <g clip-path="url(#caseClip)">
+    <rect x="30" y="40" width="452" height="240" rx="12" fill="url(#caseGrad)"/>
+
+    <!-- Diagonal stripes pattern -->
+    <g opacity="0.06">
+      <line x1="80" y1="40" x2="180" y2="280" stroke="#00ff88" stroke-width="30"/>
+      <line x1="180" y1="40" x2="280" y2="280" stroke="#00ff88" stroke-width="30"/>
+      <line x1="280" y1="40" x2="380" y2="280" stroke="#00ff88" stroke-width="30"/>
+      <line x1="380" y1="40" x2="480" y2="280" stroke="#00ff88" stroke-width="30"/>
+    </g>
+
+    <!-- AK-47 silhouette -->
+    <g transform="translate(80, 80) scale(0.85)" filter="url(#neon)">
+      <path d="M40,95 L40,80 L55,80 L55,70 L70,60 L85,60 L90,55 L95,55 L95,50 L105,45 L115,45 L115,50 L130,50 L145,48 L160,48 L180,46 L200,45 L240,44 L280,43 L310,43 L340,44 L360,45 L370,48 L375,55 L380,55 L385,60 L385,65 L380,70 L375,70 L370,75 L340,80 L330,85 L320,85 L310,80 L300,80 L280,82 L260,82 L240,80 L200,78 L180,78 L160,80 L140,82 L120,85 L110,88 L105,92 L100,95 L95,100 L90,105 L85,105 L80,100 L75,100 L70,95 Z"
+            fill="url(#weapon)" opacity="0.7"/>
+      <!-- Magazine -->
+      <path d="M130,82 L140,82 L145,110 L150,130 L145,135 L130,135 L125,130 L128,110 Z"
+            fill="url(#weapon)" opacity="0.5"/>
+    </g>
+
+    <!-- Floating particles -->
+    <circle cx="100" cy="80" r="2" fill="#00ff88" opacity="0.6">
+      <animate attributeName="cy" values="80;60;80" dur="3s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.6;0.2;0.6" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="400" cy="120" r="1.5" fill="#00ff88" opacity="0.4">
+      <animate attributeName="cy" values="120;90;120" dur="4s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="300" cy="200" r="1" fill="#00ff88" opacity="0.5">
+      <animate attributeName="cy" values="200;180;200" dur="2.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="150" cy="220" r="1.5" fill="#00ff88" opacity="0.3">
+      <animate attributeName="cy" values="220;200;220" dur="3.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="450" cy="180" r="1" fill="#00ff88" opacity="0.5">
+      <animate attributeName="cy" values="180;160;180" dur="2s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- Case border -->
+  <rect x="30" y="40" width="452" height="240" rx="12" fill="none" stroke="#00ff88" stroke-width="2" opacity="0.5"/>
+
+  <!-- Top highlight line -->
+  <line x1="60" y1="40" x2="452" y2="40" stroke="url(#glow1)" stroke-width="2"/>
+
+  <!-- Bottom highlight line -->
+  <line x1="60" y1="280" x2="452" y2="280" stroke="url(#glow1)" stroke-width="1.5"/>
+
+  <!-- Corner accents -->
+  <path d="M30,60 L30,40 L50,40" fill="none" stroke="#00ff88" stroke-width="3" opacity="0.8"/>
+  <path d="M482,60 L482,40 L462,40" fill="none" stroke="#00ff88" stroke-width="3" opacity="0.8"/>
+  <path d="M30,260 L30,280 L50,280" fill="none" stroke="#00ff88" stroke-width="3" opacity="0.8"/>
+  <path d="M482,260 L482,280 L462,280" fill="none" stroke="#00ff88" stroke-width="3" opacity="0.8"/>
+
+  <!-- Case label background -->
+  <rect x="156" y="295" width="200" height="50" rx="8" fill="#0d1a14" stroke="#00ff88" stroke-width="1" opacity="0.9"/>
+
+  <!-- Case name -->
+  <text x="256" y="318" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-weight="800" font-size="20" fill="#00ff88" letter-spacing="4" filter="url(#neon)">KILOWATT</text>
+  <text x="256" y="336" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-weight="400" font-size="10" fill="#8b949e" letter-spacing="3">CASE</text>
+
+  <!-- Electric bolt accents -->
+  <g filter="url(#neon)" opacity="0.6">
+    <path d="M60,160 L70,150 L65,160 L75,150" fill="none" stroke="#00ff88" stroke-width="1.5"/>
+    <path d="M440,160 L450,150 L445,160 L455,150" fill="none" stroke="#00ff88" stroke-width="1.5"/>
+  </g>
+</svg>

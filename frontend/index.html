@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>tradexGG - Abertura de Caixas CS2</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/loader.css">
+</head>
+<body>
+
+  <!-- ── Hero Banner ───────────────────────────────────────────── -->
+  <section class="hero-banner">
+    <!-- Background -->
+    <div class="hero-banner-bg"></div>
+    <div class="hero-banner-overlay"></div>
+
+    <!-- Decorative corner brackets -->
+    <div class="hero-corner hero-corner--tl"></div>
+    <div class="hero-corner hero-corner--tr"></div>
+    <div class="hero-corner hero-corner--bl"></div>
+    <div class="hero-corner hero-corner--br"></div>
+
+    <!-- HUD labels -->
+    <div class="hero-hud-label hero-hud-label--tl">CS2 &middot; ARMARIA BR</div>
+    <div class="hero-hud-label hero-hud-label--bl">tradexGG &middot; v1.0</div>
+    <div class="hero-hud-label hero-hud-label--br">MODO: NORMAL</div>
+
+    <!-- CT character — left -->
+    <div class="hero-char hero-char--left">
+      <img
+        src="https://cdn.akamai.steamstatic.com/apps/730/icons/econ/characters/ctm_swat.8ed07cccd827e1aa2cdfecf0df54680c7a1e06da.png"
+        alt="CT Agent"
+        class="hero-char-img"
+        onerror="this.style.display='none'"
+      >
+    </div>
+
+    <!-- T character — right -->
+    <div class="hero-char hero-char--right">
+      <img
+        src="https://cdn.akamai.steamstatic.com/apps/730/icons/econ/characters/tm_separatist.8490de1c03fb0b6e7fb60b9fce9b9da0a72a4bba.png"
+        alt="T Agent"
+        class="hero-char-img"
+        onerror="this.style.display='none'"
+      >
+    </div>
+
+    <!-- Central content -->
+    <div class="hero-banner-content">
+      <span class="hero-badge"><span class="live-dot"></span>SERVER LIVE &middot; BR-01</span>
+
+      <div class="hero-title-wrap">
+        <h1 class="hero-title">tradex<span>GG</span></h1>
+        <div class="hero-title-line"></div>
+      </div>
+
+      <p class="hero-sub">Abra caixas. Saque skins. Converta em saldo.</p>
+
+      <div class="hero-actions">
+        <a href="/cases.html" class="btn btn-primary btn-lg">Acessar Caixas</a>
+        <a href="/ranking.html" class="btn btn-ghost btn-lg">Ver Ranking</a>
+      </div>
+
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <span class="hero-stat-value" id="stat-cases">—</span>
+          <span class="hero-stat-label">Caixas</span>
+        </div>
+        <div class="hero-stat-sep"></div>
+        <div class="hero-stat">
+          <span class="hero-stat-value" id="stat-drops">—</span>
+          <span class="hero-stat-label">Drops recentes</span>
+        </div>
+        <div class="hero-stat-sep"></div>
+        <div class="hero-stat">
+          <span class="hero-stat-value">BR-01</span>
+          <span class="hero-stat-label">Servidor</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Latest drops ──────────────────────────────────────────── -->
+  <section class="latest-drops" id="latest-drops">
+    <h3>Últimos Drops</h3>
+    <div class="drops-ticker" id="drops-ticker">
+      <div class="loading">Carregando...</div>
+    </div>
+  </section>
+
+  <!-- ── Cases grid ────────────────────────────────────────────── -->
+  <div class="container">
+    <h2 class="page-title" style="margin-top: 1rem;">Caixas Disponíveis</h2>
+    <div id="home-cases">
+      <div class="loading">Carregando caixas...</div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/cases.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const cases = await apiFetch('/cases');
+        const statCases = document.getElementById('stat-cases');
+        if (statCases) statCases.textContent = cases.length;
+        const container = document.getElementById('home-cases');
+        if (cases.length === 0) {
+          container.innerHTML = '<div class="empty-state"><p>Nenhuma caixa disponivel no momento.</p></div>';
+          return;
+        }
+        const grouped = { rifles:[], pistols:[], snipers:[], smg:[], knives:[], premium:[] };
+        cases.forEach(c => {
+          const cat = c.category || 'rifles';
+          if (grouped[cat]) grouped[cat].push(c);
+          else grouped.rifles.push(c);
+        });
+        let html = '';
+        Object.entries(grouped).forEach(([catKey, catCases]) => {
+          if (catCases.length === 0) return;
+          const colors = caseColors[catKey] || caseColors.rifles;
+          html += `
+            <div class="category-section">
+              <div class="category-header">
+                <span class="category-icon">${categoryIcons[catKey] || ''}</span>
+                <span class="category-title">${categoryLabels[catKey]}</span>
+                <span class="category-count">${catCases.length} ${catCases.length === 1 ? 'caixa' : 'caixas'}</span>
+              </div>
+              <div class="card-grid">
+                ${catCases.map((c, i) => buildCaseCard(c, colors[i % colors.length])).join('')}
+              </div>
+            </div>
+          `;
+        });
+        container.innerHTML = html;
+      } catch {
+        document.getElementById('home-cases').innerHTML = '<div class="empty-state"><p>Erro ao carregar caixas.</p></div>';
+      }
+
+      try {
+        const drops = await apiFetch('/ranking');
+        const statDrops = document.getElementById('stat-drops');
+        if (statDrops) statDrops.textContent = drops.length > 0 ? drops.length : '—';
+        const ticker = document.getElementById('drops-ticker');
+        if (drops.length === 0) {
+          ticker.innerHTML = '<div style="color: var(--text-secondary); padding: 0 2rem;">Nenhum drop ainda. Seja o primeiro!</div>';
+          return;
+        }
+        ticker.innerHTML = drops.slice(0, 15).map(d => `
+          <div class="drop-item">
+            <img src="${d.image_url}" alt="${d.skin_name}">
+            <div class="drop-item-info">
+              <div class="drop-item-user">${d.username}</div>
+              <div class="drop-item-skin" style="color: ${d.rarity_color}">${d.skin_name}</div>
+            </div>
+          </div>
+        `).join('');
+      } catch {
+        document.getElementById('drops-ticker').innerHTML = '';
+      }
+    });
+  </script>
+</body>
+</html>

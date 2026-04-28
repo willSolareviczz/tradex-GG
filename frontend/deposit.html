@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Depositar - tradexGG</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/loader.css">
+</head>
+<body>
+  <div class="container">
+    <div class="form-container" style="max-width: 500px;">
+      <div class="card">
+        <h2>Adicionar Saldo</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.9rem; text-align: center;">
+          Adicione saldo virtual à sua conta para abrir caixas.
+        </p>
+
+        <div class="deposit-amounts" id="preset-amounts">
+          <button class="deposit-amount-btn" data-amount="500">R$5</button>
+          <button class="deposit-amount-btn" data-amount="1000">R$10</button>
+          <button class="deposit-amount-btn" data-amount="2500">R$25</button>
+          <button class="deposit-amount-btn" data-amount="5000">R$50</button>
+          <button class="deposit-amount-btn" data-amount="10000">R$100</button>
+          <button class="deposit-amount-btn" data-amount="50000">R$500</button>
+        </div>
+
+        <div class="form-group">
+          <label for="custom-amount">Ou digite um valor personalizado:</label>
+          <input type="number" id="custom-amount" placeholder="Valor em R$" min="1" step="0.01">
+        </div>
+
+        <button class="btn btn-primary" style="width: 100%; padding: 0.8rem; font-size: 1rem;" id="btn-deposit">
+          Adicionar Saldo
+        </button>
+
+        <div id="deposit-result" style="display: none; margin-top: 1.5rem; text-align: center;"></div>
+      </div>
+
+      <!-- Transaction history -->
+      <div class="card" style="margin-top: 1.5rem;">
+        <h3 style="margin-bottom: 1rem;">Histórico de Transações</h3>
+        <div id="transactions-list">
+          <div class="loading">Carregando...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script>
+    let selectedAmount = 0;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!isLoggedIn()) {
+        window.location.href = '/login.html';
+        return;
+      }
+
+      // Preset amount buttons
+      document.querySelectorAll('.deposit-amount-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.deposit-amount-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          selectedAmount = parseInt(btn.dataset.amount);
+          document.getElementById('custom-amount').value = '';
+        });
+      });
+
+      // Custom amount clears preset selection
+      document.getElementById('custom-amount').addEventListener('input', () => {
+        document.querySelectorAll('.deposit-amount-btn').forEach(b => b.classList.remove('active'));
+        selectedAmount = 0;
+      });
+
+      // Deposit button
+      document.getElementById('btn-deposit').addEventListener('click', handleDeposit);
+
+      // Load transactions
+      await loadTransactions();
+    });
+
+    async function handleDeposit() {
+      const customInput = document.getElementById('custom-amount');
+      const customVal = parseFloat(customInput.value);
+      const amount = selectedAmount || (customVal ? Math.round(customVal * 100) : 0);
+
+      if (!amount || amount < 100) {
+        showToast('Valor mínimo: R$1,00', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('btn-deposit');
+      btn.disabled = true;
+      btn.textContent = 'Processando...';
+
+      try {
+        const result = await apiFetch('/wallet/deposit', {
+          method: 'POST',
+          body: JSON.stringify({ amount }),
+        });
+
+        // Update navbar balance
+        const balEl = document.getElementById('nav-balance');
+        if (balEl) balEl.textContent = formatPrice(result.new_balance);
+
+        // Update stored user
+        const user = getUser();
+        if (user) {
+          user.balance = result.new_balance;
+          localStorage.setItem('tradexgg_user', JSON.stringify(user));
+        }
+
+        showToast(`${formatPrice(result.added)} adicionado ao saldo!`);
+
+        // Reset form
+        selectedAmount = 0;
+        customInput.value = '';
+        document.querySelectorAll('.deposit-amount-btn').forEach(b => b.classList.remove('active'));
+
+        // Reload transactions
+        await loadTransactions();
+      } catch (err) {
+        showToast(err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Adicionar Saldo';
+      }
+    }
+
+    async function loadTransactions() {
+      const container = document.getElementById('transactions-list');
+
+      try {
+        const txs = await apiFetch('/wallet/transactions');
+
+        if (txs.length === 0) {
+          container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 1rem;">Nenhuma transação ainda.</p>';
+          return;
+        }
+
+        const typeLabels = {
+          deposit: { label: 'Depósito', color: 'var(--accent)', prefix: '+' },
+          case_open: { label: 'Abertura', color: 'var(--danger)', prefix: '-' },
+          sell: { label: 'Venda', color: 'var(--accent)', prefix: '+' },
+        };
+
+        container.innerHTML = txs.map(tx => {
+          const date = new Date(tx.created_at);
+          const dateStr = date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+          const info = typeLabels[tx.type] || { label: tx.type, color: 'var(--text-secondary)', prefix: '' };
+
+          return `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid var(--border);">
+              <div>
+                <div style="font-weight: 600; font-size: 0.85rem;">${info.label}</div>
+                <div style="font-size: 0.75rem; color: var(--text-secondary);">${tx.description} &middot; ${dateStr}</div>
+              </div>
+              <div style="font-weight: 700; color: ${info.color};">${info.prefix}${formatPrice(tx.amount)}</div>
+            </div>
+          `;
+        }).join('');
+      } catch {
+        container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">Erro ao carregar transações.</p>';
+      }
+    }
+  </script>
+</body>
+</html>

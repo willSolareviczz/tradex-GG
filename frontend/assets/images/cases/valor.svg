@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="360" viewBox="0 0 512 360">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#151005"/>
+      <stop offset="50%" style="stop-color:#1a1508"/>
+      <stop offset="100%" style="stop-color:#121005"/>
+    </linearGradient>
+    <linearGradient id="glow1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#f0c040;stop-opacity:0"/>
+      <stop offset="50%" style="stop-color:#f0c040;stop-opacity:0.8"/>
+      <stop offset="100%" style="stop-color:#f0c040;stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="weapon" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffe060"/>
+      <stop offset="50%" style="stop-color:#f0c040"/>
+      <stop offset="100%" style="stop-color:#c09020"/>
+    </linearGradient>
+    <linearGradient id="caseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f0c040;stop-opacity:0.2"/>
+      <stop offset="50%" style="stop-color:#e4ae39;stop-opacity:0.1"/>
+      <stop offset="100%" style="stop-color:#c09020;stop-opacity:0.05"/>
+    </linearGradient>
+    <filter id="neon">
+      <feGaussianBlur stdDeviation="6" result="blur1"/>
+      <feGaussianBlur stdDeviation="12" result="blur2"/>
+      <feMerge>
+        <feMergeNode in="blur2"/>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="softGlow">
+      <feGaussianBlur stdDeviation="25"/>
+    </filter>
+    <clipPath id="caseClip">
+      <rect x="30" y="40" width="452" height="240" rx="12"/>
+    </clipPath>
+  </defs>
+
+  <rect width="512" height="360" fill="url(#bg)" rx="16"/>
+
+  <!-- Background diamond/luxury pattern -->
+  <g opacity="0.06">
+    <polygon points="256,60 296,160 256,260 216,160" fill="none" stroke="#f0c040" stroke-width="1"/>
+    <polygon points="256,90 280,160 256,230 232,160" fill="none" stroke="#f0c040" stroke-width="0.8"/>
+    <polygon points="256,120 264,160 256,200 248,160" fill="none" stroke="#f0c040" stroke-width="0.5"/>
+  </g>
+
+  <ellipse cx="256" cy="155" rx="190" ry="100" fill="#f0c040" opacity="0.04" filter="url(#softGlow)"/>
+
+  <g clip-path="url(#caseClip)">
+    <rect x="30" y="40" width="452" height="240" rx="12" fill="url(#caseGrad)"/>
+
+    <!-- Luxury rays -->
+    <g opacity="0.04">
+      <line x1="256" y1="160" x2="50" y2="40" stroke="#f0c040" stroke-width="20"/>
+      <line x1="256" y1="160" x2="462" y2="40" stroke="#f0c040" stroke-width="20"/>
+      <line x1="256" y1="160" x2="50" y2="280" stroke="#f0c040" stroke-width="20"/>
+      <line x1="256" y1="160" x2="462" y2="280" stroke="#f0c040" stroke-width="20"/>
+    </g>
+
+    <!-- AWP silhouette (high value) -->
+    <g transform="translate(50, 70) scale(0.95)" filter="url(#neon)">
+      <path d="M20,105 L20,90 L35,85 L45,80 L60,75 L85,70 L120,65 L160,62 L200,60 L240,58 L280,57 L310,57 L340,58 L360,60 L370,55 L380,50 L385,48 L390,48 L392,52 L390,58 L385,62 L375,66 L360,68 L340,70 L310,72 L280,73 L250,74 L220,75 L190,77 L160,80 L130,83 L100,87 L80,92 L65,98 L55,105 L45,110 L40,115 L35,118 L30,115 L25,108 Z"
+            fill="url(#weapon)" opacity="0.65"/>
+      <!-- Bipod -->
+      <path d="M100,87 L95,105 L90,115 M100,87 L110,105 L115,115" fill="none" stroke="#f0c040" stroke-width="1.5" opacity="0.3"/>
+      <!-- Scope -->
+      <circle cx="355" cy="44" r="14" fill="none" stroke="#f0c040" stroke-width="2" opacity="0.4"/>
+      <line x1="355" y1="32" x2="355" y2="56" stroke="#f0c040" stroke-width="0.8" opacity="0.3"/>
+      <line x1="343" y1="44" x2="367" y2="44" stroke="#f0c040" stroke-width="0.8" opacity="0.3"/>
+      <!-- Stock -->
+      <path d="M20,90 L15,88 L5,92 L2,100 L5,108 L15,110 L20,105 Z"
+            fill="url(#weapon)" opacity="0.5"/>
+    </g>
+
+    <!-- Gold sparkles -->
+    <g fill="#ffe060">
+      <circle cx="420" cy="80" r="2" opacity="0.6">
+        <animate attributeName="opacity" values="0.6;0.2;0.6" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="380" cy="200" r="1.5" opacity="0.4">
+        <animate attributeName="opacity" values="0.4;0.1;0.4" dur="3s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="100" cy="220" r="1.5" opacity="0.5">
+        <animate attributeName="opacity" values="0.5;0.15;0.5" dur="2.5s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="60" cy="100" r="1" opacity="0.3">
+        <animate attributeName="opacity" values="0.3;0.1;0.3" dur="3.5s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="450" cy="150" r="1" opacity="0.4">
+        <animate attributeName="opacity" values="0.4;0.1;0.4" dur="2s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+
+    <!-- Crown accent -->
+    <g transform="translate(390, 60)" opacity="0.12" fill="#f0c040">
+      <path d="M0,25 L5,5 L15,15 L25,0 L35,15 L45,5 L50,25 Z"/>
+    </g>
+  </g>
+
+  <rect x="30" y="40" width="452" height="240" rx="12" fill="none" stroke="#f0c040" stroke-width="2" opacity="0.45"/>
+  <line x1="60" y1="40" x2="452" y2="40" stroke="url(#glow1)" stroke-width="2"/>
+  <line x1="60" y1="280" x2="452" y2="280" stroke="url(#glow1)" stroke-width="1.5"/>
+
+  <path d="M30,60 L30,40 L50,40" fill="none" stroke="#f0c040" stroke-width="3" opacity="0.8"/>
+  <path d="M482,60 L482,40 L462,40" fill="none" stroke="#f0c040" stroke-width="3" opacity="0.8"/>
+  <path d="M30,260 L30,280 L50,280" fill="none" stroke="#f0c040" stroke-width="3" opacity="0.8"/>
+  <path d="M482,260 L482,280 L462,280" fill="none" stroke="#f0c040" stroke-width="3" opacity="0.8"/>
+
+  <rect x="166" y="295" width="180" height="50" rx="8" fill="#121005" stroke="#f0c040" stroke-width="1" opacity="0.9"/>
+  <text x="256" y="318" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-weight="800" font-size="22" fill="#f0c040" letter-spacing="5" filter="url(#neon)">VALOR</text>
+  <text x="256" y="336" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-weight="400" font-size="10" fill="#8b949e" letter-spacing="3">CASE</text>
+</svg>

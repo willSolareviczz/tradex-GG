@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="360" viewBox="0 0 512 360">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0515"/>
+      <stop offset="50%" style="stop-color:#120a20"/>
+      <stop offset="100%" style="stop-color:#0d0818"/>
+    </linearGradient>
+    <linearGradient id="glow1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#d32ce6;stop-opacity:0"/>
+      <stop offset="50%" style="stop-color:#d32ce6;stop-opacity:0.8"/>
+      <stop offset="100%" style="stop-color:#d32ce6;stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="weapon" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e040f0"/>
+      <stop offset="50%" style="stop-color:#d32ce6"/>
+      <stop offset="100%" style="stop-color:#8818a0"/>
+    </linearGradient>
+    <linearGradient id="weapon2" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#4444ff"/>
+      <stop offset="100%" style="stop-color:#2222aa"/>
+    </linearGradient>
+    <linearGradient id="caseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#d32ce6;stop-opacity:0.2"/>
+      <stop offset="50%" style="stop-color:#4444ff;stop-opacity:0.1"/>
+      <stop offset="100%" style="stop-color:#d32ce6;stop-opacity:0.05"/>
+    </linearGradient>
+    <filter id="neon">
+      <feGaussianBlur stdDeviation="6" result="blur1"/>
+      <feGaussianBlur stdDeviation="12" result="blur2"/>
+      <feMerge>
+        <feMergeNode in="blur2"/>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="softGlow">
+      <feGaussianBlur stdDeviation="25"/>
+    </filter>
+    <clipPath id="caseClip">
+      <rect x="30" y="40" width="452" height="240" rx="12"/>
+    </clipPath>
+  </defs>
+
+  <rect width="512" height="360" fill="url(#bg)" rx="16"/>
+
+  <!-- Background swirls -->
+  <g opacity="0.08">
+    <circle cx="150" cy="150" r="120" fill="none" stroke="#d32ce6" stroke-width="0.5"/>
+    <circle cx="150" cy="150" r="90" fill="none" stroke="#d32ce6" stroke-width="0.5"/>
+    <circle cx="360" cy="180" r="100" fill="none" stroke="#4444ff" stroke-width="0.5"/>
+    <circle cx="360" cy="180" r="70" fill="none" stroke="#4444ff" stroke-width="0.5"/>
+  </g>
+
+  <!-- Dual glow orbs -->
+  <ellipse cx="180" cy="140" rx="120" ry="80" fill="#d32ce6" opacity="0.05" filter="url(#softGlow)"/>
+  <ellipse cx="340" cy="170" rx="120" ry="80" fill="#4444ff" opacity="0.04" filter="url(#softGlow)"/>
+
+  <g clip-path="url(#caseClip)">
+    <rect x="30" y="40" width="452" height="240" rx="12" fill="url(#caseGrad)"/>
+
+    <!-- Smoke/cloud effect -->
+    <g opacity="0.06">
+      <ellipse cx="200" cy="160" rx="100" ry="60" fill="#d32ce6"/>
+      <ellipse cx="320" cy="140" rx="80" ry="50" fill="#4444ff"/>
+      <ellipse cx="260" cy="180" rx="120" ry="40" fill="#8818a0"/>
+    </g>
+
+    <!-- Knife silhouette (dreams side) -->
+    <g transform="translate(60, 60) scale(0.8)" filter="url(#neon)">
+      <path d="M60,140 L65,130 L75,110 L85,90 L100,70 L115,55 L130,48 L140,45 L145,48 L145,55 L140,65 L135,80 L130,95 L125,110 L120,125 L115,135 L110,140 L100,145 L85,148 L70,145 Z"
+            fill="url(#weapon)" opacity="0.65"/>
+      <!-- Handle -->
+      <path d="M60,140 L55,145 L50,155 L48,165 L50,170 L58,172 L68,170 L75,165 L78,155 L75,148 L70,145 Z"
+            fill="#d32ce6" opacity="0.5"/>
+    </g>
+
+    <!-- AWP silhouette (nightmares side) -->
+    <g transform="translate(200, 70) scale(0.8)" filter="url(#neon)">
+      <path d="M20,100 L20,85 L35,85 L40,78 L50,75 L65,72 L90,68 L120,65 L160,62 L200,60 L230,60 L250,62 L260,58 L270,55 L275,52 L280,52 L282,58 L280,62 L275,68 L265,72 L250,75 L230,78 L200,80 L170,80 L140,82 L110,85 L85,88 L70,92 L55,98 L45,102 L40,105 L35,105 L30,100 Z"
+            fill="url(#weapon2)" opacity="0.55"/>
+      <!-- Scope -->
+      <circle cx="250" cy="48" r="10" fill="none" stroke="#4444ff" stroke-width="1.5" opacity="0.5"/>
+    </g>
+
+    <!-- Divider line (dreams | nightmares) -->
+    <line x1="256" y1="50" x2="256" y2="270" stroke="#ffffff" stroke-width="0.5" opacity="0.1" stroke-dasharray="4,8"/>
+
+    <!-- Particles -->
+    <circle cx="100" cy="90" r="2" fill="#d32ce6" opacity="0.7">
+      <animate attributeName="cy" values="90;65;90" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="400" cy="110" r="1.5" fill="#4444ff" opacity="0.6">
+      <animate attributeName="cy" values="110;85;110" dur="3.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="180" cy="220" r="1.5" fill="#d32ce6" opacity="0.4">
+      <animate attributeName="cy" values="220;200;220" dur="2.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="350" cy="230" r="1" fill="#4444ff" opacity="0.4">
+      <animate attributeName="cy" values="230;215;230" dur="4s" repeatCount="indefinite"/>
+    </circle>
+
+    <!-- Stars -->
+    <g fill="#ffffff" opacity="0.15">
+      <circle cx="80" cy="60" r="1"/>
+      <circle cx="150" cy="240" r="0.8"/>
+      <circle cx="430" cy="70" r="1"/>
+      <circle cx="350" cy="250" r="0.8"/>
+      <circle cx="250" cy="55" r="0.6"/>
+    </g>
+  </g>
+
+  <!-- Case border -->
+  <rect x="30" y="40" width="452" height="240" rx="12" fill="none" stroke="#d32ce6" stroke-width="1.5" opacity="0.4"/>
+  <rect x="30" y="40" width="452" height="240" rx="12" fill="none" stroke="#4444ff" stroke-width="0.5" opacity="0.2"/>
+
+  <line x1="60" y1="40" x2="452" y2="40" stroke="url(#glow1)" stroke-width="2"/>
+  <line x1="60" y1="280" x2="452" y2="280" stroke="url(#glow1)" stroke-width="1.5"/>
+
+  <!-- Corner accents -->
+  <path d="M30,60 L30,40 L50,40" fill="none" stroke="#d32ce6" stroke-width="3" opacity="0.8"/>
+  <path d="M482,60 L482,40 L462,40" fill="none" stroke="#4444ff" stroke-width="3" opacity="0.8"/>
+  <path d="M30,260 L30,280 L50,280" fill="none" stroke="#d32ce6" stroke-width="3" opacity="0.8"/>
+  <path d="M482,260 L482,280 L462,280" fill="none" stroke="#4444ff" stroke-width="3" opacity="0.8"/>
+
+  <!-- Label -->
+  <rect x="136" y="295" width="240" height="50" rx="8" fill="#0d0818" stroke="#d32ce6" stroke-width="1" opacity="0.9"/>
+  <text x="256" y="318" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-weight="800" font-size="18" fill="#d32ce6" letter-spacing="3" filter="url(#neon)">DREAMS &amp; NIGHTMARES</text>
+  <text x="256" y="336" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-weight="400" font-size="10" fill="#8b949e" letter-spacing="3">CASE</text>
+</svg>

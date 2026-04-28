@@ -1,0 +1,366 @@
+/* =====================================================
+   tradexGG — Boot sequence
+   Colorful, clean. CS2 rarity gradient language.
+   ===================================================== */
+
+.loader-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #04060d;
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+
+.loader-screen.fade-out {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Kill legacy */
+.loader-bg-art, .loader-data, .loader-scanline { display: none; }
+
+/* ── Dot grid ────────────────────────────────────── */
+.loader-grid {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(120, 150, 255, 0.07) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+  z-index: 2;
+}
+.loader-grid::after {
+  display: none;
+}
+
+/* ── Frosted LED blobs — gerados via JS ─────────── */
+.loader-blobs {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.loader-blob {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  will-change: opacity, transform;
+  animation: blobPulse 3s ease-in-out infinite;
+}
+
+@keyframes blobPulse {
+  0%, 100% { opacity: 0.08; transform: translate(-50%, -50%) scale(0.88); }
+  50%      { opacity: var(--pulse-max, 0.7); transform: translate(-50%, -50%) scale(1.06); }
+}
+
+/* ── Floating particles ──────────────────────────── */
+.loader-particle-field {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.loader-particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: particleFloat linear infinite;
+  opacity: 0;
+}
+
+@keyframes particleFloat {
+  0%   { transform: translateY(0)    scale(1);   opacity: 0; }
+  8%   { opacity: var(--p-op, 0.4); }
+  88%  { opacity: var(--p-op, 0.4); }
+  100% { transform: translateY(-90px) scale(0.4); opacity: 0; }
+}
+
+/* ── Central background glow ─────────────────────── */
+.loader-glow-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 50% 42% at 50% 50%,
+      rgba(100, 80, 220, 0.12) 0%,
+      rgba(75, 105, 255, 0.07) 38%,
+      transparent 68%
+    );
+  animation: glowPulse 3.5s ease-in-out infinite;
+  z-index: 1;
+  pointer-events: none;
+}
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.12); }
+}
+
+/* ── Center block ────────────────────────────────── */
+.loader-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+}
+
+/* ── Logo wrap ───────────────────────────────────── */
+.loader-logo-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 200px;
+  height: 200px;
+  animation: loaderFadeIn 0.5s ease-out 0.05s both;
+}
+@keyframes loaderFadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Color-arc rings ─────────────────────────────── */
+.loader-ring {
+  position: absolute;
+  width: 152px;
+  height: 152px;
+  pointer-events: none;
+  filter: drop-shadow(0 0 14px rgba(136, 71, 255, 0.35));
+}
+
+/* Outer arc — blue → purple → pink (CS2 rarity spectrum) */
+.loader-ring::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: conic-gradient(
+    from 0deg,
+    transparent          0deg,
+    rgba(75,105,255,0)  30deg,
+    rgba(75,105,255,.9) 80deg,
+    rgba(136,71,255,.95) 140deg,
+    rgba(211,44,230,.85) 195deg,
+    rgba(211,44,230,0)  255deg,
+    transparent         360deg
+  );
+  border-radius: 50%;
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+          mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+  animation: ringRotate 2.2s linear infinite;
+}
+
+/* Inner arc — covert red → brass gold (opposite direction) */
+.loader-ring::after {
+  content: '';
+  position: absolute;
+  inset: 11px;
+  background: conic-gradient(
+    from 90deg,
+    transparent           0deg,
+    rgba(235,75,75,0)    25deg,
+    rgba(235,75,75,.75)  75deg,
+    rgba(228,174,57,.85) 140deg,
+    rgba(201,168,106,.7) 185deg,
+    rgba(201,168,106,0)  240deg,
+    transparent          360deg
+  );
+  border-radius: 50%;
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+          mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+  animation: ringRotate 1.6s linear infinite reverse;
+}
+
+@keyframes ringRotate { to { transform: rotate(360deg); } }
+
+/* Thin third ring — static faint circle as track */
+.loader-ring-inner {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* ── Logo ────────────────────────────────────────── */
+.loader-logo {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Glow pulse behind text */
+.loader-logo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    rgba(136, 71, 255, 0.14) 0%,
+    rgba(75, 105, 255, 0.06) 50%,
+    transparent 70%
+  );
+  animation: logoPulse 2.8s ease-in-out infinite;
+}
+@keyframes logoPulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.6); }
+}
+
+.loader-logo-text {
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #e8e3da;
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 0 30px rgba(136, 71, 255, 0.2);
+}
+.loader-logo-text span {
+  color: #c9a86a;
+  text-shadow:
+    0 0 14px rgba(201,168,106,0.65),
+    0 0 30px rgba(201,168,106,0.25);
+}
+
+/* ── Tagline ─────────────────────────────────────── */
+.loader-tagline {
+  margin-top: 1.6rem;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: rgba(215, 209, 195, 0.22);
+  animation: loaderFadeIn 0.5s ease-out 0.2s both;
+}
+
+/* ── Progress bar ────────────────────────────────── */
+.loader-progress-wrap {
+  position: relative;
+  width: 240px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.05);
+  margin-top: 1.6rem;
+  border-radius: 99px;
+  overflow: visible;
+  animation: loaderFadeIn 0.5s ease-out 0.3s both;
+}
+
+.loader-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg,
+    #4b69ff  0%,
+    #8847ff  38%,
+    #d32ce6  68%,
+    #c9a86a  100%
+  );
+  border-radius: 99px;
+  position: relative;
+  animation: progressFill 2.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  box-shadow: 0 0 12px 2px rgba(136,71,255,0.4);
+}
+
+/* Glowing tip */
+.loader-progress-bar::after {
+  content: '';
+  position: absolute;
+  right: -2px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  background: #e0c8f0;
+  box-shadow:
+    0 0 10px 3px rgba(211, 44, 230, 0.9),
+    0 0 22px 8px rgba(136, 71, 255, 0.4);
+  border-radius: 50%;
+}
+
+@keyframes progressFill {
+  0%   { width: 0%; }
+  15%  { width: 12%; }
+  35%  { width: 38%; }
+  60%  { width: 62%; }
+  82%  { width: 85%; }
+  100% { width: 100%; }
+}
+
+/* Percentage counter */
+.loader-percent {
+  position: absolute;
+  right: -42px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.55rem;
+  font-variant-numeric: tabular-nums;
+  color: rgba(180, 150, 255, 0.55);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* ── Status text ─────────────────────────────────── */
+.loader-status {
+  margin-top: 1rem;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.6rem;
+  color: rgba(215, 209, 195, 0.28);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  animation: loaderFadeIn 0.5s ease-out 0.4s both;
+  min-height: 1.2em;
+}
+.loader-dots { display: inline-flex; width: 18px; justify-content: flex-start; }
+.loader-dots::after {
+  content: '';
+  animation: dotsAnim 1s steps(4, end) infinite;
+}
+@keyframes dotsAnim {
+  0%   { content: ''; }
+  25%  { content: '.'; }
+  50%  { content: '..'; }
+  75%  { content: '...'; }
+}
+
+/* ── Clock ───────────────────────────────────────── */
+.loader-hud-br {
+  position: absolute;
+  bottom: 22px;
+  right: 22px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  color: rgba(180, 150, 255, 0.3);
+  font-variant-numeric: tabular-nums;
+  z-index: 5;
+  animation: loaderFadeIn 0.5s ease-out 0.35s both;
+  pointer-events: none;
+}
+
+/* Legacy selectors no longer used — kept for safety */
+.loader-hud-tl, .loader-hud-bl { display: none; }
+
+/* ── Responsive ──────────────────────────────────── */
+@media (max-width: 768px) {
+  .loader-ring       { width: 130px; height: 130px; }
+  .loader-ring-inner { width: 84px;  height: 84px; }
+  .loader-logo-wrap  { width: 170px; height: 170px; }
+  .loader-logo       { width: 92px;  height: 92px; }
+  .loader-logo-text  { font-size: 1.2rem; }
+  .loader-progress-wrap { width: 190px; }
+}

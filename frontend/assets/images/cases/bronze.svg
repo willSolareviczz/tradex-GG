@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="360" viewBox="0 0 512 360">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#120a05"/>
+      <stop offset="50%" style="stop-color:#1a0f08"/>
+      <stop offset="100%" style="stop-color:#100a05"/>
+    </linearGradient>
+    <linearGradient id="glow1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#cd7f32;stop-opacity:0"/>
+      <stop offset="50%" style="stop-color:#cd7f32;stop-opacity:0.8"/>
+      <stop offset="100%" style="stop-color:#cd7f32;stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="weapon" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e0a050"/>
+      <stop offset="50%" style="stop-color:#cd7f32"/>
+      <stop offset="100%" style="stop-color:#8b5a2b"/>
+    </linearGradient>
+    <linearGradient id="caseGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#cd7f32;stop-opacity:0.22"/>
+      <stop offset="100%" style="stop-color:#8b5a2b;stop-opacity:0.05"/>
+    </linearGradient>
+    <filter id="neon">
+      <feGaussianBlur stdDeviation="5" result="blur1"/>
+      <feGaussianBlur stdDeviation="10" result="blur2"/>
+      <feMerge>
+        <feMergeNode in="blur2"/>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="softGlow">
+      <feGaussianBlur stdDeviation="25"/>
+    </filter>
+    <clipPath id="caseClip">
+      <rect x="30" y="40" width="452" height="240" rx="12"/>
+    </clipPath>
+  </defs>
+
+  <rect width="512" height="360" fill="url(#bg)" rx="16"/>
+
+  <!-- Background chevron pattern -->
+  <g opacity="0.06" fill="none" stroke="#cd7f32" stroke-width="1">
+    <path d="M256,80 L306,130 L256,180 L206,130 Z"/>
+    <path d="M256,60 L326,130 L256,200 L186,130 Z"/>
+    <path d="M256,100 L286,130 L256,160 L226,130 Z"/>
+  </g>
+
+  <ellipse cx="256" cy="155" rx="180" ry="100" fill="#cd7f32" opacity="0.04" filter="url(#softGlow)"/>
+
+  <g clip-path="url(#caseClip)">
+    <rect x="30" y="40" width="452" height="240" rx="12" fill="url(#caseGrad)"/>
+
+    <!-- Diagonal stripes -->
+    <g opacity="0.04">
+      <line x1="100" y1="40" x2="200" y2="280" stroke="#cd7f32" stroke-width="25"/>
+      <line x1="220" y1="40" x2="320" y2="280" stroke="#cd7f32" stroke-width="25"/>
+      <line x1="340" y1="40" x2="440" y2="280" stroke="#cd7f32" stroke-width="25"/>
+    </g>
+
+    <!-- MP5-SD / UMP silhouette (mid-tier) -->
+    <g transform="translate(90, 65) scale(0.95)" filter="url(#neon)">
+      <path d="M40,100 L40,85 L55,80 L65,76 L80,72 L100,68 L125,65 L155,62 L185,60 L210,59 L235,58 L255,58 L270,60 L278,56 L282,53 L286,56 L284,62 L278,66 L270,68 L255,70 L235,71 L210,72 L185,74 L155,76 L130,80 L110,84 L90,90 L75,96 L65,102 L58,108 L52,112 L48,108 L42,102 Z"
+            fill="url(#weapon)" opacity="0.6"/>
+      <!-- Silencer -->
+      <rect x="270" y="56" width="60" height="12" rx="6" fill="#cd7f32" opacity="0.35"/>
+      <!-- Magazine -->
+      <path d="M120,80 L135,80 L140,105 L143,125 L138,130 L122,130 L117,125 L120,105 Z"
+            fill="url(#weapon)" opacity="0.45"/>
+      <!-- Stock -->
+      <path d="M40,85 L35,82 L25,85 L18,92 L18,100 L25,105 L35,102 L40,100 Z"
+            fill="url(#weapon)" opacity="0.45"/>
+    </g>
+
+    <!-- Bronze medal accent -->
+    <g transform="translate(385, 70)" opacity="0.12">
+      <circle cx="25" cy="25" r="22" fill="none" stroke="#cd7f32" stroke-width="2"/>
+      <circle cx="25" cy="25" r="16" fill="none" stroke="#cd7f32" stroke-width="1"/>
+      <text x="25" y="31" text-anchor="middle" font-family="Arial" font-size="18" fill="#cd7f32" font-weight="bold">B</text>
+    </g>
+
+    <!-- Particles -->
+    <circle cx="110" cy="80" r="2" fill="#cd7f32" opacity="0.6">
+      <animate attributeName="cy" values="80;60;80" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="400" cy="180" r="1.5" fill="#e0a050" opacity="0.4">
+      <animate attributeName="cy" values="180;160;180" dur="3.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="250" cy="230" r="1.5" fill="#cd7f32" opacity="0.4">
+      <animate attributeName="cy" values="230;215;230" dur="2.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="60" cy="200" r="1" fill="#cd7f32" opacity="0.3">
+      <animate attributeName="cy" values="200;185;200" dur="4s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <rect x="30" y="40" width="452" height="240" rx="12" fill="none" stroke="#cd7f32" stroke-width="2" opacity="0.4"/>
+  <line x1="60" y1="40" x2="452" y2="40" stroke="url(#glow1)" stroke-width="2"/>
+  <line x1="60" y1="280" x2="452" y2="280" stroke="url(#glow1)" stroke-width="1.5"/>
+
+  <path d="M30,60 L30,40 L50,40" fill="none" stroke="#cd7f32" stroke-width="3" opacity="0.8"/>
+  <path d="M482,60 L482,40 L462,40" fill="none" stroke="#cd7f32" stroke-width="3" opacity="0.8"/>
+  <path d="M30,260 L30,280 L50,280" fill="none" stroke="#cd7f32" stroke-width="3" opacity="0.8"/>
+  <path d="M482,260 L482,280 L462,280" fill="none" stroke="#cd7f32" stroke-width="3" opacity="0.8"/>
+
+  <rect x="166" y="295" width="180" height="50" rx="8" fill="#100a05" stroke="#cd7f32" stroke-width="1" opacity="0.9"/>
+  <text x="256" y="318" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-weight="800" font-size="22" fill="#cd7f32" letter-spacing="5" filter="url(#neon)">BRONZE</text>
+  <text x="256" y="336" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-weight="400" font-size="10" fill="#8b949e" letter-spacing="3">CASE</text>
+</svg>

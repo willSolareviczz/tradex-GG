@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="360" viewBox="0 0 512 360">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#081015"/>
+      <stop offset="50%" style="stop-color:#0a1820"/>
+      <stop offset="100%" style="stop-color:#081418"/>
+    </linearGradient>
+    <linearGradient id="glow1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#7ec8e3;stop-opacity:0"/>
+      <stop offset="50%" style="stop-color:#7ec8e3;stop-opacity:0.8"/>
+      <stop offset="100%" style="stop-color:#7ec8e3;stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="weapon" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a0e0f5"/>
+      <stop offset="50%" style="stop-color:#7ec8e3"/>
+      <stop offset="100%" style="stop-color:#4a90a4"/>
+    </linearGradient>
+    <linearGradient id="caseGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#7ec8e3;stop-opacity:0.2"/>
+      <stop offset="100%" style="stop-color:#4a90a4;stop-opacity:0.05"/>
+    </linearGradient>
+    <filter id="neon">
+      <feGaussianBlur stdDeviation="5" result="blur1"/>
+      <feGaussianBlur stdDeviation="10" result="blur2"/>
+      <feMerge>
+        <feMergeNode in="blur2"/>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="softGlow">
+      <feGaussianBlur stdDeviation="25"/>
+    </filter>
+    <clipPath id="caseClip">
+      <rect x="30" y="40" width="452" height="240" rx="12"/>
+    </clipPath>
+  </defs>
+
+  <rect width="512" height="360" fill="url(#bg)" rx="16"/>
+
+  <!-- Background dots pattern -->
+  <g opacity="0.06">
+    <circle cx="80" cy="80" r="2" fill="#7ec8e3"/>
+    <circle cx="160" cy="80" r="2" fill="#7ec8e3"/>
+    <circle cx="240" cy="80" r="2" fill="#7ec8e3"/>
+    <circle cx="320" cy="80" r="2" fill="#7ec8e3"/>
+    <circle cx="400" cy="80" r="2" fill="#7ec8e3"/>
+    <circle cx="80" cy="160" r="2" fill="#7ec8e3"/>
+    <circle cx="160" cy="160" r="2" fill="#7ec8e3"/>
+    <circle cx="240" cy="160" r="2" fill="#7ec8e3"/>
+    <circle cx="320" cy="160" r="2" fill="#7ec8e3"/>
+    <circle cx="400" cy="160" r="2" fill="#7ec8e3"/>
+    <circle cx="80" cy="240" r="2" fill="#7ec8e3"/>
+    <circle cx="160" cy="240" r="2" fill="#7ec8e3"/>
+    <circle cx="240" cy="240" r="2" fill="#7ec8e3"/>
+    <circle cx="320" cy="240" r="2" fill="#7ec8e3"/>
+    <circle cx="400" cy="240" r="2" fill="#7ec8e3"/>
+  </g>
+
+  <ellipse cx="256" cy="155" rx="170" ry="90" fill="#7ec8e3" opacity="0.04" filter="url(#softGlow)"/>
+
+  <g clip-path="url(#caseClip)">
+    <rect x="30" y="40" width="452" height="240" rx="12" fill="url(#caseGrad)"/>
+
+    <!-- Glock silhouette (beginner pistol) -->
+    <g transform="translate(130, 55) scale(1.1)" filter="url(#neon)">
+      <path d="M50,115 L50,95 L60,90 L70,85 L85,80 L100,78 L120,75 L145,72 L170,70 L195,70 L210,72 L218,68 L222,65 L226,68 L224,74 L218,78 L210,80 L195,82 L170,83 L145,85 L120,87 L100,90 L85,94 L75,100 L68,108 L62,115 L55,120 L50,120 Z"
+            fill="url(#weapon)" opacity="0.6"/>
+      <!-- Grip -->
+      <path d="M62,115 L75,100 L85,94 L92,100 L92,115 L88,130 L82,140 L72,142 L62,138 L56,130 L55,120 Z"
+            fill="url(#weapon)" opacity="0.45"/>
+      <!-- Slide details -->
+      <line x1="120" y1="76" x2="200" y2="72" stroke="#7ec8e3" stroke-width="0.8" opacity="0.3"/>
+      <line x1="130" y1="80" x2="190" y2="76" stroke="#7ec8e3" stroke-width="0.5" opacity="0.2"/>
+    </g>
+
+    <!-- "STARTER" badge -->
+    <g transform="translate(350, 180)" opacity="0.15">
+      <rect x="0" y="0" width="80" height="30" rx="5" fill="none" stroke="#7ec8e3" stroke-width="1"/>
+      <text x="40" y="20" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#7ec8e3" letter-spacing="2">STARTER</text>
+    </g>
+
+    <!-- Particles -->
+    <circle cx="100" cy="80" r="2" fill="#7ec8e3" opacity="0.6">
+      <animate attributeName="cy" values="80;60;80" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="420" cy="130" r="1.5" fill="#7ec8e3" opacity="0.4">
+      <animate attributeName="cy" values="130;110;130" dur="3.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="250" cy="230" r="1.5" fill="#a0e0f5" opacity="0.4">
+      <animate attributeName="cy" values="230;215;230" dur="2.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="80" cy="200" r="1" fill="#7ec8e3" opacity="0.3">
+      <animate attributeName="cy" values="200;185;200" dur="4s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <rect x="30" y="40" width="452" height="240" rx="12" fill="none" stroke="#7ec8e3" stroke-width="2" opacity="0.4"/>
+  <line x1="60" y1="40" x2="452" y2="40" stroke="url(#glow1)" stroke-width="2"/>
+  <line x1="60" y1="280" x2="452" y2="280" stroke="url(#glow1)" stroke-width="1.5"/>
+
+  <path d="M30,60 L30,40 L50,40" fill="none" stroke="#7ec8e3" stroke-width="3" opacity="0.8"/>
+  <path d="M482,60 L482,40 L462,40" fill="none" stroke="#7ec8e3" stroke-width="3" opacity="0.8"/>
+  <path d="M30,260 L30,280 L50,280" fill="none" stroke="#7ec8e3" stroke-width="3" opacity="0.8"/>
+  <path d="M482,260 L482,280 L462,280" fill="none" stroke="#7ec8e3" stroke-width="3" opacity="0.8"/>
+
+  <rect x="156" y="295" width="200" height="50" rx="8" fill="#081418" stroke="#7ec8e3" stroke-width="1" opacity="0.9"/>
+  <text x="256" y="318" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-weight="800" font-size="20" fill="#7ec8e3" letter-spacing="4" filter="url(#neon)">INICIANTE</text>
+  <text x="256" y="336" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-weight="400" font-size="10" fill="#8b949e" letter-spacing="3">CASE</text>
+</svg>

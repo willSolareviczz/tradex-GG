@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="360" viewBox="0 0 512 360">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#050818"/>
+      <stop offset="50%" style="stop-color:#0a0e28"/>
+      <stop offset="100%" style="stop-color:#080c20"/>
+    </linearGradient>
+    <linearGradient id="glow1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#4b69ff;stop-opacity:0"/>
+      <stop offset="50%" style="stop-color:#4b69ff;stop-opacity:0.8"/>
+      <stop offset="100%" style="stop-color:#4b69ff;stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="weapon" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6b89ff"/>
+      <stop offset="50%" style="stop-color:#4b69ff"/>
+      <stop offset="100%" style="stop-color:#2a3fbb"/>
+    </linearGradient>
+    <linearGradient id="caseGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#4b69ff;stop-opacity:0.25"/>
+      <stop offset="100%" style="stop-color:#2a3fbb;stop-opacity:0.05"/>
+    </linearGradient>
+    <filter id="neon">
+      <feGaussianBlur stdDeviation="6" result="blur1"/>
+      <feGaussianBlur stdDeviation="12" result="blur2"/>
+      <feMerge>
+        <feMergeNode in="blur2"/>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="softGlow">
+      <feGaussianBlur stdDeviation="25"/>
+    </filter>
+    <clipPath id="caseClip">
+      <rect x="30" y="40" width="452" height="240" rx="12"/>
+    </clipPath>
+  </defs>
+
+  <rect width="512" height="360" fill="url(#bg)" rx="16"/>
+
+  <!-- Fracture crack lines in background -->
+  <g opacity="0.1">
+    <path d="M256,0 L260,80 L250,120 L265,180 L255,240 L260,360" fill="none" stroke="#4b69ff" stroke-width="1.5"/>
+    <path d="M250,120 L220,140 L190,135" fill="none" stroke="#4b69ff" stroke-width="1"/>
+    <path d="M265,180 L290,195 L320,190" fill="none" stroke="#4b69ff" stroke-width="1"/>
+    <path d="M260,80 L290,90 L310,85" fill="none" stroke="#4b69ff" stroke-width="0.8"/>
+    <path d="M255,240 L230,250 L210,248" fill="none" stroke="#4b69ff" stroke-width="0.8"/>
+  </g>
+
+  <ellipse cx="256" cy="155" rx="180" ry="100" fill="#4b69ff" opacity="0.04" filter="url(#softGlow)"/>
+
+  <g clip-path="url(#caseClip)">
+    <rect x="30" y="40" width="452" height="240" rx="12" fill="url(#caseGrad)"/>
+
+    <!-- Shattered glass pattern -->
+    <g opacity="0.06" stroke="#4b69ff" fill="none" stroke-width="0.8">
+      <polygon points="180,80 220,60 250,90 230,120 190,110"/>
+      <polygon points="250,90 290,70 320,100 300,130 260,120"/>
+      <polygon points="190,110 230,120 220,160 180,150"/>
+      <polygon points="260,120 300,130 290,170 250,160"/>
+      <polygon points="320,100 360,80 380,120 350,140"/>
+      <polygon points="140,120 180,110 180,150 150,160"/>
+    </g>
+
+    <!-- Desert Eagle silhouette -->
+    <g transform="translate(110, 65) scale(1.0)" filter="url(#neon)">
+      <path d="M40,100 L40,85 L55,80 L60,75 L70,72 L90,68 L120,65 L160,62 L200,60 L230,60 L250,62 L260,58 L265,55 L268,58 L265,65 L258,70 L250,72 L230,75 L200,76 L170,78 L140,80 L120,82 L100,85 L85,90 L75,95 L65,100 L55,105 L50,110 L45,115 L40,115 Z"
+            fill="url(#weapon)" opacity="0.6"/>
+      <!-- Grip -->
+      <path d="M55,105 L65,100 L75,95 L80,100 L80,120 L75,135 L70,140 L60,140 L55,135 L50,125 L50,110 Z"
+            fill="url(#weapon)" opacity="0.45"/>
+      <!-- Trigger -->
+      <path d="M90,90 L95,95 L92,105 L85,105 L85,95 Z" fill="#4b69ff" opacity="0.3"/>
+    </g>
+
+    <!-- Particles -->
+    <circle cx="120" cy="80" r="2" fill="#4b69ff" opacity="0.7">
+      <animate attributeName="cy" values="80;55;80" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="390" cy="120" r="1.5" fill="#4b69ff" opacity="0.5">
+      <animate attributeName="cy" values="120;95;120" dur="3.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="200" cy="230" r="1.5" fill="#6b89ff" opacity="0.4">
+      <animate attributeName="cy" values="230;210;230" dur="2.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="440" cy="200" r="1" fill="#4b69ff" opacity="0.3">
+      <animate attributeName="cy" values="200;185;200" dur="4s" repeatCount="indefinite"/>
+    </circle>
+
+    <!-- Glass shards -->
+    <g fill="#4b69ff" opacity="0.15">
+      <polygon points="420,80 430,75 435,85"/>
+      <polygon points="80,200 90,195 92,205"/>
+      <polygon points="350,220 358,215 362,225"/>
+    </g>
+  </g>
+
+  <rect x="30" y="40" width="452" height="240" rx="12" fill="none" stroke="#4b69ff" stroke-width="2" opacity="0.45"/>
+  <line x1="60" y1="40" x2="452" y2="40" stroke="url(#glow1)" stroke-width="2"/>
+  <line x1="60" y1="280" x2="452" y2="280" stroke="url(#glow1)" stroke-width="1.5"/>
+
+  <path d="M30,60 L30,40 L50,40" fill="none" stroke="#4b69ff" stroke-width="3" opacity="0.8"/>
+  <path d="M482,60 L482,40 L462,40" fill="none" stroke="#4b69ff" stroke-width="3" opacity="0.8"/>
+  <path d="M30,260 L30,280 L50,280" fill="none" stroke="#4b69ff" stroke-width="3" opacity="0.8"/>
+  <path d="M482,260 L482,280 L462,280" fill="none" stroke="#4b69ff" stroke-width="3" opacity="0.8"/>
+
+  <rect x="156" y="295" width="200" height="50" rx="8" fill="#080c20" stroke="#4b69ff" stroke-width="1" opacity="0.9"/>
+  <text x="256" y="318" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-weight="800" font-size="20" fill="#4b69ff" letter-spacing="4" filter="url(#neon)">FRACTURE</text>
+  <text x="256" y="336" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-weight="400" font-size="10" fill="#8b949e" letter-spacing="3">CASE</text>
+</svg>
