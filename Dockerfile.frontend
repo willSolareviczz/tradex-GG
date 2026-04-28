@@ -1,0 +1,10 @@
+# ── tradexGG — Frontend (Nginx) ─────────────────────────────────────
+FROM nginx:alpine
+
+# Arquivos estáticos do frontend
+COPY frontend/ /usr/share/nginx/html/
+
+# Configuração do Nginx (proxy /api/ → backend)
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
