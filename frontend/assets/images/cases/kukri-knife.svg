@@ -1,0 +1,182 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="360" viewBox="0 0 512 360">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f0a15"/>
+      <stop offset="30%" style="stop-color:#150818"/>
+      <stop offset="60%" style="stop-color:#1a0a10"/>
+      <stop offset="100%" style="stop-color:#120510"/>
+    </linearGradient>
+    <linearGradient id="neonGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ff00ff;stop-opacity:0"/>
+      <stop offset="25%" style="stop-color:#ff4488;stop-opacity:0.9"/>
+      <stop offset="50%" style="stop-color:#e4ae39;stop-opacity:1"/>
+      <stop offset="75%" style="stop-color:#ff4488;stop-opacity:0.9"/>
+      <stop offset="100%" style="stop-color:#ff00ff;stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="knifeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff6090"/>
+      <stop offset="30%" style="stop-color:#e4ae39"/>
+      <stop offset="60%" style="stop-color:#ff6090"/>
+      <stop offset="100%" style="stop-color:#cc44aa"/>
+    </linearGradient>
+    <linearGradient id="knifeGrad2" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#e4ae39"/>
+      <stop offset="50%" style="stop-color:#ff4488"/>
+      <stop offset="100%" style="stop-color:#aa22aa"/>
+    </linearGradient>
+    <linearGradient id="caseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e4ae39;stop-opacity:0.15"/>
+      <stop offset="50%" style="stop-color:#ff4488;stop-opacity:0.08"/>
+      <stop offset="100%" style="stop-color:#aa22aa;stop-opacity:0.03"/>
+    </linearGradient>
+    <filter id="neon">
+      <feGaussianBlur stdDeviation="6" result="blur1"/>
+      <feGaussianBlur stdDeviation="14" result="blur2"/>
+      <feGaussianBlur stdDeviation="25" result="blur3"/>
+      <feMerge>
+        <feMergeNode in="blur3"/>
+        <feMergeNode in="blur2"/>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="softGlow">
+      <feGaussianBlur stdDeviation="30"/>
+    </filter>
+    <filter id="sharpGlow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="caseClip">
+      <rect x="30" y="40" width="452" height="240" rx="12"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="360" fill="url(#bg)" rx="16"/>
+
+  <!-- Background radial rays -->
+  <g opacity="0.04">
+    <line x1="256" y1="160" x2="0" y2="0" stroke="#e4ae39" stroke-width="40"/>
+    <line x1="256" y1="160" x2="512" y2="0" stroke="#ff4488" stroke-width="40"/>
+    <line x1="256" y1="160" x2="0" y2="360" stroke="#ff4488" stroke-width="40"/>
+    <line x1="256" y1="160" x2="512" y2="360" stroke="#e4ae39" stroke-width="40"/>
+    <line x1="256" y1="160" x2="256" y2="0" stroke="#e4ae39" stroke-width="30"/>
+    <line x1="256" y1="160" x2="256" y2="360" stroke="#ff4488" stroke-width="30"/>
+    <line x1="256" y1="160" x2="0" y2="160" stroke="#aa22aa" stroke-width="30"/>
+    <line x1="256" y1="160" x2="512" y2="160" stroke="#aa22aa" stroke-width="30"/>
+  </g>
+
+  <!-- Central glow orbs -->
+  <ellipse cx="256" cy="145" rx="160" ry="90" fill="#e4ae39" opacity="0.06" filter="url(#softGlow)"/>
+  <ellipse cx="230" cy="150" rx="100" ry="60" fill="#ff4488" opacity="0.05" filter="url(#softGlow)"/>
+  <ellipse cx="280" cy="140" rx="80" ry="50" fill="#aa22aa" opacity="0.04" filter="url(#softGlow)"/>
+
+  <g clip-path="url(#caseClip)">
+    <rect x="30" y="40" width="452" height="240" rx="12" fill="url(#caseGrad)"/>
+
+    <!-- Ghost knife silhouettes in background -->
+    <g opacity="0.04">
+      <!-- Background knife 1 -->
+      <g transform="translate(40, 70) scale(0.6) rotate(-10)">
+        <path d="M20,120 L30,100 L50,70 L80,45 L120,30 L160,25 L190,28 L210,35 L220,45 L218,55 L205,65 L185,72 L160,78 L130,88 L100,100 L75,115 L55,125 L40,130 L25,128 Z" fill="#e4ae39"/>
+      </g>
+      <!-- Background knife 2 -->
+      <g transform="translate(300, 60) scale(0.55) rotate(5)">
+        <path d="M20,120 L30,100 L50,70 L80,45 L120,30 L160,25 L190,28 L210,35 L220,45 L218,55 L205,65 L185,72 L160,78 L130,88 L100,100 L75,115 L55,125 L40,130 L25,128 Z" fill="#ff4488"/>
+      </g>
+      <!-- Background knife 3 -->
+      <g transform="translate(160, 140) scale(0.5) rotate(-5)">
+        <path d="M20,120 L30,100 L50,70 L80,45 L120,30 L160,25 L190,28 L210,35 L220,45 L218,55 L205,65 L185,72 L160,78 L130,88 L100,100 L75,115 L55,125 L40,130 L25,128 Z" fill="#aa22aa"/>
+      </g>
+    </g>
+
+    <!-- Main Kukri Knife silhouette -->
+    <g transform="translate(85, 55) scale(0.95)" filter="url(#neon)">
+      <!-- Blade -->
+      <path d="M50,155 L55,140 L65,118 L80,95 L100,72 L125,52 L155,38 L185,30 L215,27 L240,28 L260,33 L275,42 L282,52 L280,62 L270,70 L255,76 L235,80 L210,86 L180,95 L150,108 L125,122 L100,138 L80,150 L65,158 L52,160 Z"
+            fill="url(#knifeGrad)" opacity="0.7"/>
+      <!-- Blade edge highlight -->
+      <path d="M55,140 L65,118 L80,95 L100,72 L125,52 L155,38 L185,30 L215,27 L240,28 L260,33 L275,42 L282,52"
+            fill="none" stroke="#ffe0a0" stroke-width="1.5" opacity="0.5"/>
+      <!-- Handle -->
+      <path d="M50,155 L52,160 L45,168 L40,178 L38,188 L40,195 L48,200 L58,198 L68,192 L75,182 L78,170 L75,162 L68,158 L58,156 Z"
+            fill="url(#knifeGrad2)" opacity="0.6"/>
+      <!-- Handle grip lines -->
+      <line x1="48" y1="175" x2="62" y2="188" stroke="#e4ae39" stroke-width="0.8" opacity="0.3"/>
+      <line x1="45" y1="182" x2="58" y2="194" stroke="#e4ae39" stroke-width="0.8" opacity="0.3"/>
+      <!-- Blade detail lines -->
+      <path d="M80,95 L200,60" fill="none" stroke="#ffe0a0" stroke-width="0.5" opacity="0.25"/>
+      <path d="M100,110 L220,55" fill="none" stroke="#ffe0a0" stroke-width="0.3" opacity="0.2"/>
+    </g>
+
+    <!-- Sparkle particles -->
+    <g fill="#e4ae39">
+      <circle cx="100" cy="70" r="2.5" opacity="0.8">
+        <animate attributeName="opacity" values="0.8;0.2;0.8" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="70;55;70" dur="3s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="420" cy="90" r="2" opacity="0.6">
+        <animate attributeName="opacity" values="0.6;0.1;0.6" dur="2.5s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="90;72;90" dur="3.5s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="350" cy="210" r="1.5" opacity="0.5">
+        <animate attributeName="opacity" values="0.5;0.1;0.5" dur="3s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+    <g fill="#ff4488">
+      <circle cx="180" cy="230" r="2" opacity="0.5">
+        <animate attributeName="opacity" values="0.5;0.15;0.5" dur="2.5s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="230;215;230" dur="3s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="450" cy="150" r="1.5" opacity="0.4">
+        <animate attributeName="opacity" values="0.4;0.1;0.4" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="70" cy="180" r="1" opacity="0.3">
+        <animate attributeName="opacity" values="0.3;0.05;0.3" dur="3.5s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+    <g fill="#aa22aa">
+      <circle cx="300" cy="60" r="1.5" opacity="0.4">
+        <animate attributeName="opacity" values="0.4;0.1;0.4" dur="3s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="60" cy="120" r="1" opacity="0.3">
+        <animate attributeName="opacity" values="0.3;0.05;0.3" dur="2s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+
+    <!-- Star/cross sparkles -->
+    <g filter="url(#sharpGlow)">
+      <g transform="translate(400, 75)" opacity="0.5">
+        <line x1="-4" y1="0" x2="4" y2="0" stroke="#ffe0a0" stroke-width="1"/>
+        <line x1="0" y1="-4" x2="0" y2="4" stroke="#ffe0a0" stroke-width="1"/>
+        <animate attributeName="opacity" values="0.5;0.1;0.5" dur="2s" repeatCount="indefinite"/>
+      </g>
+      <g transform="translate(130, 250)" opacity="0.4">
+        <line x1="-3" y1="0" x2="3" y2="0" stroke="#ff4488" stroke-width="1"/>
+        <line x1="0" y1="-3" x2="0" y2="3" stroke="#ff4488" stroke-width="1"/>
+        <animate attributeName="opacity" values="0.4;0.1;0.4" dur="3s" repeatCount="indefinite"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- Case border with gradient -->
+  <rect x="30" y="40" width="452" height="240" rx="12" fill="none" stroke="#e4ae39" stroke-width="1.5" opacity="0.35"/>
+
+  <!-- Top/bottom neon highlights -->
+  <line x1="60" y1="40" x2="452" y2="40" stroke="url(#neonGrad)" stroke-width="2.5"/>
+  <line x1="60" y1="280" x2="452" y2="280" stroke="url(#neonGrad)" stroke-width="2"/>
+
+  <!-- Corner accents - gold/pink -->
+  <path d="M30,60 L30,40 L50,40" fill="none" stroke="#e4ae39" stroke-width="3" opacity="0.9"/>
+  <path d="M482,60 L482,40 L462,40" fill="none" stroke="#ff4488" stroke-width="3" opacity="0.9"/>
+  <path d="M30,260 L30,280 L50,280" fill="none" stroke="#ff4488" stroke-width="3" opacity="0.9"/>
+  <path d="M482,260 L482,280 L462,280" fill="none" stroke="#e4ae39" stroke-width="3" opacity="0.9"/>
+
+  <!-- Label background -->
+  <rect x="146" y="293" width="220" height="54" rx="10" fill="#120510" stroke="#e4ae39" stroke-width="1" opacity="0.95"/>
+
+  <!-- Case name -->
+  <text x="256" y="317" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-weight="800" font-size="20" fill="#e4ae39" letter-spacing="4" filter="url(#neon)">KUKRI KNIFE</text>
+  <text x="256" y="338" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-weight="400" font-size="10" fill="#8b949e" letter-spacing="3">CASE</text>
+</svg>

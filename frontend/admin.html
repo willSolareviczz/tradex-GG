@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - tradexGG</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/admin.css">
+  <link rel="stylesheet" href="/css/loader.css">
+</head>
+<body>
+  <div class="admin-layout" id="admin-app">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar-title">Painel Admin</div>
+      <button class="admin-nav-item active" data-tab="dashboard" onclick="switchTab('dashboard')">
+        <span class="admin-nav-icon">&#9632;</span> Dashboard
+      </button>
+      <button class="admin-nav-item" data-tab="cases" onclick="switchTab('cases')">
+        <span class="admin-nav-icon">&#9830;</span> Cases
+      </button>
+      <button class="admin-nav-item" data-tab="skins" onclick="switchTab('skins')">
+        <span class="admin-nav-icon">&#9733;</span> Skins
+      </button>
+      <button class="admin-nav-item" data-tab="editor" onclick="switchTab('editor')" id="nav-editor" style="display:none;">
+        <span class="admin-nav-icon">&#9881;</span> Editor de Case
+      </button>
+    </aside>
+
+    <!-- Main content -->
+    <main class="admin-main">
+      <!-- DASHBOARD -->
+      <section id="tab-dashboard">
+        <div class="admin-header"><h2>Dashboard</h2></div>
+        <div class="admin-stats" id="stats-cards"><div class="loading">Carregando...</div></div>
+        <h3 style="margin: 1.5rem 0 1rem; font-size: 1.1rem;">Aberturas Recentes</h3>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>Data</th><th>Jogador</th><th>Case</th><th>Skin</th><th>Valor</th></tr></thead>
+            <tbody id="recent-openings-body"><tr><td colspan="5" class="loading">Carregando...</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- CASES -->
+      <section id="tab-cases" style="display:none;">
+        <div class="admin-header">
+          <h2>Gerenciar Cases</h2>
+          <button class="btn btn-primary" onclick="openCaseModal()">+ Nova Case</button>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>ID</th><th>Imagem</th><th>Nome</th><th>Preco</th><th>Skins</th><th>Aberturas</th><th>Status</th><th>Acoes</th></tr></thead>
+            <tbody id="cases-body"><tr><td colspan="8" class="loading">Carregando...</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SKINS -->
+      <section id="tab-skins" style="display:none;">
+        <div class="admin-header">
+          <h2>Gerenciar Skins</h2>
+          <button class="btn btn-primary" onclick="openSkinModal()">+ Nova Skin</button>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>ID</th><th>Imagem</th><th>Nome</th><th>Arma</th><th>Raridade</th><th>Valor</th><th>Em Cases</th><th>Acoes</th></tr></thead>
+            <tbody id="skins-body"><tr><td colspan="8" class="loading">Carregando...</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- CASE EDITOR (skins dentro de uma case) -->
+      <section id="tab-editor" style="display:none;">
+        <div class="admin-header">
+          <h2 id="editor-title">Editor de Case</h2>
+          <button class="btn btn-secondary" onclick="switchTab('cases')">Voltar</button>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr auto;gap:1.5rem;align-items:start;margin-bottom:1.5rem;">
+          <div id="editor-info" class="card"></div>
+
+          <!-- ROI Calculator Panel -->
+          <div class="roi-panel" id="roi-panel">
+            <div class="roi-panel-title">Calculadora de Margem</div>
+            <div class="roi-row">
+              <span class="roi-label">Preco da Case</span>
+              <span class="roi-value" id="roi-case-price">—</span>
+            </div>
+            <div class="roi-row">
+              <span class="roi-label">Valor Esperado (EV)</span>
+              <span class="roi-value" id="roi-ev">—</span>
+            </div>
+            <div class="roi-divider"></div>
+            <div class="roi-margin-label">Margem da Casa</div>
+            <div class="roi-margin-value" id="roi-margin-value">—</div>
+            <div class="roi-bar-wrap">
+              <div class="roi-bar-track">
+                <div class="roi-bar-zone roi-zone-low" style="left:0;width:5%;" title="< 5%: Prejuizo"></div>
+                <div class="roi-bar-zone roi-zone-ok" style="left:5%;width:10%;" title="5-15%: Ideal"></div>
+                <div class="roi-bar-zone roi-zone-high" style="left:15%;width:85%;" title="> 15%: Alto"></div>
+                <div class="roi-bar-needle" id="roi-needle" style="left:0%;"></div>
+              </div>
+              <div class="roi-bar-labels">
+                <span>0%</span><span style="margin-left:calc(5% - 0.5rem);">5%</span><span style="margin-left:calc(10% - 0.5rem);">15%</span>
+              </div>
+            </div>
+            <div class="roi-status" id="roi-status"></div>
+            <div class="roi-suggest">
+              <div class="roi-suggest-label">Sugerir preco para:</div>
+              <div class="roi-suggest-btns">
+                <button class="roi-suggest-btn" onclick="suggestPrice(5)">5%</button>
+                <button class="roi-suggest-btn roi-suggest-btn-ok" onclick="suggestPrice(10)">10%</button>
+                <button class="roi-suggest-btn" onclick="suggestPrice(15)">15%</button>
+              </div>
+              <div class="roi-suggest-result" id="roi-suggest-result"></div>
+            </div>
+          </div>
+        </div>
+
+        <h3 style="margin-bottom: 1rem;">Skins na Case <span id="editor-total-weight" style="color:var(--text-secondary); font-weight: 400; font-size: 0.85rem;"></span></h3>
+        <div class="admin-table-wrap" style="margin-bottom: 1.5rem;">
+          <table class="admin-table">
+            <thead><tr><th>Imagem</th><th>Nome</th><th>Raridade</th><th>Valor</th><th>Peso</th><th>Chance Real</th><th>Acoes</th></tr></thead>
+            <tbody id="editor-skins-body"><tr><td colspan="7" class="loading">Carregando...</td></tr></tbody>
+          </table>
+        </div>
+
+        <h3 style="margin-bottom: 1rem;">Adicionar Skin</h3>
+        <div class="admin-form-row" style="margin-bottom: 0.5rem;">
+          <div class="form-group">
+            <label>Buscar skin</label>
+            <input type="text" id="skin-search" placeholder="Digite o nome da skin..." oninput="filterSkinPicker()">
+          </div>
+          <div class="form-group">
+            <label>Peso (chance relativa)</label>
+            <input type="number" id="add-skin-weight" value="100" min="1">
+          </div>
+        </div>
+        <div class="skin-picker-list" id="skin-picker-list"></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- MODAL: Case -->
+  <div class="admin-modal-overlay" id="case-modal">
+    <div class="admin-modal">
+      <h3 id="case-modal-title">Nova Case</h3>
+      <input type="hidden" id="case-edit-id">
+      <div class="form-group">
+        <label>Nome</label>
+        <input type="text" id="case-name" placeholder="Ex: Caixa Premium">
+      </div>
+      <div class="form-group">
+        <label>Descricao</label>
+        <textarea id="case-desc" placeholder="Descricao opcional..."></textarea>
+      </div>
+      <div class="admin-form-row">
+        <div class="form-group">
+          <label>Preco (em centavos)</label>
+          <input type="number" id="case-price" placeholder="990 = R$9,90" min="1">
+        </div>
+        <div class="form-group">
+          <label>Ativa?</label>
+          <select id="case-active"><option value="true">Sim</option><option value="false">Nao</option></select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>URL da Imagem</label>
+        <input type="text" id="case-image" placeholder="https://...">
+      </div>
+      <div id="case-image-preview" style="text-align:center; margin-top: 0.5rem;"></div>
+      <div class="admin-modal-actions">
+        <button class="btn btn-secondary" onclick="closeCaseModal()">Cancelar</button>
+        <button class="btn btn-primary" onclick="saveCase()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Skin -->
+  <div class="admin-modal-overlay" id="skin-modal">
+    <div class="admin-modal">
+      <h3 id="skin-modal-title">Nova Skin</h3>
+      <input type="hidden" id="skin-edit-id">
+      <div class="form-group">
+        <label>Nome Completo (ex: AK-47 | Vulcan)</label>
+        <input type="text" id="skin-fullname" placeholder="Arma | Nome da Skin">
+      </div>
+      <div class="admin-form-row">
+        <div class="form-group">
+          <label>Arma</label>
+          <input type="text" id="skin-weapon" placeholder="Ex: AK-47">
+        </div>
+        <div class="form-group">
+          <label>Nome da Skin</label>
+          <input type="text" id="skin-skinname" placeholder="Ex: Vulcan">
+        </div>
+      </div>
+      <div class="admin-form-row">
+        <div class="form-group">
+          <label>Raridade</label>
+          <select id="skin-rarity">
+            <option value="consumer">Consumer (Branco)</option>
+            <option value="industrial">Industrial (Azul Claro)</option>
+            <option value="mil_spec">Mil-Spec (Azul)</option>
+            <option value="restricted">Restricted (Roxo)</option>
+            <option value="classified">Classified (Rosa)</option>
+            <option value="covert">Covert (Vermelho)</option>
+            <option value="extraordinary">Knife/Extraordinary (Dourado)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Valor (centavos)</label>
+          <input type="number" id="skin-price" placeholder="35000 = R$350,00" min="0">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>URL da Imagem</label>
+        <input type="text" id="skin-image" placeholder="https://...">
+      </div>
+      <div class="form-group">
+        <label>Cor da Raridade (hex, opcional)</label>
+        <input type="text" id="skin-color" placeholder="Preenchido automaticamente pela raridade">
+      </div>
+      <div id="skin-image-preview" style="text-align:center; margin-top: 0.5rem;"></div>
+      <div class="admin-modal-actions">
+        <button class="btn btn-secondary" onclick="closeSkinModal()">Cancelar</button>
+        <button class="btn btn-primary" onclick="saveSkin()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script>
+    // =====================================================
+    // STATE
+    // =====================================================
+    let allCases = [];
+    let allSkins = [];
+    let currentCaseId = null;
+    let currentCasePrice = 0;
+    let currentCaseSkins = [];
+    let currentTotalWeight = 0;
+
+    const RARITY_COLORS = {
+      consumer: '#b0c3d9', industrial: '#5e98d9', mil_spec: '#4b69ff',
+      restricted: '#8847ff', classified: '#d32ce6', covert: '#eb4b4b',
+      extraordinary: '#e4ae39'
+    };
+
+    const RARITY_LABELS = {
+      consumer: 'Consumer', industrial: 'Industrial', mil_spec: 'Mil-Spec',
+      restricted: 'Restricted', classified: 'Classified', covert: 'Covert',
+      extraordinary: 'Knife'
+    };
+
+    // =====================================================
+    // INIT
+    // =====================================================
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!isLoggedIn()) { window.location.href = '/login.html'; return; }
+
+      try {
+        await apiFetch('/admin/stats');
+      } catch {
+        document.getElementById('admin-app').innerHTML = `
+          <div class="empty-state" style="padding: 4rem; width: 100%; text-align: center;">
+            <h2 style="margin-bottom: 1rem;">Acesso Negado</h2>
+            <p>Voce nao tem permissao de administrador.</p>
+            <a href="/" class="btn btn-primary" style="margin-top: 1rem;">Voltar ao Site</a>
+          </div>`;
+        return;
+      }
+
+      loadDashboard();
+      loadCases();
+      loadSkins();
+    });
+
+    // =====================================================
+    // TABS
+    // =====================================================
+    function switchTab(tab) {
+      document.querySelectorAll('[id^="tab-"]').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.admin-nav-item').forEach(el => el.classList.remove('active'));
+
+      document.getElementById(`tab-${tab}`).style.display = 'block';
+      const navBtn = document.querySelector(`[data-tab="${tab}"]`);
+      if (navBtn) navBtn.classList.add('active');
+    }
+
+    // =====================================================
+    // DASHBOARD
+    // =====================================================
+    async function loadDashboard() {
+      try {
+        const data = await apiFetch('/admin/stats');
+
+        document.getElementById('stats-cards').innerHTML = `
+          <div class="admin-stat-card"><div class="admin-stat-label">Usuarios</div><div class="admin-stat-value blue">${data.total_users}</div></div>
+          <div class="admin-stat-card"><div class="admin-stat-label">Cases Ativas</div><div class="admin-stat-value">${data.total_cases}</div></div>
+          <div class="admin-stat-card"><div class="admin-stat-label">Total Skins</div><div class="admin-stat-value purple">${data.total_skins}</div></div>
+          <div class="admin-stat-card"><div class="admin-stat-label">Total Aberturas</div><div class="admin-stat-value pink">${data.total_openings}</div></div>
+          <div class="admin-stat-card"><div class="admin-stat-label">Receita Total</div><div class="admin-stat-value">${formatPrice(data.total_revenue)}</div></div>
+        `;
+
+        const tbody = document.getElementById('recent-openings-body');
+        if (data.recent_openings.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-secondary);">Nenhuma abertura ainda</td></tr>';
+        } else {
+          tbody.innerHTML = data.recent_openings.map(o => {
+            const d = new Date(o.created_at);
+            return `<tr>
+              <td>${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})}</td>
+              <td>${o.username}</td>
+              <td>${o.case_name}</td>
+              <td><span style="color:${o.rarity_color};font-weight:600;">${o.skin_name}</span></td>
+              <td style="color:var(--accent);font-weight:600;">${formatPrice(o.market_price)}</td>
+            </tr>`;
+          }).join('');
+        }
+      } catch { showToast('Erro ao carregar dashboard', 'error'); }
+    }
+
+    // =====================================================
+    // CASES
+    // =====================================================
+    async function loadCases() {
+      try {
+        allCases = await apiFetch('/admin/cases');
+        renderCases();
+      } catch { showToast('Erro ao carregar cases', 'error'); }
+    }
+
+    function renderCases() {
+      const tbody = document.getElementById('cases-body');
+      if (allCases.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-secondary);">Nenhuma case criada</td></tr>';
+        return;
+      }
+      tbody.innerHTML = allCases.map(c => `
+        <tr>
+          <td>#${c.id}</td>
+          <td><img src="${c.image_url}" class="admin-table-img" onerror="this.style.display='none'"></td>
+          <td style="font-weight:600;">${c.name}</td>
+          <td style="color:var(--accent);font-weight:600;">${formatPrice(c.price)}</td>
+          <td>${c.skin_count}</td>
+          <td>${c.total_openings}</td>
+          <td><span class="admin-badge ${c.is_active ? 'admin-badge-active' : 'admin-badge-inactive'}">${c.is_active ? 'Ativa' : 'Inativa'}</span></td>
+          <td>
+            <div class="admin-actions">
+              <button class="admin-btn-icon" title="Editar Skins" onclick="openCaseEditor(${c.id})">&#9881;</button>
+              <button class="admin-btn-icon" title="Editar Case" onclick="editCase(${c.id})">&#9998;</button>
+              <button class="admin-btn-icon danger" title="Deletar" onclick="deleteCase(${c.id})">&#10005;</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function openCaseModal(caseData) {
+      document.getElementById('case-modal-title').textContent = caseData ? 'Editar Case' : 'Nova Case';
+      document.getElementById('case-edit-id').value = caseData ? caseData.id : '';
+      document.getElementById('case-name').value = caseData ? caseData.name : '';
+      document.getElementById('case-desc').value = caseData ? (caseData.description || '') : '';
+      document.getElementById('case-price').value = caseData ? caseData.price : '';
+      document.getElementById('case-image').value = caseData ? caseData.image_url : '';
+      document.getElementById('case-active').value = caseData ? String(caseData.is_active) : 'true';
+      document.getElementById('case-image-preview').innerHTML = caseData && caseData.image_url
+        ? `<img src="${caseData.image_url}" style="max-height:80px;border-radius:8px;">`
+        : '';
+      document.getElementById('case-modal').classList.add('active');
+    }
+
+    function closeCaseModal() { document.getElementById('case-modal').classList.remove('active'); }
+
+    function editCase(id) {
+      const c = allCases.find(x => x.id === id);
+      if (c) openCaseModal(c);
+    }
+
+    async function saveCase() {
+      const id = document.getElementById('case-edit-id').value;
+      const body = {
+        name: document.getElementById('case-name').value,
+        description: document.getElementById('case-desc').value,
+        price: parseInt(document.getElementById('case-price').value),
+        image_url: document.getElementById('case-image').value,
+        is_active: document.getElementById('case-active').value === 'true',
+      };
+
+      if (!body.name || !body.price || !body.image_url) {
+        showToast('Preencha nome, preco e imagem', 'error'); return;
+      }
+
+      try {
+        if (id) {
+          await apiFetch(`/admin/cases/${id}`, { method: 'PUT', body: JSON.stringify(body) });
+          showToast('Case atualizada!');
+        } else {
+          await apiFetch('/admin/cases', { method: 'POST', body: JSON.stringify(body) });
+          showToast('Case criada!');
+        }
+        closeCaseModal();
+        loadCases();
+        loadDashboard();
+      } catch (err) { showToast(err.message, 'error'); }
+    }
+
+    async function deleteCase(id) {
+      if (!confirm('Deletar esta case? Isso removerá todos os vínculos com skins.')) return;
+      try {
+        await apiFetch(`/admin/cases/${id}`, { method: 'DELETE' });
+        showToast('Case deletada');
+        loadCases();
+        loadDashboard();
+      } catch (err) { showToast(err.message, 'error'); }
+    }
+
+    // =====================================================
+    // SKINS
+    // =====================================================
+    async function loadSkins() {
+      try {
+        allSkins = await apiFetch('/admin/skins');
+        renderSkins();
+      } catch { showToast('Erro ao carregar skins', 'error'); }
+    }
+
+    function renderSkins() {
+      const tbody = document.getElementById('skins-body');
+      if (allSkins.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-secondary);">Nenhuma skin cadastrada</td></tr>';
+        return;
+      }
+      tbody.innerHTML = allSkins.map(s => `
+        <tr>
+          <td>#${s.id}</td>
+          <td><img src="${s.image_url}" class="admin-table-img" onerror="this.style.display='none'"></td>
+          <td style="font-weight:600;">${s.name}</td>
+          <td>${s.weapon}</td>
+          <td><span style="color:${s.rarity_color};font-weight:600;">${RARITY_LABELS[s.rarity] || s.rarity}</span></td>
+          <td style="color:var(--accent);font-weight:600;">${formatPrice(s.market_price)}</td>
+          <td>${s.case_count}</td>
+          <td>
+            <div class="admin-actions">
+              <button class="admin-btn-icon" title="Editar" onclick="editSkin(${s.id})">&#9998;</button>
+              <button class="admin-btn-icon danger" title="Deletar" onclick="deleteSkin(${s.id})">&#10005;</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function openSkinModal(skinData) {
+      document.getElementById('skin-modal-title').textContent = skinData ? 'Editar Skin' : 'Nova Skin';
+      document.getElementById('skin-edit-id').value = skinData ? skinData.id : '';
+      document.getElementById('skin-fullname').value = skinData ? skinData.name : '';
+      document.getElementById('skin-weapon').value = skinData ? skinData.weapon : '';
+      document.getElementById('skin-skinname').value = skinData ? skinData.skin_name : '';
+      document.getElementById('skin-rarity').value = skinData ? skinData.rarity : 'consumer';
+      document.getElementById('skin-price').value = skinData ? skinData.market_price : '';
+      document.getElementById('skin-image').value = skinData ? skinData.image_url : '';
+      document.getElementById('skin-color').value = skinData ? skinData.rarity_color : '';
+      document.getElementById('skin-image-preview').innerHTML = skinData && skinData.image_url
+        ? `<img src="${skinData.image_url}" style="max-height:80px;">`
+        : '';
+      document.getElementById('skin-modal').classList.add('active');
+    }
+
+    function closeSkinModal() { document.getElementById('skin-modal').classList.remove('active'); }
+
+    function editSkin(id) {
+      const s = allSkins.find(x => x.id === id);
+      if (s) openSkinModal(s);
+    }
+
+    async function saveSkin() {
+      const id = document.getElementById('skin-edit-id').value;
+      const rarity = document.getElementById('skin-rarity').value;
+      const body = {
+        name: document.getElementById('skin-fullname').value,
+        weapon: document.getElementById('skin-weapon').value,
+        skin_name: document.getElementById('skin-skinname').value,
+        rarity: rarity,
+        rarity_color: document.getElementById('skin-color').value || RARITY_COLORS[rarity] || '#b0c3d9',
+        image_url: document.getElementById('skin-image').value,
+        market_price: parseInt(document.getElementById('skin-price').value) || 0,
+      };
+
+      if (!body.name || !body.image_url) {
+        showToast('Preencha nome e imagem', 'error'); return;
+      }
+
+      try {
+        if (id) {
+          await apiFetch(`/admin/skins/${id}`, { method: 'PUT', body: JSON.stringify(body) });
+          showToast('Skin atualizada!');
+        } else {
+          await apiFetch('/admin/skins', { method: 'POST', body: JSON.stringify(body) });
+          showToast('Skin criada!');
+        }
+        closeSkinModal();
+        loadSkins();
+        loadDashboard();
+      } catch (err) { showToast(err.message, 'error'); }
+    }
+
+    async function deleteSkin(id) {
+      if (!confirm('Deletar esta skin? Será removida de todas as cases.')) return;
+      try {
+        await apiFetch(`/admin/skins/${id}`, { method: 'DELETE' });
+        showToast('Skin deletada');
+        loadSkins();
+      } catch (err) { showToast(err.message, 'error'); }
+    }
+
+    // =====================================================
+    // CASE EDITOR (skins dentro de uma case)
+    // =====================================================
+    async function openCaseEditor(caseId) {
+      currentCaseId = caseId;
+      document.getElementById('nav-editor').style.display = 'flex';
+      switchTab('editor');
+      await loadCaseEditor();
+    }
+
+    async function loadCaseEditor() {
+      try {
+        const data = await apiFetch(`/admin/cases/${currentCaseId}/skins`);
+        const c = data.case;
+
+        document.getElementById('editor-title').textContent = `Editor: ${c.name}`;
+        document.getElementById('editor-info').innerHTML = `
+          <div style="display:flex;align-items:center;gap:1.5rem;">
+            <img src="${c.image_url}" style="width:80px;height:60px;object-fit:contain;border-radius:8px;" onerror="this.style.display='none'">
+            <div>
+              <div style="font-weight:700;font-size:1.1rem;">${c.name}</div>
+              <div style="color:var(--accent);font-weight:600;">${formatPrice(c.price)}</div>
+              ${c.description ? `<div style="color:var(--text-secondary);font-size:0.85rem;margin-top:0.3rem;">${c.description}</div>` : ''}
+            </div>
+          </div>
+        `;
+
+        currentCasePrice = c.price;
+        currentCaseSkins = data.skins;
+        currentTotalWeight = data.total_weight;
+        document.getElementById('editor-total-weight').textContent = `(Peso total: ${data.total_weight})`;
+
+        updateROI(c.price, data.skins, data.total_weight);
+
+        const tbody = document.getElementById('editor-skins-body');
+        if (data.skins.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-secondary);">Nenhuma skin adicionada. Use a lista abaixo para adicionar.</td></tr>';
+        } else {
+          tbody.innerHTML = data.skins.map(s => {
+            const pct = parseFloat(s.chance_percent);
+            const barColor = s.rarity_color || '#4b69ff';
+            return `<tr>
+              <td><img src="${s.image_url}" class="admin-table-img" onerror="this.style.display='none'"></td>
+              <td style="font-weight:600;">${s.name}</td>
+              <td><span style="color:${s.rarity_color};font-weight:600;">${RARITY_LABELS[s.rarity] || s.rarity}</span></td>
+              <td style="color:var(--accent);">${formatPrice(s.market_price)}</td>
+              <td>
+                <input type="number" value="${s.weight}" min="1" style="width:80px;padding:0.3rem;background:var(--bg-input);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);text-align:center;"
+                  onchange="updateWeight(${s.link_id}, this.value)">
+              </td>
+              <td>
+                <div class="weight-display">
+                  <div class="weight-bar"><div class="weight-bar-fill" style="width:${Math.min(pct * 2, 100)}%;background:${barColor};"></div></div>
+                  <span class="weight-percent" style="color:${barColor};">${pct}%</span>
+                </div>
+              </td>
+              <td>
+                <button class="admin-btn-icon danger" title="Remover" onclick="removeSkinFromCase(${s.link_id})">&#10005;</button>
+              </td>
+            </tr>`;
+          }).join('');
+        }
+
+        // Render skin picker
+        renderSkinPicker(data.skins.map(s => s.id));
+      } catch (err) { showToast(err.message, 'error'); }
+    }
+
+    function renderSkinPicker(existingIds) {
+      const list = document.getElementById('skin-picker-list');
+      const filtered = allSkins.filter(s => !existingIds.includes(s.id));
+
+      if (filtered.length === 0) {
+        list.innerHTML = '<div style="padding:1rem;text-align:center;color:var(--text-secondary);">Todas as skins ja estao nesta case</div>';
+        return;
+      }
+
+      list.innerHTML = filtered.map(s => `
+        <div class="skin-picker-item" data-name="${s.name.toLowerCase()}" onclick="addSkinToCase(${s.id})">
+          <span class="rarity-dot" style="background:${s.rarity_color};box-shadow:0 0 6px ${s.rarity_color};"></span>
+          <img src="${s.image_url}" onerror="this.style.display='none'">
+          <span class="name">${s.name}</span>
+          <span style="color:var(--text-secondary);font-size:0.75rem;">${formatPrice(s.market_price)}</span>
+        </div>
+      `).join('');
+    }
+
+    function filterSkinPicker() {
+      const query = document.getElementById('skin-search').value.toLowerCase();
+      document.querySelectorAll('.skin-picker-item').forEach(el => {
+        el.style.display = el.dataset.name.includes(query) ? 'flex' : 'none';
+      });
+    }
+
+    async function addSkinToCase(skinId) {
+      const weight = parseInt(document.getElementById('add-skin-weight').value) || 100;
+      try {
+        await apiFetch(`/admin/cases/${currentCaseId}/skins`, {
+          method: 'POST',
+          body: JSON.stringify({ skin_id: skinId, weight })
+        });
+        showToast('Skin adicionada!');
+        loadCaseEditor();
+      } catch (err) { showToast(err.message, 'error'); }
+    }
+
+    async function updateWeight(linkId, newWeight) {
+      try {
+        await apiFetch(`/admin/case-skins/${linkId}`, {
+          method: 'PUT',
+          body: JSON.stringify({ weight: parseInt(newWeight) })
+        });
+        loadCaseEditor();
+      } catch (err) { showToast(err.message, 'error'); }
+    }
+
+    async function removeSkinFromCase(linkId) {
+      if (!confirm('Remover esta skin da case?')) return;
+      try {
+        await apiFetch(`/admin/case-skins/${linkId}`, { method: 'DELETE' });
+        showToast('Skin removida');
+        loadCaseEditor();
+      } catch (err) { showToast(err.message, 'error'); }
+    }
+
+    // =====================================================
+    // ROI CALCULATOR
+    // =====================================================
+    function updateROI(casePrice, skins, totalWeight) {
+      if (!skins || skins.length === 0 || totalWeight === 0) {
+        document.getElementById('roi-case-price').textContent = formatPrice(casePrice);
+        document.getElementById('roi-ev').textContent = '—';
+        document.getElementById('roi-margin-value').textContent = '—';
+        document.getElementById('roi-status').textContent = 'Adicione skins para calcular';
+        document.getElementById('roi-status').className = 'roi-status roi-status-warn';
+        document.getElementById('roi-needle').style.left = '0%';
+        document.getElementById('roi-suggest-result').textContent = '';
+        return;
+      }
+
+      // EV = Σ(weight_i / totalWeight × effectivePrice_i)
+      let ev = 0;
+      for (const s of skins) {
+        const price = s.site_price || s.market_price || 0;
+        ev += (s.weight / totalWeight) * price;
+      }
+
+      const margin = ((1 - ev / casePrice) * 100);
+
+      document.getElementById('roi-case-price').textContent = formatPrice(casePrice);
+      document.getElementById('roi-ev').textContent = formatPrice(Math.round(ev));
+
+      const marginStr = margin.toFixed(2) + '%';
+      const marginEl = document.getElementById('roi-margin-value');
+      marginEl.textContent = marginStr;
+
+      // Status + color
+      const statusEl = document.getElementById('roi-status');
+      if (margin < 0) {
+        marginEl.style.color = '#eb4b4b';
+        statusEl.textContent = '⚠ Prejuizo: EV maior que o preco da case!';
+        statusEl.className = 'roi-status roi-status-danger';
+      } else if (margin < 5) {
+        marginEl.style.color = '#f0a500';
+        statusEl.textContent = '⚠ Margem muito baixa (ideal: 5–15%)';
+        statusEl.className = 'roi-status roi-status-warn';
+      } else if (margin <= 15) {
+        marginEl.style.color = '#00ff88';
+        statusEl.textContent = '✓ Margem ideal (5–15%)';
+        statusEl.className = 'roi-status roi-status-ok';
+      } else {
+        marginEl.style.color = '#5e98d9';
+        statusEl.textContent = '↑ Margem alta — pode afastar jogadores';
+        statusEl.className = 'roi-status roi-status-high';
+      }
+
+      // Needle: clamp to 0–30% display range (0-100% of bar)
+      const displayMax = 30;
+      const needlePct = Math.min(Math.max(margin, 0), displayMax) / displayMax * 100;
+      document.getElementById('roi-needle').style.left = `${needlePct}%`;
+
+      document.getElementById('roi-suggest-result').textContent = '';
+    }
+
+    function suggestPrice(targetMarginPct) {
+      if (currentTotalWeight === 0 || currentCaseSkins.length === 0) {
+        showToast('Adicione skins primeiro', 'error');
+        return;
+      }
+
+      let ev = 0;
+      for (const s of currentCaseSkins) {
+        const price = s.site_price || s.market_price || 0;
+        ev += (s.weight / currentTotalWeight) * price;
+      }
+
+      // casePrice = ev / (1 - targetMargin/100)
+      const suggestedRaw = ev / (1 - targetMarginPct / 100);
+      // Round up to nearest R$0.10 (10 centavos)
+      const suggested = Math.ceil(suggestedRaw / 10) * 10;
+
+      const resultEl = document.getElementById('roi-suggest-result');
+      resultEl.innerHTML = `Sugerido (${targetMarginPct}%): <strong style="color:var(--accent);">${formatPrice(suggested)}</strong>`;
+    }
+
+    // Auto-fill weapon + skin_name from full name
+    document.getElementById('skin-fullname')?.addEventListener('input', (e) => {
+      const parts = e.target.value.split('|').map(p => p.trim());
+      if (parts.length === 2) {
+        document.getElementById('skin-weapon').value = parts[0];
+        document.getElementById('skin-skinname').value = parts[1];
+      }
+    });
+
+    // Image preview on URL change
+    ['case-image', 'skin-image'].forEach(id => {
+      document.getElementById(id)?.addEventListener('input', (e) => {
+        const previewId = id.replace('image', 'image-preview');
+        const url = e.target.value;
+        document.getElementById(previewId).innerHTML = url
+          ? `<img src="${url}" style="max-height:80px;border-radius:8px;" onerror="this.parentElement.innerHTML='Imagem invalida'">`
+          : '';
+      });
+    });
+  </script>
+</body>
+</html>

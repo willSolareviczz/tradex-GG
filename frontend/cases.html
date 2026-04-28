@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Caixas - tradexGG</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- Live Drops Ticker -->
+  <div class="live-drops-bar" id="live-drops-bar">
+    <span class="live-drops-label">
+      <span class="live-dot"></span>
+      DROPS AO VIVO
+    </span>
+    <div class="live-drops-track-wrap">
+      <div class="live-drops-track" id="live-drops-track">
+        <div class="live-drops-loading">Carregando drops...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- Page Header + Controls -->
+    <div class="cases-page-header">
+      <div class="cases-page-title-row">
+        <h1 class="page-title" style="margin-bottom:0">Caixas</h1>
+        <span class="cases-total-badge" id="cases-total-badge">...</span>
+      </div>
+
+      <!-- Search + Sort -->
+      <div class="cases-controls">
+        <div class="cases-search-wrap">
+          <svg class="cases-search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input type="text" id="cases-search" class="cases-search-input" placeholder="Buscar caixa...">
+        </div>
+        <div class="cases-sort-wrap">
+          <select id="cases-sort" class="cases-sort-select">
+            <option value="default">Padrão</option>
+            <option value="price-asc">Menor preço</option>
+            <option value="price-desc">Maior preço</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Category Filter Tabs -->
+      <div class="cases-filter-tabs" id="cases-filter-tabs">
+        <button class="filter-tab active" data-cat="all">Todas</button>
+        <button class="filter-tab" data-cat="rifles">Fuzis</button>
+        <button class="filter-tab" data-cat="pistols">Pistolas</button>
+        <button class="filter-tab" data-cat="snipers">Snipers</button>
+        <button class="filter-tab" data-cat="smg">SMG</button>
+        <button class="filter-tab" data-cat="knives">Facas</button>
+        <button class="filter-tab" data-cat="premium">Premium</button>
+      </div>
+    </div>
+
+    <!-- Cases Grid -->
+    <div id="cases-grid">
+      <div class="loading">Carregando caixas...</div>
+    </div>
+
+    <!-- Empty state for filters -->
+    <div id="no-results" class="empty-state" style="display:none">
+      <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:1rem;opacity:0.4"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <p>Nenhuma caixa encontrada</p>
+    </div>
+
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/cases.js"></script>
+</body>
+</html>
