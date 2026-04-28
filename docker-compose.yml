@@ -1,0 +1,56 @@
+version: '3.9'
+
+services:
+
+  # ── Banco de Dados ─────────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: tradexgg-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: tradexgg
+      POSTGRES_USER: tradex
+      POSTGRES_PASSWORD: tradexpass
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tradex -d tradexgg"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Backend (Node.js / Express) ────────────────────────────────────
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tradexgg-backend
+    restart: unless-stopped
+    env_file: ./backend/.env
+    environment:
+      DATABASE_URL: postgresql://tradex:tradexpass@db:5432/tradexgg
+      PORT: 3000
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # ── Frontend (Nginx) ───────────────────────────────────────────────
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: tradexgg-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
