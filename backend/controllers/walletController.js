@@ -6,18 +6,38 @@
  */
 const pool = require('../config/db');
 
+const DAILY_DEPOSIT_LIMIT = 50000 * 100; // R$50.000 por dia
+
 exports.addBalance = async (req, res) => {
   try {
     const { amount } = req.body;
     const amountCents = Math.round(Number(amount));
 
-    if (!amountCents || amountCents < 100 || amountCents > 10000000) {
+    if (!Number.isFinite(amountCents) || amountCents < 100 || amountCents > 10000000) {
       return res.status(400).json({ error: 'Valor inválido (mínimo R$1,00, máximo R$100.000,00)' });
     }
 
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
+
+      // Verificar total depositado hoje
+      const todayTotal = await client.query(
+        `SELECT COALESCE(SUM(amount), 0)::bigint AS total
+         FROM transactions
+         WHERE user_id = $1
+           AND type = 'deposit'
+           AND created_at >= CURRENT_DATE`,
+        [req.userId]
+      );
+      const depositedToday = Number(todayTotal.rows[0].total);
+
+      if (depositedToday + amountCents > DAILY_DEPOSIT_LIMIT) {
+        await client.query('ROLLBACK');
+        return res.status(429).json({
+          error: `Limite diário de depósito atingido (R$${(DAILY_DEPOSIT_LIMIT / 100).toFixed(0)}/dia).`,
+        });
+      }
 
       await client.query(
         'UPDATE users SET balance = balance + $1 WHERE id = $2',

@@ -252,6 +252,15 @@ function formatPrice(centavos) {
   return `R$ ${(centavos / 100).toFixed(2).replace('.', ',')}`;
 }
 
+function escapeHtml(str) {
+  return String(str ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function showToast(message, type = 'success') {
   const existing = document.querySelector('.toast');
   if (existing) existing.remove();
@@ -359,24 +368,28 @@ function renderNavbar() {
 
     function renderResults(items, q) {
       if (!items.length) {
-        return openDropdown(`<div class="nsearch-empty">Nenhuma skin encontrada para "<strong>${q}</strong>"</div>`);
+        return openDropdown(`<div class="nsearch-empty">Nenhuma skin encontrada para "<strong>${escapeHtml(q)}</strong>"</div>`);
       }
       const rows = items.map(it => {
-        const price = it.price ? formatPrice(it.price) : '';
+        const price      = it.price ? formatPrice(it.price) : '';
+        const skinName   = escapeHtml(it.skin_name);
+        const caseName   = escapeHtml(it.case_name);
+        const rarityColor = /^#[0-9a-fA-F]{3,6}$/.test(it.rarity_color) ? it.rarity_color : '#888';
+        const caseId     = parseInt(it.case_id, 10) || 0;
         return `
-          <a class="nsearch-result" href="/open.html?case=${it.case_id}">
-            <img class="nsearch-skin-img" src="${it.skin_image}" onerror="this.src='${SKIN_PLACEHOLDER}'" alt="">
+          <a class="nsearch-result" href="/open.html?case=${caseId}">
+            <img class="nsearch-skin-img" src="${escapeHtml(it.skin_image)}" onerror="this.src='${SKIN_PLACEHOLDER}'" alt="">
             <div class="nsearch-info">
               <span class="nsearch-skin-name">
-                <span class="nsearch-rarity-dot" style="background:${it.rarity_color}"></span>
-                ${it.skin_name}
+                <span class="nsearch-rarity-dot" style="background:${rarityColor}"></span>
+                ${skinName}
               </span>
               <span class="nsearch-case-row">
-                <img class="nsearch-case-img" src="${it.case_image}" onerror="this.style.display='none'" alt="">
-                ${it.case_name}
+                <img class="nsearch-case-img" src="${escapeHtml(it.case_image)}" onerror="this.style.display='none'" alt="">
+                ${caseName}
               </span>
             </div>
-            ${price ? `<span class="nsearch-price">${price}</span>` : ''}
+            ${price ? `<span class="nsearch-price">${escapeHtml(price)}</span>` : ''}
           </a>`;
       }).join('');
       openDropdown(rows);
