@@ -18,6 +18,10 @@ exports.register = async (req, res) => {
       return res.status(400).json({ error: 'Preencha todos os campos' });
     }
 
+    if (username.length < 3 || username.length > 32) {
+      return res.status(400).json({ error: 'Username deve ter entre 3 e 32 caracteres' });
+    }
+
     if (password.length < 6) {
       return res.status(400).json({ error: 'Senha deve ter no mínimo 6 caracteres' });
     }
@@ -33,9 +37,15 @@ exports.register = async (req, res) => {
 
     const password_hash = await bcrypt.hash(password, 10);
 
+    // Gerar token de verificação de email (24h)
+    const verifyToken = crypto.randomBytes(32).toString('hex');
+    const verifyExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
     const result = await pool.query(
-      'INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING id, username, email, balance',
-      [username, email, password_hash]
+      `INSERT INTO users (username, email, password_hash, email_verify_token, email_verify_expires)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING id, username, email, balance, email_verified`,
+      [username, email, password_hash, verifyToken, verifyExpires]
     );
 
     const user = result.rows[0];
@@ -43,10 +53,82 @@ exports.register = async (req, res) => {
       expiresIn: process.env.JWT_EXPIRES_IN || '7d',
     });
 
+    // Enviar email de verificação (silencioso se não configurado)
+    if (emailService.isConfigured()) {
+      const baseUrl = process.env.SITE_URL || `http://localhost:${process.env.PORT || 3000}`;
+      const verifyUrl = `${baseUrl}/verify-email.html?token=${verifyToken}`;
+      emailService.sendEmailVerification(user.email, user.username, verifyUrl).catch(err => {
+        console.error('[email] Falha ao enviar verificação:', err.message);
+      });
+    }
+
     res.status(201).json({ user, token });
   } catch (err) {
     console.error('Erro no registro:', err);
     res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+};
+
+exports.verifyEmail = async (req, res) => {
+  try {
+    const { token } = req.query;
+    if (!token) return res.status(400).json({ error: 'Token não informado' });
+
+    const result = await pool.query(
+      'SELECT id FROM users WHERE email_verify_token = $1 AND email_verify_expires > NOW()',
+      [token]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(400).json({ error: 'Token inválido ou expirado' });
+    }
+
+    await pool.query(
+      'UPDATE users SET email_verified = TRUE, email_verify_token = NULL, email_verify_expires = NULL WHERE id = $1',
+      [result.rows[0].id]
+    );
+
+    res.json({ message: 'Email verificado com sucesso!' });
+  } catch (err) {
+    console.error('Erro ao verificar email:', err);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+};
+
+exports.resendVerification = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Informe o email' });
+
+    const result = await pool.query(
+      'SELECT id, username, email, email_verified FROM users WHERE email = $1',
+      [email]
+    );
+
+    // Sempre responde com sucesso — não revela se email existe
+    if (result.rows.length === 0 || result.rows[0].email_verified) {
+      return res.json({ message: 'Se este email estiver cadastrado e não verificado, você receberá um novo link.' });
+    }
+
+    const user = result.rows[0];
+    const verifyToken = crypto.randomBytes(32).toString('hex');
+    const verifyExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    await pool.query(
+      'UPDATE users SET email_verify_token = $1, email_verify_expires = $2 WHERE id = $3',
+      [verifyToken, verifyExpires, user.id]
+    );
+
+    if (emailService.isConfigured()) {
+      const baseUrl = process.env.SITE_URL || `http://localhost:${process.env.PORT || 3000}`;
+      const verifyUrl = `${baseUrl}/verify-email.html?token=${verifyToken}`;
+      await emailService.sendEmailVerification(user.email, user.username, verifyUrl);
+    }
+
+    res.json({ message: 'Se este email estiver cadastrado e não verificado, você receberá um novo link.' });
+  } catch (err) {
+    console.error('Erro ao reenviar verificação:', err);
+    res.status(500).json({ error: 'Erro ao enviar email.' });
   }
 };
 

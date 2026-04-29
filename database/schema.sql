@@ -76,14 +76,19 @@ CREATE TABLE IF NOT EXISTS transactions (
 
 -- ===== FEATURES ADICIONAIS =====
 
--- Feature 3: XP / Niveis
+-- XP / Niveis
 ALTER TABLE users ADD COLUMN IF NOT EXISTS xp INTEGER NOT NULL DEFAULT 0;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS level INTEGER NOT NULL DEFAULT 1;
 
--- Feature 1: Daily Free Case
+-- Daily Bonus
 ALTER TABLE users ADD COLUMN IF NOT EXISTS daily_claimed_at TIMESTAMP;
 
--- Feature 2: Upgrade System
+-- Email Verification
+ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verified BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verify_token VARCHAR(64);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verify_expires TIMESTAMP;
+
+-- Upgrade System (planejado — tabela criada, sem rotas ainda)
 CREATE TABLE IF NOT EXISTS upgrades (
     id              SERIAL PRIMARY KEY,
     user_id         INTEGER REFERENCES users(id) ON DELETE CASCADE,

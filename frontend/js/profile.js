@@ -53,16 +53,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       <h2 class="page-title" style="font-size: 1.3rem;">Aberturas Recentes</h2>
       ${data.recent_openings.length === 0
         ? '<div class="empty-state"><p>Nenhuma abertura ainda.</p><a href="/cases.html" class="btn btn-primary">Abrir Caixas</a></div>'
-        : `<div class="card-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
+        : `<div class="card-grid" style="grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem;">
             ${data.recent_openings.map(o => `
               <div class="skin-card" style="border-color: ${o.rarity_color}">
-                <div class="skin-card-visual">
-                  <img src="/api/image/weapon-crop?url=${encodeURIComponent(o.image_url)}" alt="${o.name}" class="skin-card-img">
+                <div class="skin-card-visual" style="height: 90px;">
+                  <img src="/api/image/weapon-crop?url=${encodeURIComponent(o.image_url)}" alt="${o.name}" class="skin-card-img" style="width:70%;height:70%;">
                 </div>
-                <div class="skin-card-info">
-                  <div class="skin-card-name">${o.name}</div>
-                  <div class="skin-card-rarity" style="color: ${o.rarity_color}">${o.rarity.replace('_', ' ')}</div>
-                  <div style="font-size: 0.75rem; color: var(--text-secondary);">${o.case_name}</div>
+                <div class="skin-card-info" style="padding: 0.4rem 0.6rem 0.4rem;">
+                  <div class="skin-card-name" style="font-size:0.68rem;">${o.name}</div>
+                  <div class="skin-card-rarity" style="color: ${o.rarity_color}; font-size:0.62rem;">${o.rarity.replace('_', ' ')}</div>
+                  <div style="font-size: 0.6rem; color: var(--text-secondary);">${o.case_name}</div>
                 </div>
               </div>
             `).join('')}

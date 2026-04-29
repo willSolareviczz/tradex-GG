@@ -87,11 +87,16 @@ app.use('/api/wallet',    walletLimiter, walletRoutes);
 app.use('/api/admin',     adminRoutes);
 app.use('/api/image',     imageLimiter, imageProxyRoutes);
 
-// SPA fallback - serve index.html for non-API routes
+// SPA fallback
 app.get('/{*splat}', (req, res) => {
-  if (!req.path.startsWith('/api')) {
-    res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json({ error: 'Endpoint não encontrado' });
   }
+  // HTML requests that didn't match any static file → 404 page
+  if (req.path.endsWith('.html')) {
+    return res.status(404).sendFile(path.join(__dirname, '..', 'frontend', '404.html'));
+  }
+  res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
 });
 
 app.listen(PORT, () => {
