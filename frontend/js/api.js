@@ -317,6 +317,7 @@ function renderNavbar() {
     </div>
     <div class="navbar-right">
       ${logged ? `
+        <button class="btn btn-daily btn-sm" id="nav-daily-btn" style="display:none;" onclick="claimDailyBonus(this)">+R$5 Diário</button>
         <div class="balance-display" id="nav-balance">${formatPrice(user?.balance || 0)}</div>
         <a href="/deposit.html" class="btn btn-primary btn-sm">Depositar</a>
         <a href="/profile.html" class="btn btn-secondary btn-sm nav-profile-btn">
@@ -330,6 +331,20 @@ function renderNavbar() {
       `}
     </div>
   `;
+
+  // Email verification banner (hidden by default, shown after /users/me if not verified)
+  if (logged) {
+    const banner = document.createElement('div');
+    banner.id = 'email-verify-banner';
+    banner.className = 'email-verify-banner';
+    banner.style.display = 'none';
+    banner.innerHTML = `
+      <span>Verifique seu email para ativar todos os recursos da conta.</span>
+      <button class="email-verify-resend" onclick="resendVerificationEmail(this)">Reenviar link</button>
+      <button class="email-verify-close" onclick="this.parentElement.style.display='none'">✕</button>
+    `;
+    document.body.prepend(banner);
+  }
 
   document.body.prepend(nav);
 
@@ -458,26 +473,38 @@ function renderNavbar() {
     });
   })();
 
-  // Update balance and level from server
+  // Update balance, level, daily bonus and email verification from server
   if (logged) {
     apiFetch('/users/me').then(data => {
-      if (data) {
-        const balEl = document.getElementById('nav-balance');
-        if (balEl) balEl.textContent = formatPrice(data.balance);
-        // Update level badge
-        const levelBadge = document.getElementById('nav-level-badge');
-        if (levelBadge && data.level) {
-          levelBadge.textContent = `LV ${data.level}`;
-          levelBadge.style.display = 'inline-block';
-        }
-        // Update stored user
-        const user = getUser();
-        if (user) {
-          user.balance = data.balance;
-          user.level = data.level;
-          user.xp = data.xp;
-          localStorage.setItem('tradexgg_user', JSON.stringify(user));
-        }
+      if (!data) return;
+
+      const balEl = document.getElementById('nav-balance');
+      if (balEl) balEl.textContent = formatPrice(data.balance);
+
+      const levelBadge = document.getElementById('nav-level-badge');
+      if (levelBadge && data.level) {
+        levelBadge.textContent = `LV ${data.level}`;
+        levelBadge.style.display = 'inline-block';
+      }
+
+      // Daily bonus button
+      const dailyBtn = document.getElementById('nav-daily-btn');
+      if (dailyBtn && data.daily_available) {
+        dailyBtn.style.display = 'inline-flex';
+      }
+
+      // Email verification banner
+      if (data.email_verified === false) {
+        const banner = document.getElementById('email-verify-banner');
+        if (banner) banner.style.display = 'flex';
+      }
+
+      const user = getUser();
+      if (user) {
+        user.balance = data.balance;
+        user.level = data.level;
+        user.xp = data.xp;
+        localStorage.setItem('tradexgg_user', JSON.stringify(user));
       }
     }).catch(() => {});
   }
@@ -486,6 +513,39 @@ function renderNavbar() {
 function logout() {
   clearAuth();
   window.location.href = '/';
+}
+
+async function claimDailyBonus(btn) {
+  btn.disabled = true;
+  btn.textContent = '...';
+  try {
+    const data = await apiFetch('/users/daily-claim', { method: 'POST' });
+    showToast(`+${formatPrice(data.amount)} de bônus diário!`);
+    btn.style.display = 'none';
+    const balEl = document.getElementById('nav-balance');
+    if (balEl) balEl.textContent = formatPrice(data.new_balance);
+    const user = getUser();
+    if (user) { user.balance = data.new_balance; localStorage.setItem('tradexgg_user', JSON.stringify(user)); }
+  } catch (err) {
+    showToast(err.message, 'error');
+    btn.disabled = false;
+    btn.textContent = '+R$5 Diário';
+  }
+}
+
+async function resendVerificationEmail(btn) {
+  const user = getUser();
+  if (!user?.email) return;
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+  try {
+    await apiFetch('/auth/resend-verification', { method: 'POST', body: JSON.stringify({ email: user.email }) });
+    showToast('Link de verificação enviado para seu email!');
+    btn.textContent = 'Enviado!';
+  } catch {
+    btn.disabled = false;
+    btn.textContent = 'Reenviar link';
+  }
 }
 
 // ===== Footer =====

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verificar Email — tradexGG</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="container" style="display:flex;align-items:center;justify-content:center;min-height:80vh;">
+    <div class="card" style="max-width:420px;width:100%;text-align:center;padding:2.5rem;">
+      <div id="verify-content">
+        <div style="font-family:var(--font-mono);color:var(--text-secondary);font-size:0.8rem;letter-spacing:0.1em;margin-bottom:1rem;">VERIFICANDO EMAIL</div>
+        <div class="loading">Aguarde...</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get('token');
+      const content = document.getElementById('verify-content');
+
+      if (!token) {
+        content.innerHTML = `
+          <div style="color:var(--danger);font-size:2rem;margin-bottom:1rem;">✕</div>
+          <h2 style="margin-bottom:0.75rem;">Token não informado</h2>
+          <p style="color:var(--text-secondary);margin-bottom:1.5rem;">O link de verificação é inválido.</p>
+          <a href="/" class="btn btn-primary">Voltar ao Início</a>`;
+        return;
+      }
+
+      try {
+        await apiFetch(`/auth/verify-email?token=${encodeURIComponent(token)}`);
+        content.innerHTML = `
+          <div style="color:var(--brass);font-size:2rem;margin-bottom:1rem;">✓</div>
+          <h2 style="margin-bottom:0.75rem;">Email verificado!</h2>
+          <p style="color:var(--text-secondary);margin-bottom:1.5rem;">Sua conta está ativa. Você já pode usar todos os recursos do tradexGG.</p>
+          <a href="/" class="btn btn-primary">Ir para o Início</a>`;
+      } catch (err) {
+        content.innerHTML = `
+          <div style="color:var(--danger);font-size:2rem;margin-bottom:1rem;">✕</div>
+          <h2 style="margin-bottom:0.75rem;">Link inválido ou expirado</h2>
+          <p style="color:var(--text-secondary);margin-bottom:1.5rem;">${err.message}</p>
+          <a href="/login.html" class="btn btn-secondary" style="margin-right:0.5rem;">Fazer Login</a>
+          <a href="/" class="btn btn-primary">Início</a>`;
+      }
+    });
+  </script>
+</body>
+</html>

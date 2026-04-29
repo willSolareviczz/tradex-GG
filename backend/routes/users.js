@@ -10,6 +10,7 @@ const auth = require('../middleware/auth');
 const usersController = require('../controllers/usersController');
 
 router.get('/me', auth, usersController.getMe);
+router.post('/daily-claim', auth, usersController.claimDaily);
 router.get('/profile/:id', usersController.getProfile);
 
 module.exports = router;
