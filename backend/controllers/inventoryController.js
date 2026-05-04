@@ -115,3 +115,53 @@ exports.sellSkin = async (req, res) => {
     client.release();
   }
 };
+
+exports.sellAll = async (req, res) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const openings = await client.query(
+      `SELECT o.id, COALESCE(s.site_price, s.market_price) AS sell_price
+       FROM openings o
+       JOIN skins s ON o.skin_id = s.id
+       WHERE o.user_id = $1 AND o.sold = false
+       FOR UPDATE`,
+      [req.userId]
+    );
+
+    if (openings.rows.length === 0) {
+      await client.query('ROLLBACK');
+      const balRes = await pool.query('SELECT balance FROM users WHERE id = $1', [req.userId]);
+      return res.json({ sold: 0, total_amount: 0, new_balance: balRes.rows[0].balance });
+    }
+
+    const totalAmount = openings.rows.reduce((sum, r) => sum + parseInt(r.sell_price), 0);
+    const valueRows = openings.rows.map(r => `(${r.id}, ${parseInt(r.sell_price)})`).join(',');
+
+    await client.query(
+      `UPDATE openings SET sold = true, sell_price = v.price
+       FROM (VALUES ${valueRows}) AS v(id, price)
+       WHERE openings.id = v.id`
+    );
+
+    await client.query('UPDATE users SET balance = balance + $1 WHERE id = $2', [totalAmount, req.userId]);
+
+    await client.query(
+      `INSERT INTO transactions (user_id, type, amount, description)
+       VALUES ($1, 'sell', $2, $3)`,
+      [req.userId, totalAmount, `Venda em massa de ${openings.rows.length} ${openings.rows.length === 1 ? 'item' : 'itens'}`]
+    );
+
+    const balRes = await client.query('SELECT balance FROM users WHERE id = $1', [req.userId]);
+    await client.query('COMMIT');
+
+    res.json({ sold: openings.rows.length, total_amount: totalAmount, new_balance: balRes.rows[0].balance });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('sellAll:', err);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  } finally {
+    client.release();
+  }
+};

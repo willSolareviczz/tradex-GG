@@ -10,6 +10,7 @@ const auth = require('../middleware/auth');
 const inventoryController = require('../controllers/inventoryController');
 
 router.get('/', auth, inventoryController.getInventory);
+router.post('/sell-all', auth, inventoryController.sellAll);
 router.post('/:id/sell', auth, inventoryController.sellSkin);
 
 module.exports = router;

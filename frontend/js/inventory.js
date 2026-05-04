@@ -16,8 +16,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (btnSellAll) btnSellAll.addEventListener('click', sellAll);
 });
 
-let _allInventoryItems = [];
-
 async function loadInventory(page) {
   const grid = document.getElementById('inventory-grid');
 
@@ -38,7 +36,6 @@ async function loadInventory(page) {
     // Update summary bar (load all items for accurate total value on page 1)
     if (page === 1) {
       apiFetch(`/inventory?page=1&limit=9999`).then(allData => {
-        _allInventoryItems = allData.items;
         const totalVal = allData.items.reduce((s, i) => s + (i.site_price || i.market_price || 0), 0);
         const summary = document.getElementById('inventory-summary');
         const totalItemsEl = document.getElementById('inv-total-items');
@@ -95,35 +92,24 @@ async function loadInventory(page) {
 const _sellingIds = new Set();
 
 async function sellAll() {
-  if (_allInventoryItems.length === 0) {
-    showToast('Nenhum item para vender.', 'error');
-    return;
-  }
-  const totalVal = _allInventoryItems.reduce((s, i) => s + (i.site_price || i.market_price || 0), 0);
-  if (!confirm(`Vender todos os ${_allInventoryItems.length} itens por ${formatPrice(totalVal)}?`)) return;
+  if (!confirm('Vender todos os itens do inventário?')) return;
 
   const btn = document.getElementById('btn-sell-all');
   if (btn) { btn.disabled = true; btn.textContent = 'Vendendo...'; }
 
-  let sold = 0;
-  let lastBalance = null;
-  for (const item of _allInventoryItems) {
-    try {
-      const res = await apiFetch(`/inventory/${item.opening_id}/sell`, { method: 'POST' });
-      lastBalance = res.new_balance;
-      sold++;
-    } catch {}
-  }
-
-  if (lastBalance !== null) {
+  try {
+    const res = await apiFetch('/inventory/sell-all', { method: 'POST' });
+    if (res.sold === 0) { showToast('Nenhum item para vender.', 'error'); return; }
+    showToast(`${res.sold} item(s) vendido(s) por ${formatPrice(res.total_amount)}!`);
     const balEl = document.getElementById('nav-balance');
-    if (balEl) balEl.textContent = formatPrice(lastBalance);
+    if (balEl) balEl.textContent = formatPrice(res.new_balance);
+    updateStoredBalance(res.new_balance);
+    await loadInventory(1);
+  } catch (err) {
+    showToast(err.message || 'Erro ao vender itens', 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Vender Tudo'; }
   }
-
-  showToast(`${sold} item(s) vendido(s)!`);
-  await loadInventory(1);
-
-  if (btn) { btn.disabled = false; btn.textContent = 'Vender Tudo'; }
 }
 
 async function sellItem(openingId, btn) {

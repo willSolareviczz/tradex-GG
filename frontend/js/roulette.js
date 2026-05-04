@@ -471,30 +471,19 @@ async function sellByOpeningId(idx, btn) {
 async function sellAllResults() {
   if (!lastOpenedResults.length) return;
 
-  let totalSold = 0;
-  let count = 0;
-
-  for (let i = 0; i < lastOpenedResults.length; i++) {
-    const r = lastOpenedResults[i];
-    if (!r.opening_id) continue;
-
-    const btn = document.querySelector(`.open-result-card-sell[data-idx="${i}"]`);
-    if (btn?.classList.contains('sold')) continue;
-
-    try {
-      const result = await apiFetch(`/inventory/${r.opening_id}/sell`, { method: 'POST' });
-      const balEl = document.getElementById('nav-balance');
-      if (balEl) balEl.textContent = formatPrice(result.new_balance);
-      updateStoredBalance(result.new_balance);
-      if (btn) { btn.textContent = 'Vendido'; btn.classList.add('sold'); }
-      totalSold += result.sell_price || 0;
-      count++;
-    } catch {}
-  }
-
-  if (count > 0) {
+  try {
+    const res = await apiFetch('/inventory/sell-all', { method: 'POST' });
+    const balEl = document.getElementById('nav-balance');
+    if (balEl) balEl.textContent = formatPrice(res.new_balance);
+    updateStoredBalance(res.new_balance);
+    document.querySelectorAll('.open-result-card-sell').forEach(b => {
+      b.textContent = 'Vendido';
+      b.classList.add('sold');
+    });
     updateOpenBtn();
-    showToast(`${count} item(s) vendido(s)! Total: ${formatPrice(totalSold)}`);
+    if (res.sold > 0) showToast(`${res.sold} item(s) vendido(s)! Total: ${formatPrice(res.total_amount)}`);
+  } catch (err) {
+    showToast(err.message || 'Erro ao vender', 'error');
   }
 }
 
