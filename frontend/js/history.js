@@ -265,16 +265,9 @@ async function loadHistory(page) {
       return;
     }
 
-    // Summary stats (only on page 1)
     let summaryHtml = '';
-    if (page === 1) {
-      const allData = await apiFetch(`/history?page=1&limit=999`);
-      const all = allData.items;
-      const totalValue  = all.reduce((sum, it) => sum + (it.site_price || it.market_price || 0), 0);
-      const totalSold   = all.filter(it => it.sold).reduce((sum, it) => sum + (it.sell_price || 0), 0);
-      const inInventory = all.filter(it => !it.sold).reduce((sum, it) => sum + (it.site_price || it.market_price || 0), 0);
-      const soldCount   = all.filter(it => it.sold).length;
-
+    if (page === 1 && data.stats) {
+      const { total_value, total_sold, sold_count, inventory_value } = data.stats;
       summaryHtml = `
         <div class="history-summary">
           <div class="history-stat">
@@ -282,16 +275,16 @@ async function loadHistory(page) {
             <div class="history-stat-label">Drops totais</div>
           </div>
           <div class="history-stat">
-            <div class="history-stat-value" style="color:var(--brass);">${formatPrice(totalValue)}</div>
+            <div class="history-stat-value" style="color:var(--brass);">${formatPrice(total_value)}</div>
             <div class="history-stat-label">Valor total recebido</div>
           </div>
           <div class="history-stat">
-            <div class="history-stat-value" style="color:var(--accent);">${formatPrice(totalSold)}</div>
-            <div class="history-stat-label">Total vendido (${soldCount} itens)</div>
+            <div class="history-stat-value" style="color:var(--accent);">${formatPrice(total_sold)}</div>
+            <div class="history-stat-label">Total vendido (${sold_count} itens)</div>
           </div>
           <div class="history-stat">
-            <div class="history-stat-value" style="color:var(--text-primary);">${formatPrice(inInventory)}</div>
-            <div class="history-stat-label">Em inventário (${total - soldCount} itens)</div>
+            <div class="history-stat-value" style="color:var(--text-primary);">${formatPrice(inventory_value)}</div>
+            <div class="history-stat-label">Em inventário (${total - sold_count} itens)</div>
           </div>
         </div>`;
     }

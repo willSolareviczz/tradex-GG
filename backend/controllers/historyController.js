@@ -12,7 +12,7 @@ exports.getHistory = async (req, res) => {
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 20));
     const offset = (page - 1) * limit;
 
-    const [countRes, dataRes] = await Promise.all([
+    const [countRes, dataRes, statsRes] = await Promise.all([
       pool.query('SELECT COUNT(*) FROM openings WHERE user_id = $1', [req.userId]),
       pool.query(
         `SELECT o.id, o.created_at, o.sold, o.sell_price,
@@ -29,6 +29,17 @@ exports.getHistory = async (req, res) => {
          LIMIT $2 OFFSET $3`,
         [req.userId, limit, offset]
       ),
+      pool.query(
+        `SELECT
+           COALESCE(SUM(COALESCE(s.site_price, s.market_price)), 0)::int AS total_value,
+           COALESCE(SUM(CASE WHEN o.sold THEN o.sell_price ELSE 0 END), 0)::int AS total_sold,
+           COUNT(CASE WHEN o.sold THEN 1 END)::int AS sold_count,
+           COALESCE(SUM(CASE WHEN NOT o.sold THEN COALESCE(s.site_price, s.market_price) ELSE 0 END), 0)::int AS inventory_value
+         FROM openings o
+         JOIN skins s ON o.skin_id = s.id
+         WHERE o.user_id = $1`,
+        [req.userId]
+      ),
     ]);
 
     const total = parseInt(countRes.rows[0].count);
@@ -38,6 +49,7 @@ exports.getHistory = async (req, res) => {
       page,
       limit,
       pages: Math.ceil(total / limit),
+      stats: statsRes.rows[0],
     });
   } catch (err) {
     console.error('Erro ao buscar histórico:', err);
