@@ -799,17 +799,17 @@ document.addEventListener('DOMContentLoaded', renderFooter);
       });
     }
 
-    // Try attaching to the coinflip/battle SSE that may already exist
-    // If not available, open a dedicated one
-    if (window.__liveDropsSSE) {
-      attachNotifSSE(window.__liveDropsSSE);
-    } else {
-      const sse = new EventSource('/api/events/live-drops');
-      window.__liveDropsSSE = sse;
-      attachNotifSSE(sse);
-    }
+    // Use shared SSE connection (getSharedSSE creates it if not yet open)
+    attachNotifSSE(getSharedSSE());
   });
 })();
+
+function getSharedSSE() {
+  if (!window.__liveDropsSSE || window.__liveDropsSSE.readyState === EventSource.CLOSED) {
+    window.__liveDropsSSE = new EventSource('/api/events/live-drops');
+  }
+  return window.__liveDropsSSE;
+}
 
 // ===== Live Chat Widget =====
 (function initChat() {
@@ -880,7 +880,7 @@ document.addEventListener('DOMContentLoaded', renderFooter);
 
   function connectSSE() {
     if (chatSse) return;
-    chatSse = new EventSource('/api/events/live-drops');
+    chatSse = getSharedSSE();
     chatSse.addEventListener('chat-message', e => {
       const msg = JSON.parse(e.data);
       const atBottom = (() => {
@@ -890,7 +890,6 @@ document.addEventListener('DOMContentLoaded', renderFooter);
       appendMsg(msg, chatOpen || atBottom);
       if (!chatOpen) { unread++; updateBadge(); }
     });
-    chatSse.onerror = () => { chatSse.close(); chatSse = null; setTimeout(connectSSE, 5000); };
   }
 
   async function sendMessage() {

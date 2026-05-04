@@ -29,8 +29,7 @@ async function loadBattles() {
 
 // ===== SSE real-time updates =====
 function initSSE() {
-  const es = new EventSource('/api/events/live-drops');
-  window.__liveDropsSSE = es;
+  const es = getSharedSSE();
 
   es.addEventListener('new-battle', (e) => {
     try {

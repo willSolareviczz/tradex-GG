@@ -143,9 +143,7 @@ function buildRecentRow(cf) {
 
 // ── SSE ───────────────────────────────────────────────────────────────────────
 function initSSE() {
-  if (sseSource) sseSource.close();
-  sseSource = new EventSource('/api/events/live-drops');
-  window.__liveDropsSSE = sseSource;
+  sseSource = getSharedSSE();
 
   sseSource.addEventListener('new-coinflip', e => {
     const cf = JSON.parse(e.data);
@@ -184,9 +182,6 @@ function initSSE() {
     removeWaiting(data.coinflip_id);
   });
 
-  sseSource.onerror = () => {
-    setTimeout(initSSE, 5000);
-  };
 }
 
 function prependWaiting(cf) {

@@ -50,7 +50,7 @@ function initLiveDropsSSE() {
   const track = document.getElementById('live-drops-track');
   if (!track) return;
 
-  const es = new EventSource('/api/events/live-drops');
+  const es = getSharedSSE();
 
   es.addEventListener('snapshot', (e) => {
     try {
@@ -70,9 +70,6 @@ function initLiveDropsSSE() {
     } catch { /* ignore parse errors */ }
   });
 
-  es.onerror = () => {
-    // EventSource auto-reconnects; no manual action needed
-  };
 }
 
 function flashLatestDrop() {
