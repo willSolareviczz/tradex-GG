@@ -144,6 +144,8 @@ function buildRecentRow(cf) {
 // ── SSE ───────────────────────────────────────────────────────────────────────
 function initSSE() {
   sseSource = getSharedSSE();
+  if (sseSource._coinflipBound) return;
+  sseSource._coinflipBound = true;
 
   sseSource.addEventListener('new-coinflip', e => {
     const cf = JSON.parse(e.data);

@@ -30,6 +30,8 @@ async function loadBattles() {
 // ===== SSE real-time updates =====
 function initSSE() {
   const es = getSharedSSE();
+  if (es._battleBound) return;
+  es._battleBound = true;
 
   es.addEventListener('new-battle', (e) => {
     try {

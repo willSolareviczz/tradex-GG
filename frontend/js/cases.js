@@ -51,6 +51,8 @@ function initLiveDropsSSE() {
   if (!track) return;
 
   const es = getSharedSSE();
+  if (es._casesBound) return;
+  es._casesBound = true;
 
   es.addEventListener('snapshot', (e) => {
     try {

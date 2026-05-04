@@ -785,7 +785,6 @@ document.addEventListener('DOMContentLoaded', renderFooter);
     });
 
     // SSE — listen for notification events on the existing live-drops stream
-    const existingSSE = window.__liveDropsSSE;
     function attachNotifSSE(sse) {
       if (!sse) return;
       sse.addEventListener('notification', e => {
@@ -814,7 +813,6 @@ function getSharedSSE() {
 // ===== Live Chat Widget =====
 (function initChat() {
   const MAX_VISIBLE = 50;
-  let chatSse      = null;
   let chatOpen     = false;
   let unread       = 0;
   let lastUserId   = null;
@@ -879,9 +877,10 @@ function getSharedSSE() {
   }
 
   function connectSSE() {
-    if (chatSse) return;
-    chatSse = getSharedSSE();
-    chatSse.addEventListener('chat-message', e => {
+    const sse = getSharedSSE();
+    if (sse._chatBound) return;
+    sse._chatBound = true;
+    sse.addEventListener('chat-message', e => {
       const msg = JSON.parse(e.data);
       const atBottom = (() => {
         const l = document.getElementById('chat-messages');
