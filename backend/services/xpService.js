@@ -5,6 +5,7 @@
  * @section backend
  */
 const pool = require('../config/db');
+const { createNotification } = require('./notificationService');
 
 /**
  * Calcula o level com base no XP total.
@@ -31,19 +32,42 @@ function xpForLevel(level) {
  * @param {object} [client] - client pg opcional (para reuso de transacao)
  */
 async function awardXP(userId, amount, client) {
-  const useExternalClient = !!client;
   const db = client || pool;
 
   const result = await db.query(
-    `UPDATE users
-     SET xp = COALESCE(xp, 0) + $1,
+    `WITH prev AS (SELECT COALESCE(level, 1) AS prev_level FROM users WHERE id = $2)
+     UPDATE users
+     SET xp    = COALESCE(xp, 0) + $1,
          level = floor(sqrt((COALESCE(xp, 0) + $1) / 50.0))::int + 1
      WHERE id = $2
-     RETURNING xp, level`,
+     RETURNING xp, level, (SELECT prev_level FROM prev) AS old_level`,
     [amount, userId]
   );
 
-  return result.rows[0] || null;
+  if (!result.rows[0]) return null;
+  const { xp, level, old_level } = result.rows[0];
+
+  let level_up = null;
+  if (level > old_level) {
+    const levelUpBonus = level * 100; // R$1,00 por nível (centavos)
+    await db.query('UPDATE users SET balance = balance + $1 WHERE id = $2', [levelUpBonus, userId]);
+    await db.query(
+      `INSERT INTO transactions (user_id, type, amount, description) VALUES ($1, 'deposit', $2, $3)`,
+      [userId, levelUpBonus, `Level up! Nível ${level}`]
+    );
+    level_up = { old_level, new_level: level, bonus: levelUpBonus };
+    setImmediate(() => createNotification(
+      userId, 'level_up',
+      `Nível ${level} desbloqueado! 🎉`,
+      `Você subiu para o nível ${level} e ganhou ${formatCents(levelUpBonus)} de bônus.`,
+      '/profile.html',
+      db
+    ));
+  }
+
+  return { xp, level, level_up };
 }
+
+function formatCents(c) { return `R$${(c / 100).toFixed(2).replace('.', ',')}` }
 
 module.exports = { awardXP, calcLevel, xpForLevel };

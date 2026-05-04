@@ -10,9 +10,12 @@ const crypto = require('crypto');
 const pool = require('../config/db');
 const emailService = require('../services/emailService');
 
+const NEW_USER_BONUS = 500; // centavos (R$5)
+
 exports.register = async (req, res) => {
   try {
     const { username, email, password } = req.body;
+    const refCode = (req.body.ref_code || '').toString().trim().toUpperCase() || null;
 
     if (!username || !email || !password) {
       return res.status(400).json({ error: 'Preencha todos os campos' });
@@ -20,6 +23,14 @@ exports.register = async (req, res) => {
 
     if (username.length < 3 || username.length > 32) {
       return res.status(400).json({ error: 'Username deve ter entre 3 e 32 caracteres' });
+    }
+
+    if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+      return res.status(400).json({ error: 'Username só pode conter letras, números, _ e -' });
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+      return res.status(400).json({ error: 'Email inválido' });
     }
 
     if (password.length < 6) {
@@ -41,21 +52,58 @@ exports.register = async (req, res) => {
     const verifyToken = crypto.randomBytes(32).toString('hex');
     const verifyExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-    const result = await pool.query(
-      `INSERT INTO users (username, email, password_hash, email_verify_token, email_verify_expires)
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING id, username, email, balance, email_verified`,
-      [username, email, password_hash, verifyToken, verifyExpires]
-    );
+    const client = await pool.connect();
+    let user;
+    try {
+      await client.query('BEGIN');
 
-    const user = result.rows[0];
+      const result = await client.query(
+        `INSERT INTO users (username, email, password_hash, email_verify_token, email_verify_expires)
+         VALUES ($1, $2, $3, $4, $5)
+         RETURNING id, username, email, balance, email_verified`,
+        [username, email, password_hash, verifyToken, verifyExpires]
+      );
+      user = result.rows[0];
+
+      // Apply referral bonus if valid code provided
+      if (refCode) {
+        const refRes = await client.query(
+          'SELECT id FROM users WHERE referral_code = $1', [refCode]
+        );
+        const referrer = refRes.rows[0];
+        if (referrer && referrer.id !== user.id) {
+          // Link referrer
+          await client.query(
+            'UPDATE users SET referred_by = $1 WHERE id = $2', [referrer.id, user.id]
+          );
+          // Give new user signup bonus
+          await client.query(
+            'UPDATE users SET balance = balance + $1 WHERE id = $2', [NEW_USER_BONUS, user.id]
+          );
+          await client.query(
+            `INSERT INTO transactions (user_id, type, amount, description)
+             VALUES ($1, 'deposit', $2, 'Bônus de convite')`,
+            [user.id, NEW_USER_BONUS]
+          );
+          user.balance += NEW_USER_BONUS;
+        }
+      }
+
+      await client.query('COMMIT');
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
+
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRES_IN || '7d',
     });
 
     // Enviar email de verificação (silencioso se não configurado)
     if (emailService.isConfigured()) {
-      const baseUrl = process.env.SITE_URL || `http://localhost:${process.env.PORT || 3000}`;
+      const baseUrl = (process.env.SITE_URL || `http://localhost:${process.env.PORT || 3000}`).replace(/\/$/, '');
       const verifyUrl = `${baseUrl}/verify-email.html?token=${verifyToken}`;
       emailService.sendEmailVerification(user.email, user.username, verifyUrl).catch(err => {
         console.error('[email] Falha ao enviar verificação:', err.message);
@@ -120,7 +168,7 @@ exports.resendVerification = async (req, res) => {
     );
 
     if (emailService.isConfigured()) {
-      const baseUrl = process.env.SITE_URL || `http://localhost:${process.env.PORT || 3000}`;
+      const baseUrl = (process.env.SITE_URL || `http://localhost:${process.env.PORT || 3000}`).replace(/\/$/, '');
       const verifyUrl = `${baseUrl}/verify-email.html?token=${verifyToken}`;
       await emailService.sendEmailVerification(user.email, user.username, verifyUrl);
     }
@@ -158,7 +206,7 @@ exports.forgotPassword = async (req, res) => {
       [token, expires, user.id]
     );
 
-    const baseUrl = process.env.SITE_URL || `http://localhost:${process.env.PORT || 3000}`;
+    const baseUrl = (process.env.SITE_URL || `http://localhost:${process.env.PORT || 3000}`).replace(/\/$/, '');
     const resetUrl = `${baseUrl}/reset-password.html?token=${token}`;
 
     await emailService.sendPasswordReset(user.email, user.username, resetUrl);

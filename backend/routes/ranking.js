@@ -7,7 +7,9 @@
 const express = require('express');
 const router = express.Router();
 const rankingController = require('../controllers/rankingController');
+const optionalAuth = require('../middleware/optionalAuth');
 
 router.get('/', rankingController.getRanking);
+router.get('/xp', optionalAuth, rankingController.getXpRanking);
 
 module.exports = router;

@@ -9,7 +9,11 @@
 </head>
 <body>
   <div class="container">
-    <h1 class="page-title">Ranking - Melhores Drops</h1>
+    <h1 class="page-title">Ranking</h1>
+    <div style="display:flex;gap:0.5rem;margin-bottom:1rem;">
+      <button class="btn btn-primary btn-sm" id="tab-drops" onclick="switchTab('drops')">Melhores Drops</button>
+      <button class="btn btn-secondary btn-sm" id="tab-xp" onclick="switchTab('xp')">Nível / XP</button>
+    </div>
     <div class="card" id="ranking-content">
       <div class="loading">Carregando ranking...</div>
     </div>

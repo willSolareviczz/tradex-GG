@@ -9,7 +9,15 @@
 </head>
 <body>
   <div class="container">
-    <h1 class="page-title">Meu Inventário</h1>
+    <div class="inventory-header">
+      <h1 class="page-title" style="margin:0">Meu Inventário</h1>
+      <div class="inventory-summary" id="inventory-summary" style="display:none;">
+        <span id="inv-total-items">— itens</span>
+        <span class="inv-sep">·</span>
+        <span id="inv-total-value" style="color:var(--brass)">R$ —</span>
+        <button class="btn btn-ghost btn-sm" id="btn-sell-all" style="margin-left:0.5rem;">Vender Tudo</button>
+      </div>
+    </div>
     <div class="card-grid" id="inventory-grid">
       <div class="loading">Carregando inventário...</div>
     </div>

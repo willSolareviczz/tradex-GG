@@ -39,6 +39,51 @@ const categoryIcons = {
   premium:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>',
 };
 
+// ===== Live drops SSE (runs on any page that has the ticker bar) =====
+let _cachedDrops = [];
+
+document.addEventListener('DOMContentLoaded', () => {
+  initLiveDropsSSE();
+});
+
+function initLiveDropsSSE() {
+  const track = document.getElementById('live-drops-track');
+  if (!track) return;
+
+  const es = new EventSource('/api/events/live-drops');
+
+  es.addEventListener('snapshot', (e) => {
+    try {
+      const drops = JSON.parse(e.data);
+      _cachedDrops = drops;
+      renderLiveDrops(_cachedDrops);
+    } catch { /* ignore parse errors */ }
+  });
+
+  es.addEventListener('new-drop', (e) => {
+    try {
+      const drop = JSON.parse(e.data);
+      _cachedDrops.unshift(drop);
+      if (_cachedDrops.length > 40) _cachedDrops.length = 40;
+      renderLiveDrops(_cachedDrops);
+      flashLatestDrop();
+    } catch { /* ignore parse errors */ }
+  });
+
+  es.onerror = () => {
+    // EventSource auto-reconnects; no manual action needed
+  };
+}
+
+function flashLatestDrop() {
+  const track = document.getElementById('live-drops-track');
+  if (!track) return;
+  const first = track.querySelector('.live-drop-item');
+  if (!first) return;
+  first.classList.add('live-drop-new');
+  setTimeout(() => first.classList.remove('live-drop-new'), 1200);
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   if (!document.getElementById('cases-grid')) return;
 
@@ -51,10 +96,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('cases-grid').innerHTML =
       '<div class="empty-state"><p>Erro ao carregar caixas.</p></div>';
   }
-
-  // Load live drops
-  loadLiveDrops();
-  setInterval(loadLiveDrops, 20000);
 
   // Search input
   const searchInput = document.getElementById('cases-search');
@@ -201,19 +242,6 @@ function buildCaseCard(c, color) {
 }
 
 // ===== Live Drops Ticker =====
-async function loadLiveDrops() {
-  try {
-    const drops = await apiFetch('/cases/recent-drops');
-    if (!drops || drops.length === 0) {
-      document.getElementById('live-drops-track').innerHTML =
-        '<span class="live-drop-empty">Nenhum drop recente</span>';
-      return;
-    }
-    renderLiveDrops(drops);
-  } catch {
-    // silently fail — drops feed is not critical
-  }
-}
 
 function renderLiveDrops(drops) {
   const track = document.getElementById('live-drops-track');

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Batalha - tradexGG</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/battle.css">
+</head>
+<body>
+
+  <!-- Hero -->
+  <div class="battle-hero">
+    <div class="container">
+      <div class="battle-hero-label">MODO</div>
+      <h1 class="battle-hero-title">Batalha PvP</h1>
+      <p class="battle-hero-sub">Desafie outro jogador. Cada um abre a mesma caixa — quem tirar a skin de maior valor leva as duas.</p>
+      <button class="btn btn-primary" id="btn-open-create" style="margin-top:0.5rem;">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:0.3rem"><path d="M12 5v14M5 12h14"/></svg>
+        Criar Batalha
+      </button>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- Waiting battles -->
+    <div class="battle-section-head">
+      <span class="battle-section-title">Batalhas Abertas</span>
+      <span class="battle-section-count" id="waiting-count">—</span>
+    </div>
+    <div class="battle-waiting-list" id="waiting-list">
+      <div class="battle-empty">Carregando...</div>
+    </div>
+
+    <!-- Recent battles -->
+    <div class="battle-section-head" style="margin-top:2.5rem;">
+      <span class="battle-section-title">Batalhas Recentes</span>
+    </div>
+    <div class="battle-recent-list" id="recent-list">
+      <div class="battle-empty">Carregando...</div>
+    </div>
+
+  </div>
+
+  <!-- Case selector modal -->
+  <div class="battle-modal-backdrop" id="create-modal">
+    <div class="battle-modal">
+      <div class="battle-modal-title">
+        Escolha uma Caixa
+        <button class="battle-modal-close" id="btn-close-modal">✕</button>
+      </div>
+      <div class="battle-case-grid" id="case-grid">
+        <div class="battle-empty">Carregando caixas...</div>
+      </div>
+      <div class="battle-modal-footer">
+        <button class="btn btn-secondary" id="btn-cancel-modal">Cancelar</button>
+        <button class="btn btn-primary" id="btn-confirm-create" disabled>Criar Batalha</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Battle result overlay -->
+  <div class="battle-result-overlay" id="result-overlay">
+    <div class="battle-result-backdrop"></div>
+    <div class="battle-result-card">
+      <div class="battle-result-title" id="result-title">RESULTADO</div>
+      <div class="battle-result-arena">
+
+        <div class="battle-result-side" id="result-creator-side">
+          <div class="battle-result-player" id="result-creator-name">—</div>
+          <div class="battle-result-skin-card" id="result-creator-card">
+            <img class="battle-result-skin-img" id="result-creator-img" src="" alt="">
+            <div class="battle-result-skin-name" id="result-creator-skin"></div>
+            <div class="battle-result-skin-value" id="result-creator-value"></div>
+          </div>
+          <div class="battle-result-badge" id="result-creator-badge"></div>
+        </div>
+
+        <div class="battle-result-vs">VS</div>
+
+        <div class="battle-result-side" id="result-joiner-side">
+          <div class="battle-result-player" id="result-joiner-name">—</div>
+          <div class="battle-result-skin-card" id="result-joiner-card">
+            <img class="battle-result-skin-img" id="result-joiner-img" src="" alt="">
+            <div class="battle-result-skin-name" id="result-joiner-skin"></div>
+            <div class="battle-result-skin-value" id="result-joiner-value"></div>
+          </div>
+          <div class="battle-result-badge" id="result-joiner-badge"></div>
+        </div>
+
+      </div>
+      <div class="battle-result-actions">
+        <button class="btn btn-primary" id="btn-result-close">Fechar</button>
+        <a href="/inventory.html" class="btn btn-secondary">Ver Inventário</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/battle.js"></script>
+</body>
+</html>

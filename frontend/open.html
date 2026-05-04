@@ -96,6 +96,48 @@
     </div>
   </div>
 
+  <!-- Provably Fair Panel -->
+  <div class="container">
+    <div class="fair-panel" id="fair-panel" style="display:none">
+      <div class="fair-panel-header">
+        <span class="fair-panel-title">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Provably Fair
+        </span>
+        <button class="fair-toggle-btn" id="fair-toggle">Verificar</button>
+      </div>
+      <div class="fair-body" id="fair-body" style="display:none">
+        <div class="fair-row">
+          <span class="fair-label">Server Seed Hash</span>
+          <code class="fair-value" id="fair-hash">—</code>
+        </div>
+        <div class="fair-row">
+          <span class="fair-label">Client Seed</span>
+          <code class="fair-value" id="fair-client">tradexGG</code>
+        </div>
+        <div class="fair-row">
+          <span class="fair-label">Nonce</span>
+          <code class="fair-value" id="fair-nonce">—</code>
+        </div>
+        <div class="fair-row" id="fair-reveal-row" style="display:none">
+          <span class="fair-label">Server Seed (revelado)</span>
+          <code class="fair-value" id="fair-seed">—</code>
+        </div>
+        <div class="fair-actions">
+          <button class="btn btn-secondary btn-sm" id="fair-reveal-btn" style="display:none">Revelar Server Seed</button>
+          <a class="btn btn-secondary btn-sm" id="fair-verify-link" href="#" target="_blank" rel="noopener" style="display:none">
+            Verificar Online
+          </a>
+        </div>
+        <p class="fair-desc">
+          O server seed é gerado antes da abertura e seu hash é publicado aqui. Após revelar o seed, você pode confirmar que
+          <code>SHA-256(server_seed) == server_seed_hash</code> e recriar o resultado com
+          <code>HMAC-SHA256(server_seed, client_seed:nonce)</code>.
+        </p>
+      </div>
+    </div>
+  </div>
+
   <!-- Possible Skins Section -->
   <div class="container">
     <div class="possible-skins" id="possible-skins" style="display:none">

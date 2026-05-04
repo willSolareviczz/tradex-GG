@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Termos de Uso — tradexGG</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .legal-hero {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 2.5rem 0 2rem;
+      text-align: center;
+    }
+    .legal-hero-label {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.25em;
+      color: var(--text-tertiary);
+      margin-bottom: 0.5rem;
+    }
+    .legal-hero-title {
+      font-family: var(--font-display);
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+    }
+    .legal-hero-meta {
+      font-size: 0.82rem;
+      color: var(--text-tertiary);
+      margin-top: 0.6rem;
+    }
+    .legal-tabs {
+      display: flex;
+      gap: 0.5rem;
+      padding: 2rem 0 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 2.5rem;
+    }
+    .legal-tab {
+      padding: 0.45rem 1.1rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: 1px solid transparent;
+      border-bottom: none;
+      border-radius: var(--r-sm) var(--r-sm) 0 0;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+      text-decoration: none;
+    }
+    .legal-tab.active, .legal-tab:hover {
+      color: var(--brass);
+      border-color: var(--border-strong);
+      background: var(--bg-card);
+    }
+    .legal-tab.active { border-bottom-color: var(--bg-primary); margin-bottom: -1px; }
+    .legal-body {
+      max-width: 780px;
+      padding-bottom: 4rem;
+    }
+    .legal-section { margin-bottom: 2.5rem; }
+    .legal-section h2 {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .legal-section h3 {
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin: 1.25rem 0 0.5rem;
+    }
+    .legal-section p {
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+    }
+    .legal-section ul {
+      padding-left: 1.25rem;
+      margin-bottom: 0.75rem;
+    }
+    .legal-section li {
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      margin-bottom: 0.3rem;
+    }
+    .legal-highlight {
+      background: var(--bg-card);
+      border: 1px solid var(--border-strong);
+      border-left: 3px solid var(--brass);
+      border-radius: 0 var(--r-sm) var(--r-sm) 0;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    .legal-highlight p {
+      margin: 0;
+      color: var(--text-primary) !important;
+      font-size: 0.88rem;
+    }
+    .legal-contact-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--r-lg);
+      padding: 1.5rem;
+      margin-top: 2rem;
+    }
+    .legal-contact-box h3 { margin-top: 0; }
+    .legal-contact-box a { color: var(--brass); }
+    #tab-privacidade { display: none; }
+  </style>
+</head>
+<body>
+  <div class="legal-hero">
+    <div class="container">
+      <div class="legal-hero-label">Documentos Legais</div>
+      <h1 class="legal-hero-title">Termos &amp; Privacidade</h1>
+      <p class="legal-hero-meta">Última atualização: Janeiro de 2025</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="legal-tabs">
+      <button class="legal-tab active" onclick="showTab('termos', this)">Termos de Uso</button>
+      <button class="legal-tab" onclick="showTab('privacidade', this)">Política de Privacidade (LGPD)</button>
+    </div>
+
+    <!-- Termos de Uso -->
+    <div id="tab-termos" class="legal-body">
+
+      <div class="legal-highlight">
+        <p>
+          <strong>Leia com atenção.</strong> tradexGG é uma plataforma de entretenimento virtual com skins fictícias de CS2.
+          Nenhuma skin pode ser transferida para sua conta Steam. O saldo virtual não tem valor monetário real e não é resgatável em dinheiro por enquanto.
+        </p>
+      </div>
+
+      <div class="legal-section">
+        <h2>1. Aceitação dos Termos</h2>
+        <p>Ao criar uma conta ou utilizar qualquer funcionalidade da plataforma tradexGG ("Plataforma", "Serviço"), você concorda com estes Termos de Uso e com nossa Política de Privacidade. Se não concordar, não utilize o serviço.</p>
+        <p>Reservamo-nos o direito de atualizar estes termos a qualquer momento. Alterações relevantes serão comunicadas por email ou notificação na plataforma. O uso continuado após a comunicação implica aceite dos novos termos.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>2. Descrição do Serviço</h2>
+        <p>tradexGG é uma plataforma de entretenimento que simula abertura de caixas com skins de CS2. O serviço inclui:</p>
+        <ul>
+          <li>Abertura virtual de caixas com skins aleatórias</li>
+          <li>Sistema de inventário, compra e venda de skins virtuais</li>
+          <li>Modos PvP: Batalha (Battle) e Coinflip</li>
+          <li>Sistema de Upgrade de skins</li>
+          <li>Ranking, níveis e conquistas</li>
+          <li>Chat ao vivo com outros usuários</li>
+        </ul>
+        <p><strong>Importante:</strong> Todo o saldo, skins e itens dentro da plataforma são virtuais e têm valor apenas dentro do ecossistema tradexGG. Não nos afiliamos, associamos ou patrocinamos a Valve Corporation ou o jogo Counter-Strike 2.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>3. Elegibilidade e Cadastro</h2>
+        <h3>3.1 Idade Mínima</h3>
+        <p>Para utilizar a plataforma você deve ter <strong>18 anos ou mais</strong>. Ao criar uma conta, você declara ter atingido a maioridade em seu país de residência. Contas criadas por menores de idade serão encerradas.</p>
+        <h3>3.2 Conta</h3>
+        <p>Cada pessoa pode ter apenas uma conta. Você é responsável pela segurança de suas credenciais e por todas as atividades realizadas em sua conta. Em caso de acesso não autorizado, notifique-nos imediatamente.</p>
+        <h3>3.3 Informações Verdadeiras</h3>
+        <p>Você se compromete a fornecer informações verdadeiras, precisas e atualizadas no cadastro e sempre que solicitado.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>4. Saldo Virtual e Transações</h2>
+        <h3>4.1 Natureza do Saldo</h3>
+        <p>O saldo da plataforma é uma unidade virtual utilizada para interagir com os serviços oferecidos. Não constitui moeda, criptoativo, título ou instrumento financeiro.</p>
+        <h3>4.2 Depósitos</h3>
+        <p>Os depósitos são realizados em Reais (BRL) e convertidos em saldo virtual para uso na plataforma. O limite diário de depósito é de R$ 50.000,00.</p>
+        <h3>4.3 Saques</h3>
+        <p>Saques são processados em até 24 horas úteis via PIX. O valor mínimo para saque é de R$ 10,00. Reservamo-nos o direito de solicitar verificação de identidade antes de processar saques acima de determinados valores.</p>
+        <h3>4.4 Proibições</h3>
+        <p>É proibido utilizar a plataforma para lavagem de dinheiro, fraude ou qualquer atividade ilícita. Contas com suspeita de atividade fraudulenta serão suspensas e reportadas às autoridades competentes.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>5. Sistema Provably Fair</h2>
+        <p>Todas as aberturas de caixas utilizam o sistema <strong>Provably Fair</strong>, baseado em HMAC-SHA256. Você pode verificar a autenticidade de qualquer abertura utilizando a semente do servidor, semente do cliente e nonce disponíveis no histórico de aberturas. Isso garante que nenhum resultado pode ser manipulado após a criação da semente.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>6. Conduta do Usuário</h2>
+        <p>É proibido:</p>
+        <ul>
+          <li>Utilizar bots, scripts ou automações não autorizadas</li>
+          <li>Explorar bugs ou vulnerabilidades para obter vantagem indevida</li>
+          <li>Assediar, ameaçar ou discriminar outros usuários no chat</li>
+          <li>Criar múltiplas contas para abusar de promoções ou referrals</li>
+          <li>Realizar chargebacks fraudulentos</li>
+          <li>Vender ou transferir sua conta para terceiros</li>
+        </ul>
+        <p>Violações podem resultar em suspensão temporária ou permanente da conta, sem reembolso do saldo virtual.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>7. Suspensão e Encerramento</h2>
+        <p>Podemos suspender ou encerrar sua conta a qualquer momento por violação destes termos, suspeita de fraude ou por determinação legal, com ou sem aviso prévio. Você também pode encerrar sua conta a qualquer momento pela página de configurações do perfil.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>8. Isenção de Responsabilidade</h2>
+        <p>O serviço é fornecido "no estado em que se encontra". Não garantimos disponibilidade ininterrupta da plataforma. Não nos responsabilizamos por perdas decorrentes de falhas técnicas, interrupções de serviço ou decisões tomadas com base em probabilidades de abertura de caixas.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>9. Legislação Aplicável</h2>
+        <p>Estes termos são regidos pelas leis da República Federativa do Brasil. Fica eleito o foro da comarca de São Paulo/SP para resolução de quaisquer disputas decorrentes destes termos.</p>
+      </div>
+
+      <div class="legal-contact-box">
+        <h3>Dúvidas sobre os Termos?</h3>
+        <p>Entre em contato pelo email: <a href="mailto:suporte@tradexgg.com">suporte@tradexgg.com</a></p>
+      </div>
+    </div>
+
+    <!-- Política de Privacidade -->
+    <div id="tab-privacidade" class="legal-body">
+
+      <div class="legal-highlight">
+        <p>
+          Esta Política de Privacidade foi elaborada em conformidade com a <strong>Lei Geral de Proteção de Dados (LGPD — Lei nº 13.709/2018)</strong>
+          e descreve como coletamos, usamos e protegemos seus dados pessoais.
+        </p>
+      </div>
+
+      <div class="legal-section">
+        <h2>1. Controlador dos Dados</h2>
+        <p>tradexGG é o controlador dos dados pessoais coletados por esta plataforma. Para exercer seus direitos ou tirar dúvidas, entre em contato pelo email: <strong>privacidade@tradexgg.com</strong></p>
+      </div>
+
+      <div class="legal-section">
+        <h2>2. Dados que Coletamos</h2>
+        <h3>2.1 Dados fornecidos por você</h3>
+        <ul>
+          <li><strong>Cadastro:</strong> nome de usuário, endereço de email, senha (armazenada com hash bcrypt)</li>
+          <li><strong>Saques:</strong> chave PIX (armazenada de forma segura, usada apenas para processamento)</li>
+        </ul>
+        <h3>2.2 Dados gerados automaticamente</h3>
+        <ul>
+          <li>Histórico de transações e aberturas de caixas</li>
+          <li>Dados de navegação e logs de acesso (endereço IP, navegador, horários)</li>
+          <li>Sementes criptográficas para o sistema Provably Fair</li>
+        </ul>
+      </div>
+
+      <div class="legal-section">
+        <h2>3. Base Legal e Finalidade do Tratamento</h2>
+        <p>Tratamos seus dados com base nas seguintes hipóteses legais (art. 7º da LGPD):</p>
+        <ul>
+          <li><strong>Execução de contrato</strong> — para prestação do serviço solicitado</li>
+          <li><strong>Cumprimento de obrigação legal</strong> — como registros financeiros e prevenção à lavagem de dinheiro</li>
+          <li><strong>Legítimo interesse</strong> — para prevenção de fraudes e segurança da plataforma</li>
+          <li><strong>Consentimento</strong> — para envio de comunicações de marketing (quando aplicável)</li>
+        </ul>
+      </div>
+
+      <div class="legal-section">
+        <h2>4. Como Usamos seus Dados</h2>
+        <ul>
+          <li>Criação e gerenciamento da sua conta</li>
+          <li>Processamento de depósitos e saques</li>
+          <li>Envio de emails transacionais (verificação, redefinição de senha)</li>
+          <li>Prevenção de fraudes e cumprimento de obrigações legais</li>
+          <li>Melhoria contínua da plataforma</li>
+        </ul>
+      </div>
+
+      <div class="legal-section">
+        <h2>5. Compartilhamento de Dados</h2>
+        <p>Não vendemos seus dados pessoais. Podemos compartilhá-los apenas:</p>
+        <ul>
+          <li>Com provedores de serviço necessários para operação (processamento de email, hospedagem)</li>
+          <li>Quando exigido por lei ou por ordem judicial</li>
+          <li>Em caso de investigação de atividades fraudulentas com autoridades competentes</li>
+        </ul>
+      </div>
+
+      <div class="legal-section">
+        <h2>6. Segurança dos Dados</h2>
+        <p>Adotamos medidas técnicas e organizacionais para proteger seus dados, incluindo:</p>
+        <ul>
+          <li>Senhas armazenadas com hash bcrypt (fator 10)</li>
+          <li>Comunicações protegidas por HTTPS/TLS</li>
+          <li>Autenticação via JWT com expiração</li>
+          <li>Rate limiting em endpoints críticos</li>
+          <li>Banco de dados com acesso restrito e isolado</li>
+        </ul>
+      </div>
+
+      <div class="legal-section">
+        <h2>7. Seus Direitos (LGPD)</h2>
+        <p>Nos termos da LGPD, você tem os seguintes direitos em relação aos seus dados pessoais:</p>
+        <ul>
+          <li><strong>Acesso</strong> — confirmar se tratamos seus dados e obter uma cópia</li>
+          <li><strong>Correção</strong> — solicitar atualização de dados incompletos ou incorretos</li>
+          <li><strong>Exclusão</strong> — solicitar a exclusão de dados desnecessários ou tratados ilegalmente</li>
+          <li><strong>Portabilidade</strong> — receber seus dados em formato estruturado</li>
+          <li><strong>Revogação de consentimento</strong> — retirar consentimento a qualquer momento</li>
+          <li><strong>Oposição</strong> — opor-se ao tratamento com base no legítimo interesse</li>
+        </ul>
+        <p>Para exercer qualquer desses direitos, envie uma solicitação para: <strong>privacidade@tradexgg.com</strong></p>
+        <p>Você também pode excluir sua conta (e anonimizar seus dados) diretamente pela página de perfil.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>8. Retenção de Dados</h2>
+        <p>Mantemos seus dados pelo tempo necessário para prestação do serviço e cumprimento de obrigações legais (em especial registros financeiros, que podem ser mantidos por até 5 anos nos termos da legislação brasileira).</p>
+        <p>Após o encerramento da conta, seus dados pessoais identificáveis são anonimizados. Logs financeiros são mantidos pelo período legal exigido.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>9. Cookies e Rastreamento</h2>
+        <p>Não utilizamos cookies de rastreamento de terceiros. Utilizamos apenas armazenamento local (localStorage) para manter sua sessão autenticada na plataforma.</p>
+      </div>
+
+      <div class="legal-section">
+        <h2>10. Alterações nesta Política</h2>
+        <p>Podemos atualizar esta política periodicamente. Você será notificado de alterações significativas por email. A versão mais atual estará sempre disponível nesta página.</p>
+      </div>
+
+      <div class="legal-contact-box">
+        <h3>Encarregado de Dados (DPO)</h3>
+        <p>Para exercer seus direitos ou tirar dúvidas sobre privacidade:</p>
+        <p>Email: <a href="mailto:privacidade@tradexgg.com">privacidade@tradexgg.com</a></p>
+        <p>Você também pode registrar reclamações perante a <a href="https://www.gov.br/anpd" target="_blank" rel="noopener">Autoridade Nacional de Proteção de Dados (ANPD)</a>.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script>
+    function showTab(tab, btn) {
+      document.querySelectorAll('.legal-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-termos').style.display     = tab === 'termos'      ? 'block' : 'none';
+      document.getElementById('tab-privacidade').style.display = tab === 'privacidade' ? 'block' : 'none';
+    }
+  </script>
+</body>
+</html>

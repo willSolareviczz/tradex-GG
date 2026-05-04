@@ -7,6 +7,17 @@
 const pool = require('../config/db');
 const { updateSkinPrices } = require('../services/priceService');
 
+async function auditLog(adminId, action, entity, entityId, detail) {
+  try {
+    await pool.query(
+      'INSERT INTO admin_logs (admin_id, action, entity, entity_id, detail) VALUES ($1, $2, $3, $4, $5)',
+      [adminId, action, entity, entityId || null, detail || null]
+    );
+  } catch (err) {
+    console.error('auditLog error:', err.message);
+  }
+}
+
 // =====================================================
 // CASES CRUD
 // =====================================================
@@ -17,7 +28,7 @@ exports.listAllCases = async (req, res) => {
       SELECT c.*,
         (SELECT COUNT(*) FROM case_skins WHERE case_id = c.id) as skin_count,
         (SELECT COUNT(*) FROM openings WHERE case_id = c.id) as total_openings
-      FROM cases c ORDER BY c.id DESC
+      FROM cases c WHERE c.is_deleted = false ORDER BY c.id DESC
     `);
     res.json(result.rows);
   } catch (err) {
@@ -43,6 +54,7 @@ exports.createCase = async (req, res) => {
       [name, slug, description || null, image_url, priceCents, category || 'rifles']
     );
 
+    auditLog(req.userId, 'create', 'case', result.rows[0].id, name);
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error('Admin createCase:', err);
@@ -80,6 +92,7 @@ exports.updateCase = async (req, res) => {
       return res.status(404).json({ error: 'Caixa não encontrada' });
     }
 
+    auditLog(req.userId, 'update', 'case', id, JSON.stringify(req.body).slice(0, 200));
     res.json(result.rows[0]);
   } catch (err) {
     console.error('Admin updateCase:', err);
@@ -90,12 +103,16 @@ exports.updateCase = async (req, res) => {
 exports.deleteCase = async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await pool.query('DELETE FROM cases WHERE id = $1 RETURNING id', [id]);
+    const result = await pool.query(
+      'UPDATE cases SET is_deleted = true, is_active = false WHERE id = $1 AND is_deleted = false RETURNING id',
+      [id]
+    );
 
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Caixa não encontrada' });
     }
 
+    auditLog(req.userId, 'delete', 'case', id, null);
     res.json({ message: 'Caixa deletada' });
   } catch (err) {
     console.error('Admin deleteCase:', err);
@@ -143,6 +160,7 @@ exports.createSkin = async (req, res) => {
        image_url, Math.round(Number(market_price || 0))]
     );
 
+    auditLog(req.userId, 'create', 'skin', result.rows[0].id, name);
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error('Admin createSkin:', err);
@@ -181,6 +199,7 @@ exports.updateSkin = async (req, res) => {
       return res.status(404).json({ error: 'Skin não encontrada' });
     }
 
+    auditLog(req.userId, 'update', 'skin', id, JSON.stringify(req.body).slice(0, 200));
     res.json(result.rows[0]);
   } catch (err) {
     console.error('Admin updateSkin:', err);
@@ -197,6 +216,7 @@ exports.deleteSkin = async (req, res) => {
       return res.status(404).json({ error: 'Skin não encontrada' });
     }
 
+    auditLog(req.userId, 'delete', 'skin', id, null);
     res.json({ message: 'Skin deletada' });
   } catch (err) {
     console.error('Admin deleteSkin:', err);
@@ -446,6 +466,140 @@ exports.getStats = async (req, res) => {
     });
   } catch (err) {
     console.error('Admin getStats:', err);
+    res.status(500).json({ error: 'Erro interno' });
+  }
+};
+
+exports.getAuditLogs = async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT al.id, al.action, al.entity, al.entity_id, al.detail, al.created_at,
+             u.username AS admin_username
+      FROM admin_logs al
+      LEFT JOIN users u ON al.admin_id = u.id
+      ORDER BY al.created_at DESC
+      LIMIT 100
+    `);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Admin getAuditLogs:', err);
+    res.status(500).json({ error: 'Erro interno' });
+  }
+};
+
+// =====================================================
+// USER MANAGEMENT
+// =====================================================
+
+exports.listUsers = async (req, res) => {
+  try {
+    const page  = Math.max(1, parseInt(req.query.page  || '1'));
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit || '50')));
+    const search = (req.query.search || '').trim();
+    const offset = (page - 1) * limit;
+
+    const where  = search ? `WHERE u.username ILIKE $3 OR u.email ILIKE $3` : '';
+    const params = search
+      ? [limit, offset, `%${search}%`]
+      : [limit, offset];
+
+    const result = await pool.query(
+      `SELECT u.id, u.username, u.email, u.role, u.balance, u.xp, u.level,
+              u.is_banned, u.banned_reason, u.chat_muted_until,
+              u.created_at,
+              (SELECT COUNT(*) FROM openings WHERE user_id = u.id) AS total_openings
+       FROM users u
+       ${where}
+       ORDER BY u.id DESC
+       LIMIT $1 OFFSET $2`,
+      params
+    );
+
+    const countRes = await pool.query(
+      `SELECT COUNT(*) FROM users u ${where}`,
+      search ? [`%${search}%`] : []
+    );
+
+    res.json({
+      users: result.rows,
+      total: parseInt(countRes.rows[0].count),
+      page,
+      limit,
+    });
+  } catch (err) {
+    console.error('Admin listUsers:', err);
+    res.status(500).json({ error: 'Erro interno' });
+  }
+};
+
+exports.banUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { reason } = req.body;
+
+    if (parseInt(id) === req.userId) {
+      return res.status(400).json({ error: 'Não pode banir a si mesmo' });
+    }
+
+    const result = await pool.query(
+      `UPDATE users SET is_banned = TRUE, banned_reason = $1
+       WHERE id = $2 AND role != 'admin' RETURNING id, username`,
+      [reason || 'Violação dos termos de uso.', id]
+    );
+
+    if (!result.rows[0]) {
+      return res.status(404).json({ error: 'Usuário não encontrado ou é admin' });
+    }
+
+    auditLog(req.userId, 'ban', 'user', id, reason || null);
+    res.json({ message: `${result.rows[0].username} banido.` });
+  } catch (err) {
+    console.error('Admin banUser:', err);
+    res.status(500).json({ error: 'Erro interno' });
+  }
+};
+
+exports.unbanUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await pool.query(
+      `UPDATE users SET is_banned = FALSE, banned_reason = NULL
+       WHERE id = $1 RETURNING id, username`,
+      [id]
+    );
+
+    if (!result.rows[0]) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+
+    auditLog(req.userId, 'unban', 'user', id, null);
+    res.json({ message: `${result.rows[0].username} desbanido.` });
+  } catch (err) {
+    console.error('Admin unbanUser:', err);
+    res.status(500).json({ error: 'Erro interno' });
+  }
+};
+
+exports.muteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const minutes = Math.max(1, Math.min(10080, parseInt(req.body.minutes || '60')));
+
+    const result = await pool.query(
+      `UPDATE users SET chat_muted_until = NOW() + ($1 || ' minutes')::INTERVAL
+       WHERE id = $2 RETURNING id, username, chat_muted_until`,
+      [minutes, id]
+    );
+
+    if (!result.rows[0]) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+
+    auditLog(req.userId, 'mute', 'user', id, `${minutes} min`);
+    res.json({ message: `${result.rows[0].username} mutado por ${minutes} min.`, muted_until: result.rows[0].chat_muted_until });
+  } catch (err) {
+    console.error('Admin muteUser:', err);
     res.status(500).json({ error: 'Erro interno' });
   }
 };

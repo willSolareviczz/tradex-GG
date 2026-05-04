@@ -88,6 +88,21 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verified BOOLEAN NOT NULL DEFAU
 ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verify_token VARCHAR(64);
 ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verify_expires TIMESTAMP;
 
+-- Soft delete em cases
+ALTER TABLE cases ADD COLUMN IF NOT EXISTS is_deleted BOOLEAN NOT NULL DEFAULT FALSE;
+
+-- Admin audit log
+CREATE TABLE IF NOT EXISTS admin_logs (
+    id          SERIAL PRIMARY KEY,
+    admin_id    INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    action      VARCHAR(50) NOT NULL,
+    entity      VARCHAR(30) NOT NULL,
+    entity_id   INTEGER,
+    detail      TEXT,
+    created_at  TIMESTAMP DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_admin_logs_created ON admin_logs(created_at DESC);
+
 -- Upgrade System (planejado — tabela criada, sem rotas ainda)
 CREATE TABLE IF NOT EXISTS upgrades (
     id              SERIAL PRIMARY KEY,
@@ -101,7 +116,23 @@ CREATE TABLE IF NOT EXISTS upgrades (
     created_at      TIMESTAMP DEFAULT NOW()
 );
 
+-- Battle Mode PvP
+CREATE TABLE IF NOT EXISTS battles (
+    id                  SERIAL PRIMARY KEY,
+    case_id             INTEGER REFERENCES cases(id),
+    creator_id          INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    joiner_id           INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    creator_opening_id  INTEGER REFERENCES openings(id) ON DELETE SET NULL,
+    joiner_opening_id   INTEGER REFERENCES openings(id) ON DELETE SET NULL,
+    winner_id           INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    status              VARCHAR(20) NOT NULL DEFAULT 'waiting',
+    created_at          TIMESTAMP DEFAULT NOW(),
+    completed_at        TIMESTAMP
+);
+
 -- Indexes
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_skins_market_hash ON skins(market_hash_name);
 CREATE INDEX IF NOT EXISTS idx_openings_user ON openings(user_id);
 CREATE INDEX IF NOT EXISTS idx_openings_created ON openings(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_case_skins_case ON case_skins(case_id);
@@ -109,3 +140,6 @@ CREATE INDEX IF NOT EXISTS idx_transactions_user ON transactions(user_id);
 CREATE INDEX IF NOT EXISTS idx_transactions_created ON transactions(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_upgrades_user ON upgrades(user_id);
 CREATE INDEX IF NOT EXISTS idx_upgrades_created ON upgrades(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_battles_status    ON battles(status);
+CREATE INDEX IF NOT EXISTS idx_battles_creator   ON battles(creator_id);
+CREATE INDEX IF NOT EXISTS idx_battles_completed ON battles(completed_at DESC NULLS LAST);

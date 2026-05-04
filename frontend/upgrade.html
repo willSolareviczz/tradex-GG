@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upgrade de Skin - tradexGG</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/upgrade.css">
+</head>
+<body>
+
+  <!-- Hero -->
+  <div class="upgrade-hero">
+    <div class="container">
+      <div class="upgrade-hero-label">SISTEMA DE</div>
+      <h1 class="upgrade-hero-title">Upgrade</h1>
+      <p class="upgrade-hero-sub">Troque sua skin por uma de maior valor. Quanto mais próximos os preços, maior a chance.</p>
+    </div>
+  </div>
+
+  <!-- Arena principal -->
+  <div class="container">
+    <div class="upgrade-arena" id="upgrade-arena">
+
+      <!-- Skin de origem -->
+      <div class="upgrade-slot upgrade-slot-from" id="slot-from">
+        <div class="upgrade-slot-label">SUA SKIN</div>
+        <div class="upgrade-slot-card empty" id="from-card">
+          <div class="upgrade-slot-placeholder">
+            <svg viewBox="0 0 40 40" fill="none" width="40" height="40">
+              <rect x="4" y="4" width="32" height="32" rx="4" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3"/>
+              <path d="M20 14v12M14 20h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <span>Selecione do inventário</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dial central -->
+      <div class="upgrade-dial-wrap" id="dial-wrap">
+        <div class="upgrade-dial-container" id="dial-container">
+          <div class="upgrade-dial-bg" id="dial-bg"></div>
+          <div class="upgrade-dial-inner">
+            <div class="upgrade-dial-chance" id="dial-chance">—</div>
+            <div class="upgrade-dial-label">CHANCE</div>
+          </div>
+          <div class="upgrade-needle-wrap" id="needle-wrap">
+            <div class="upgrade-needle" id="upgrade-needle"></div>
+          </div>
+        </div>
+        <div class="upgrade-vs-label">VS</div>
+        <button class="upgrade-btn" id="upgrade-btn" disabled>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M5 3l14 9-14 9V3z"/>
+          </svg>
+          FAZER UPGRADE
+        </button>
+      </div>
+
+      <!-- Skin alvo -->
+      <div class="upgrade-slot upgrade-slot-to" id="slot-to">
+        <div class="upgrade-slot-label">SKIN ALVO</div>
+        <div class="upgrade-slot-card empty" id="to-card">
+          <div class="upgrade-slot-placeholder">
+            <svg viewBox="0 0 40 40" fill="none" width="40" height="40">
+              <rect x="4" y="4" width="32" height="32" rx="4" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3"/>
+              <path d="M20 14v12M14 20h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <span>Selecione um alvo</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Seleção: inventário e alvos -->
+    <div class="upgrade-selection" id="upgrade-selection">
+      <div class="upgrade-tabs">
+        <button class="upgrade-tab active" data-tab="inventory" id="tab-inventory">
+          Seu Inventário
+          <span class="upgrade-tab-count" id="inv-count">0</span>
+        </button>
+        <button class="upgrade-tab" data-tab="targets" id="tab-targets">
+          Skins Disponíveis
+          <span class="upgrade-tab-count" id="target-count">0</span>
+        </button>
+      </div>
+      <div class="upgrade-grid" id="upgrade-grid">
+        <div class="loading">Carregando inventário...</div>
+      </div>
+    </div>
+
+    <!-- Histórico de upgrades -->
+    <div class="upgrade-history-section" id="upgrade-history-section">
+      <h3 class="upgrade-history-title">Últimos Upgrades</h3>
+      <div id="upgrade-history-list"></div>
+    </div>
+  </div>
+
+  <!-- Overlay de resultado -->
+  <div class="upgrade-result-overlay" id="result-overlay">
+    <div class="upgrade-result-backdrop"></div>
+    <div class="upgrade-result-card" id="result-card">
+      <div class="upgrade-result-glow" id="result-glow"></div>
+      <div class="upgrade-result-badge" id="result-badge">WIN</div>
+      <img class="upgrade-result-img" id="result-img" src="" alt="">
+      <div class="upgrade-result-name" id="result-name"></div>
+      <div class="upgrade-result-meta" id="result-meta"></div>
+      <div class="upgrade-result-actions">
+        <button class="btn btn-primary" id="btn-continue">Continuar</button>
+        <a href="/inventory.html" class="btn btn-secondary">Ver Inventário</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/upgrade.js"></script>
+</body>
+</html>

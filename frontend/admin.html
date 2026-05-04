@@ -25,6 +25,18 @@
       <button class="admin-nav-item" data-tab="editor" onclick="switchTab('editor')" id="nav-editor" style="display:none;">
         <span class="admin-nav-icon">&#9881;</span> Editor de Case
       </button>
+      <button class="admin-nav-item" data-tab="promo" onclick="switchTab('promo')">
+        <span class="admin-nav-icon">&#9671;</span> Promos
+      </button>
+      <button class="admin-nav-item" data-tab="users" onclick="switchTab('users')">
+        <span class="admin-nav-icon">&#9786;</span> Usuários
+      </button>
+      <button class="admin-nav-item" data-tab="withdrawals" onclick="switchTab('withdrawals')">
+        <span class="admin-nav-icon">&#9654;</span> Saques PIX
+      </button>
+      <button class="admin-nav-item" data-tab="logs" onclick="switchTab('logs')">
+        <span class="admin-nav-icon">&#9776;</span> Audit Log
+      </button>
     </aside>
 
     <!-- Main content -->
@@ -66,6 +78,116 @@
           <table class="admin-table">
             <thead><tr><th>ID</th><th>Imagem</th><th>Nome</th><th>Arma</th><th>Raridade</th><th>Valor</th><th>Em Cases</th><th>Acoes</th></tr></thead>
             <tbody id="skins-body"><tr><td colspan="8" class="loading">Carregando...</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- PROMO CODES -->
+      <section id="tab-promo" style="display:none;">
+        <div class="admin-header">
+          <h2>Códigos Promocionais</h2>
+        </div>
+
+        <!-- Create form -->
+        <div class="card" style="margin-bottom:1.5rem; padding:1.25rem;">
+          <h3 style="margin-bottom:1rem; font-size:0.95rem;">Criar Código</h3>
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:0.75rem; margin-bottom:0.75rem;">
+            <div class="form-group" style="margin:0">
+              <label>Código</label>
+              <input type="text" id="promo-new-code" placeholder="TRADEX10" style="text-transform:uppercase" maxlength="32">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>Bônus (R$)</label>
+              <input type="number" id="promo-new-bonus" placeholder="10.00" min="0.01" step="0.01">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>Máx. Usos (vazio = ilimitado)</label>
+              <input type="number" id="promo-new-max-uses" placeholder="100" min="1">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>Expira em (vazio = nunca)</label>
+              <input type="datetime-local" id="promo-new-expires">
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:0.75rem;">
+            <label>Descrição (opcional)</label>
+            <input type="text" id="promo-new-desc" placeholder="Ex: Bônus de lançamento" maxlength="100">
+          </div>
+          <button class="btn btn-primary btn-sm" id="btn-promo-create">Criar Código</button>
+          <span id="promo-create-msg" style="margin-left:1rem; font-size:0.82rem;"></span>
+        </div>
+
+        <!-- Table -->
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr><th>Código</th><th>Bônus</th><th>Usos</th><th>Máx</th><th>Expira</th><th>Descrição</th><th>Status</th><th>Ações</th></tr>
+            </thead>
+            <tbody id="promo-codes-body">
+              <tr><td colspan="8" class="loading">Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- USERS -->
+      <section id="tab-users" style="display:none;">
+        <div class="admin-header">
+          <h2>Gerenciar Usuários</h2>
+        </div>
+        <div style="display:flex; gap:0.75rem; margin-bottom:1rem; align-items:center;">
+          <input type="text" id="users-search" placeholder="Buscar por username ou e-mail..." style="flex:1; padding:0.5rem 0.75rem; background:var(--surface); border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.85rem;">
+          <button class="btn btn-secondary btn-sm" onclick="loadUsers()">Buscar</button>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr><th>ID</th><th>Username</th><th>E-mail</th><th>Saldo</th><th>Lvl</th><th>Aberturas</th><th>Status</th><th>Ações</th></tr>
+            </thead>
+            <tbody id="users-body">
+              <tr><td colspan="8" class="loading">Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="users-pagination" style="display:flex; gap:0.5rem; margin-top:1rem; align-items:center; font-size:0.82rem; color:var(--text-secondary);"></div>
+      </section>
+
+      <!-- SAQUES PIX -->
+      <section id="tab-withdrawals" style="display:none;">
+        <div class="admin-header">
+          <h2>Saques PIX</h2>
+          <div style="display:flex;gap:0.5rem;">
+            <button class="btn btn-sm" id="w-filter-pending"   onclick="loadWithdrawals('pending')"   style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);">Pendentes</button>
+            <button class="btn btn-sm" id="w-filter-completed" onclick="loadWithdrawals('completed')" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);">Aprovados</button>
+            <button class="btn btn-sm" id="w-filter-rejected"  onclick="loadWithdrawals('rejected')"  style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);">Rejeitados</button>
+          </div>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr><th>ID</th><th>Data</th><th>Usuário</th><th>Email</th><th>Valor</th><th>Chave PIX</th><th>Status</th><th>Ações</th></tr>
+            </thead>
+            <tbody id="withdrawals-body">
+              <tr><td colspan="8" class="loading">Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- AUDIT LOG -->
+      <section id="tab-logs" style="display:none;">
+        <div class="admin-header">
+          <h2>Audit Log</h2>
+          <button class="btn btn-secondary btn-sm" onclick="loadAuditLogs()">Atualizar</button>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr><th>Data</th><th>Admin</th><th>Ação</th><th>Entidade</th><th>ID</th><th>Detalhe</th></tr>
+            </thead>
+            <tbody id="audit-logs-body">
+              <tr><td colspan="6" class="loading">Carregando...</td></tr>
+            </tbody>
           </table>
         </div>
       </section>
@@ -287,6 +409,11 @@
       document.getElementById(`tab-${tab}`).style.display = 'block';
       const navBtn = document.querySelector(`[data-tab="${tab}"]`);
       if (navBtn) navBtn.classList.add('active');
+
+      if (tab === 'logs')        loadAuditLogs();
+      if (tab === 'promo')       loadPromoCodes();
+      if (tab === 'users')       loadUsers();
+      if (tab === 'withdrawals') loadWithdrawals('pending');
     }
 
     // =====================================================
@@ -641,6 +768,105 @@
     }
 
     // =====================================================
+    // AUDIT LOG
+    // =====================================================
+    async function loadAuditLogs() {
+      const tbody = document.getElementById('audit-logs-body');
+      tbody.innerHTML = '<tr><td colspan="6" class="loading">Carregando...</td></tr>';
+      try {
+        const logs = await apiFetch('/admin/audit-logs');
+        if (logs.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-secondary);">Nenhuma ação registrada</td></tr>';
+          return;
+        }
+        const actionColors = { create: '#00ff88', update: '#5e98d9', delete: '#eb4b4b' };
+        tbody.innerHTML = logs.map(l => {
+          const d = new Date(l.created_at);
+          const dateStr = d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+          const color = actionColors[l.action] || 'var(--text-secondary)';
+          return `<tr>
+            <td style="color:var(--text-secondary);font-size:0.8rem;">${dateStr}</td>
+            <td style="font-weight:600;">${l.admin_username || '—'}</td>
+            <td><span style="color:${color};font-weight:700;text-transform:uppercase;font-size:0.75rem;">${l.action}</span></td>
+            <td style="color:var(--text-secondary);">${l.entity}</td>
+            <td style="color:var(--text-muted);">${l.entity_id ?? '—'}</td>
+            <td style="color:var(--text-secondary);font-size:0.78rem;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${l.detail || ''}">${l.detail || '—'}</td>
+          </tr>`;
+        }).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--danger);">${err.message}</td></tr>`;
+      }
+    }
+
+    // =====================================================
+    // WITHDRAWALS PANEL
+    // =====================================================
+    let currentWithdrawalStatus = 'pending';
+
+    async function loadWithdrawals(status = 'pending') {
+      currentWithdrawalStatus = status;
+      const tbody = document.getElementById('withdrawals-body');
+      tbody.innerHTML = '<tr><td colspan="8" class="loading">Carregando...</td></tr>';
+
+      // Highlight active filter button
+      ['pending','completed','rejected'].forEach(s => {
+        const btn = document.getElementById(`w-filter-${s}`);
+        if (btn) btn.style.borderColor = s === status ? 'var(--brass)' : 'var(--border)';
+        if (btn) btn.style.color       = s === status ? 'var(--brass)' : 'var(--text-secondary)';
+      });
+
+      try {
+        const rows = await apiFetch(`/admin/withdrawals?status=${status}`);
+        if (!rows.length) {
+          tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--text-secondary);">Nenhum saque ${status === 'pending' ? 'pendente' : status === 'completed' ? 'aprovado' : 'rejeitado'}.</td></tr>`;
+          return;
+        }
+        tbody.innerHTML = rows.map(w => {
+          const d = new Date(w.created_at);
+          const ds = d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+          const statusBadge = w.status === 'pending'
+            ? `<span style="color:var(--brass);font-weight:700;font-size:0.75rem;">PENDENTE</span>`
+            : w.status === 'completed'
+              ? `<span style="color:#22c55e;font-weight:700;font-size:0.75rem;">APROVADO</span>`
+              : `<span style="color:var(--danger);font-weight:700;font-size:0.75rem;">REJEITADO</span>`;
+          const actions = w.status === 'pending'
+            ? `<div class="admin-actions">
+                <button class="admin-btn-icon" title="Aprovar" style="color:#22c55e" onclick="processWithdrawal(${w.id},'completed')">✓</button>
+                <button class="admin-btn-icon danger" title="Rejeitar" onclick="processWithdrawal(${w.id},'rejected')">✕</button>
+               </div>`
+            : '—';
+          return `<tr>
+            <td style="color:var(--text-muted);">#${w.id}</td>
+            <td style="font-size:0.78rem;color:var(--text-secondary);">${ds}</td>
+            <td style="font-weight:600;">${escapeHtml(w.username)}</td>
+            <td style="color:var(--text-secondary);font-size:0.8rem;">${escapeHtml(w.email)}</td>
+            <td style="color:var(--accent);font-weight:700;">${formatPrice(w.amount)}</td>
+            <td style="font-family:var(--font-mono);font-size:0.8rem;">${escapeHtml(w.pix_key || '—')}</td>
+            <td>${statusBadge}</td>
+            <td>${actions}</td>
+          </tr>`;
+        }).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--danger);">${escapeHtml(err.message)}</td></tr>`;
+      }
+    }
+
+    async function processWithdrawal(id, status) {
+      const label = status === 'completed' ? 'APROVAR' : 'REJEITAR';
+      if (!confirm(`${label} o saque #${id}?`)) return;
+      try {
+        const res = await apiFetch(`/admin/withdrawals/${id}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status }),
+        });
+        showToast(res.message, 'success');
+        loadWithdrawals(currentWithdrawalStatus);
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    // =====================================================
     // ROI CALCULATOR
     // =====================================================
     function updateROI(casePrice, skins, totalWeight) {
@@ -719,6 +945,178 @@
       const resultEl = document.getElementById('roi-suggest-result');
       resultEl.innerHTML = `Sugerido (${targetMarginPct}%): <strong style="color:var(--accent);">${formatPrice(suggested)}</strong>`;
     }
+
+    // =====================================================
+    // PROMO CODES
+    // =====================================================
+    async function loadPromoCodes() {
+      const tbody = document.getElementById('promo-codes-body');
+      tbody.innerHTML = '<tr><td colspan="8" class="loading">Carregando...</td></tr>';
+      try {
+        const data = await apiFetch('/admin/promo');
+        if (!data.codes.length) {
+          tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-secondary);">Nenhum código ainda.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = data.codes.map(c => {
+          const expiry = c.expires_at ? new Date(c.expires_at).toLocaleDateString('pt-BR') : '—';
+          const status = c.is_active
+            ? '<span style="color:#22c55e;font-weight:700;font-size:0.75rem;">ATIVO</span>'
+            : '<span style="color:var(--danger);font-weight:700;font-size:0.75rem;">INATIVO</span>';
+          return `<tr>
+            <td style="font-family:var(--font-mono);font-weight:700;">${c.code}</td>
+            <td style="color:var(--brass);">${formatPrice(c.bonus_amount)}</td>
+            <td>${c.uses_count}</td>
+            <td>${c.max_uses ?? '∞'}</td>
+            <td style="color:var(--text-secondary);font-size:0.8rem;">${expiry}</td>
+            <td style="color:var(--text-secondary);font-size:0.8rem;">${c.description || '—'}</td>
+            <td>${status}</td>
+            <td>
+              <button class="btn btn-secondary btn-sm" onclick="togglePromo(${c.id})" style="margin-right:0.35rem;">
+                ${c.is_active ? 'Desativar' : 'Ativar'}
+              </button>
+              <button class="btn btn-sm" style="background:var(--danger);color:#fff;border-color:var(--danger);" onclick="deletePromo(${c.id})">Remover</button>
+            </td>
+          </tr>`;
+        }).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="8" style="color:var(--danger);text-align:center;">${err.message}</td></tr>`;
+      }
+    }
+
+    document.getElementById('btn-promo-create').addEventListener('click', async () => {
+      const code      = document.getElementById('promo-new-code').value.trim().toUpperCase();
+      const bonus     = parseFloat(document.getElementById('promo-new-bonus').value);
+      const maxUses   = document.getElementById('promo-new-max-uses').value || null;
+      const expires   = document.getElementById('promo-new-expires').value || null;
+      const desc      = document.getElementById('promo-new-desc').value.trim() || null;
+      const msgEl     = document.getElementById('promo-create-msg');
+
+      msgEl.style.color = 'var(--text-secondary)';
+      msgEl.textContent = 'Criando...';
+      try {
+        await apiFetch('/admin/promo', {
+          method: 'POST',
+          body: JSON.stringify({
+            code,
+            bonus_amount: Math.round(bonus * 100),
+            max_uses: maxUses ? parseInt(maxUses) : null,
+            expires_at: expires,
+            description: desc,
+          }),
+        });
+        msgEl.style.color = '#22c55e';
+        msgEl.textContent = '✓ Código criado!';
+        ['promo-new-code','promo-new-bonus','promo-new-max-uses','promo-new-expires','promo-new-desc']
+          .forEach(id => { document.getElementById(id).value = ''; });
+        await loadPromoCodes();
+      } catch (err) {
+        msgEl.style.color = 'var(--danger)';
+        msgEl.textContent = err.message;
+      }
+    });
+
+    async function togglePromo(id) {
+      try {
+        await apiFetch(`/admin/promo/${id}`, { method: 'PATCH' });
+        await loadPromoCodes();
+      } catch (err) { showToast(err.message, 'error'); }
+    }
+
+    async function deletePromo(id) {
+      if (!confirm('Remover este código?')) return;
+      try {
+        await apiFetch(`/admin/promo/${id}`, { method: 'DELETE' });
+        await loadPromoCodes();
+      } catch (err) { showToast(err.message, 'error'); }
+    }
+
+    // =====================================================
+    // USERS
+    // =====================================================
+    let _usersPage = 1;
+
+    async function loadUsers(page = 1) {
+      _usersPage = page;
+      const search = document.getElementById('users-search').value.trim();
+      const tbody  = document.getElementById('users-body');
+      tbody.innerHTML = '<tr><td colspan="8" class="loading">Carregando...</td></tr>';
+      try {
+        const params = new URLSearchParams({ page, limit: 50 });
+        if (search) params.set('search', search);
+        const data = await apiFetch(`/admin/users?${params}`);
+        if (!data.users.length) {
+          tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-secondary)">Nenhum usuário encontrado</td></tr>';
+          document.getElementById('users-pagination').innerHTML = '';
+          return;
+        }
+        tbody.innerHTML = data.users.map(u => `
+          <tr>
+            <td>${u.id}</td>
+            <td><strong>${u.username}</strong></td>
+            <td style="font-size:0.78rem;color:var(--text-secondary)">${u.email}</td>
+            <td>R$${(u.balance / 100).toFixed(2)}</td>
+            <td>${u.level}</td>
+            <td>${u.total_openings}</td>
+            <td>
+              ${u.is_banned
+                ? `<span style="color:var(--danger);font-weight:600">BANIDO</span>`
+                : u.chat_muted_until && new Date(u.chat_muted_until) > new Date()
+                  ? `<span style="color:var(--warning)">MUTADO</span>`
+                  : `<span style="color:var(--success)">Ativo</span>`}
+            </td>
+            <td style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+              ${u.is_banned
+                ? `<button class="btn btn-secondary btn-sm" onclick="adminUnban(${u.id})">Desbanir</button>`
+                : `<button class="btn btn-sm" style="background:var(--danger)" onclick="adminBan(${u.id}, '${u.username}')">Banir</button>`}
+              <button class="btn btn-secondary btn-sm" onclick="adminMute(${u.id}, '${u.username}')">Mutar</button>
+            </td>
+          </tr>`).join('');
+
+        const totalPages = Math.ceil(data.total / data.limit);
+        const pag = document.getElementById('users-pagination');
+        pag.innerHTML = `
+          <span>Total: ${data.total}</span>
+          ${page > 1 ? `<button class="btn btn-secondary btn-sm" onclick="loadUsers(${page-1})">Anterior</button>` : ''}
+          <span>Pág ${page} / ${totalPages}</span>
+          ${page < totalPages ? `<button class="btn btn-secondary btn-sm" onclick="loadUsers(${page+1})">Próxima</button>` : ''}`;
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="8" style="color:var(--danger)">${err.message}</td></tr>`;
+      }
+    }
+
+    async function adminBan(id, username) {
+      const reason = prompt(`Motivo do ban para ${username} (deixe vazio para padrão):`);
+      if (reason === null) return;
+      try {
+        const data = await apiFetch(`/admin/users/${id}/ban`, { method: 'POST', body: JSON.stringify({ reason }) });
+        showToast(data.message, 'success');
+        loadUsers(_usersPage);
+      } catch (err) { showToast(err.message, 'error'); }
+    }
+
+    async function adminUnban(id) {
+      if (!confirm('Desbanir este usuário?')) return;
+      try {
+        const data = await apiFetch(`/admin/users/${id}/unban`, { method: 'POST' });
+        showToast(data.message, 'success');
+        loadUsers(_usersPage);
+      } catch (err) { showToast(err.message, 'error'); }
+    }
+
+    async function adminMute(id, username) {
+      const mins = prompt(`Mutar ${username} por quantos minutos?`, '60');
+      if (!mins) return;
+      try {
+        const data = await apiFetch(`/admin/users/${id}/mute`, { method: 'POST', body: JSON.stringify({ minutes: parseInt(mins) }) });
+        showToast(data.message, 'success');
+        loadUsers(_usersPage);
+      } catch (err) { showToast(err.message, 'error'); }
+    }
+
+    document.getElementById('users-search').addEventListener('keydown', e => {
+      if (e.key === 'Enter') loadUsers(1);
+    });
 
     // Auto-fill weapon + skin_name from full name
     document.getElementById('skin-fullname')?.addEventListener('input', (e) => {

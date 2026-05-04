@@ -8,21 +8,36 @@ const pool = require('../config/db');
 
 exports.getInventory = async (req, res) => {
   try {
-    const result = await pool.query(
-      `SELECT o.id as opening_id, o.created_at, s.id as skin_id, s.name, s.weapon,
-              s.skin_name, s.wear, s.rarity, s.rarity_color, s.image_url,
-              s.market_price,
-              COALESCE(s.site_price, s.market_price) AS site_price,
-              c.name as case_name
-       FROM openings o
-       JOIN skins s ON o.skin_id = s.id
-       JOIN cases c ON o.case_id = c.id
-       WHERE o.user_id = $1 AND o.sold = false
-       ORDER BY o.created_at DESC`,
-      [req.userId]
-    );
+    const page  = Math.max(1, parseInt(req.query.page)  || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 24));
+    const offset = (page - 1) * limit;
 
-    res.json(result.rows);
+    const [countRes, dataRes] = await Promise.all([
+      pool.query('SELECT COUNT(*) FROM openings WHERE user_id = $1 AND sold = false', [req.userId]),
+      pool.query(
+        `SELECT o.id as opening_id, o.created_at, s.id as skin_id, s.name, s.weapon,
+                s.skin_name, s.wear, s.rarity, s.rarity_color, s.image_url,
+                s.market_price,
+                COALESCE(s.site_price, s.market_price) AS site_price,
+                c.name as case_name
+         FROM openings o
+         JOIN skins s ON o.skin_id = s.id
+         JOIN cases c ON o.case_id = c.id
+         WHERE o.user_id = $1 AND o.sold = false
+         ORDER BY o.created_at DESC
+         LIMIT $2 OFFSET $3`,
+        [req.userId, limit, offset]
+      ),
+    ]);
+
+    const total = parseInt(countRes.rows[0].count);
+    res.json({
+      items: dataRes.rows,
+      total,
+      page,
+      limit,
+      pages: Math.ceil(total / limit),
+    });
   } catch (err) {
     console.error('Erro ao buscar inventário:', err);
     res.status(500).json({ error: 'Erro interno do servidor' });

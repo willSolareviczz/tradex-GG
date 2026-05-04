@@ -3,36 +3,63 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cadastro - tradexGG</title>
+  <title>Cadastro — tradexGG</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-  <div class="form-container">
-    <div class="card">
-      <h2>Criar Conta</h2>
-      <form id="auth-form" data-type="register">
+  <div class="auth-page">
+    <div class="auth-card">
+      <a href="/" class="auth-logo">tradex<span>GG</span></a>
+      <div class="auth-title">Criar conta</div>
+      <div class="auth-sub">Ganhe R$5 de bônus ao se cadastrar</div>
+
+      <form id="auth-form" data-type="register" class="auth-form">
         <div class="form-group">
           <label for="username">Nome de usuário</label>
-          <input type="text" id="username" name="username" required placeholder="Seu username" minlength="3" maxlength="32">
+          <input type="text" id="username" name="username" required placeholder="Seu username"
+                 minlength="3" maxlength="32" class="form-input">
         </div>
         <div class="form-group">
           <label for="email">Email</label>
-          <input type="email" id="email" name="email" required placeholder="seu@email.com">
+          <input type="email" id="email" name="email" required placeholder="seu@email.com" class="form-input">
         </div>
         <div class="form-group">
           <label for="password">Senha</label>
-          <input type="password" id="password" name="password" required placeholder="Mínimo 6 caracteres" minlength="6">
+          <input type="password" id="password" name="password" required
+                 placeholder="Mínimo 6 caracteres" minlength="6" class="form-input">
+        </div>
+        <div class="form-group" id="ref-group" style="display:none;">
+          <label for="ref_code">
+            Código de convite
+            <span class="auth-optional">opcional</span>
+          </label>
+          <input type="text" id="ref_code" name="ref_code" placeholder="Ex: A3F2B891"
+                 maxlength="12" style="text-transform:uppercase" class="form-input">
+          <small class="auth-hint">Ganhe R$5 de bônus ao se cadastrar com um convite.</small>
         </div>
         <div class="form-error" id="form-error"></div>
-        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">Cadastrar</button>
+        <button type="submit" class="btn btn-primary" style="width:100%; margin-top:0.5rem;">Criar conta grátis</button>
       </form>
-      <div class="form-footer">
+
+      <div class="auth-footer">
         Já tem conta? <a href="/login.html">Entrar</a>
       </div>
+      <div class="auth-disclaimer">Ao criar conta você confirma ter 18+ anos e aceita os <a href="/termos.html">Termos de Uso</a> e a <a href="/termos.html#privacidade">Política de Privacidade</a>.</div>
     </div>
   </div>
 
   <script src="/js/api.js"></script>
   <script src="/js/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const ref = new URLSearchParams(window.location.search).get('ref');
+      if (ref) {
+        const group = document.getElementById('ref-group');
+        const input = document.getElementById('ref_code');
+        group.style.display = 'block';
+        input.value = ref.toUpperCase();
+      }
+    });
+  </script>
 </body>
 </html>

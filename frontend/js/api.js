@@ -214,6 +214,13 @@ function saveAuth(user, token) {
   localStorage.setItem('tradexgg_user', JSON.stringify(user));
 }
 
+function updateStoredBalance(newBalance) {
+  const user = getUser();
+  if (!user) return;
+  user.balance = newBalance;
+  localStorage.setItem('tradexgg_user', JSON.stringify(user));
+}
+
 function clearAuth() {
   localStorage.removeItem('tradexgg_token');
   localStorage.removeItem('tradexgg_user');
@@ -226,26 +233,29 @@ function isLoggedIn() {
 async function apiFetch(path, options = {}) {
   const token = getToken();
   const headers = { 'Content-Type': 'application/json', ...options.headers };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
 
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 15000);
+
+  try {
+    const res = await fetch(`${API_BASE}${path}`, { ...options, headers, signal: controller.signal });
+    clearTimeout(timer);
+
+    if (res.status === 401) {
+      clearAuth();
+      window.location.href = '/login.html';
+      return;
+    }
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Erro desconhecido');
+    return data;
+  } catch (err) {
+    clearTimeout(timer);
+    if (err.name === 'AbortError') throw new Error('Requisição expirou. Verifique sua conexão.');
+    throw err;
   }
-
-  const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
-
-  if (res.status === 401) {
-    clearAuth();
-    window.location.href = '/login.html';
-    return;
-  }
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    throw new Error(data.error || 'Erro desconhecido');
-  }
-
-  return data;
 }
 
 function formatPrice(centavos) {
@@ -293,6 +303,9 @@ function renderNavbar() {
       <a href="/ranking.html">Ranking</a>
       ${logged ? `
         <a href="/inventory.html">Inventário</a>
+        <a href="/upgrade.html">Upgrade</a>
+        <a href="/battle.html">Batalha</a>
+        <a href="/coinflip.html">Coinflip</a>
         <a href="/history.html">Histórico</a>
         ${user?.role === 'admin' ? `<a href="/admin.html" style="color:var(--rarity-extraordinary);">Admin</a>` : ''}
       ` : ''}
@@ -320,6 +333,12 @@ function renderNavbar() {
         <button class="btn btn-daily btn-sm" id="nav-daily-btn" style="display:none;" onclick="claimDailyBonus(this)">+R$5 Diário</button>
         <div class="balance-display" id="nav-balance">${formatPrice(user?.balance || 0)}</div>
         <a href="/deposit.html" class="btn btn-primary btn-sm">Depositar</a>
+        <button class="nav-bell-btn" id="nav-bell" aria-label="Notificações">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          <span class="nav-bell-badge" id="nav-bell-badge" style="display:none">0</span>
+        </button>
         <a href="/profile.html" class="btn btn-secondary btn-sm nav-profile-btn">
           <span class="nav-level-badge" id="nav-level-badge">${user?.level ? `LV ${user.level}` : ''}</span>
           ${user?.username || 'Perfil'}
@@ -338,11 +357,27 @@ function renderNavbar() {
     banner.id = 'email-verify-banner';
     banner.className = 'email-verify-banner';
     banner.style.display = 'none';
-    banner.innerHTML = `
-      <span>Verifique seu email para ativar todos os recursos da conta.</span>
-      <button class="email-verify-resend" onclick="resendVerificationEmail(this)">Reenviar link</button>
-      <button class="email-verify-close" onclick="this.parentElement.style.display='none'">✕</button>
-    `;
+
+    const bannerText = document.createElement('span');
+    bannerText.textContent = 'Verifique seu email para ativar todos os recursos da conta.';
+
+    const resendBtn = document.createElement('button');
+    resendBtn.className = 'email-verify-resend';
+    resendBtn.textContent = 'Reenviar link';
+    resendBtn.addEventListener('click', () => resendVerificationEmail(resendBtn));
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'email-verify-close';
+    closeBtn.textContent = '✕';
+    closeBtn.setAttribute('aria-label', 'Fechar');
+    closeBtn.addEventListener('click', () => {
+      banner.style.display = 'none';
+      sessionStorage.setItem('emailBannerDismissed', '1');
+    });
+
+    banner.appendChild(bannerText);
+    banner.appendChild(resendBtn);
+    banner.appendChild(closeBtn);
     document.body.prepend(banner);
   }
 
@@ -494,7 +529,7 @@ function renderNavbar() {
       }
 
       // Email verification banner
-      if (data.email_verified === false) {
+      if (data.email_verified === false && !sessionStorage.getItem('emailBannerDismissed')) {
         const banner = document.getElementById('email-verify-banner');
         if (banner) banner.style.display = 'flex';
       }
@@ -563,20 +598,38 @@ function renderFooter() {
     <div class="footer-inner">
       <div class="footer-brand">
         <a href="/" class="footer-logo">tradex<span>GG</span></a>
-        <p class="footer-tagline">Armaria de skins CS2. Inventário operado no Brasil, sem ruído.</p>
+        <p class="footer-tagline">Plataforma de skins CS2 com sistema Provably Fair.<br>Operado no Brasil — entretenimento virtual.</p>
+        <p class="footer-disclaimer">tradexGG não é afiliado à Valve Corporation ou ao CS2. Todas as skins são virtuais e não transferíveis para Steam. Para maiores de 18 anos.</p>
       </div>
       <div class="footer-col">
         <span class="footer-col-title">Plataforma</span>
         <a href="/cases.html">Caixas</a>
         <a href="/ranking.html">Ranking</a>
         <a href="/inventory.html">Inventário</a>
+        <a href="/upgrade.html">Upgrade</a>
+        <a href="/battle.html">Batalha</a>
+        <a href="/coinflip.html">Coinflip</a>
         <a href="/history.html">Histórico</a>
         <a href="/deposit.html">Depositar</a>
+      </div>
+      <div class="footer-col">
+        <span class="footer-col-title">Legal</span>
+        <a href="/termos.html">Termos de Uso</a>
+        <a href="/termos.html#privacidade" onclick="sessionStorage.setItem('legalTab','privacidade')">Política de Privacidade</a>
+        <a href="/termos.html">LGPD</a>
+        <a href="mailto:suporte@tradexgg.com">Suporte</a>
+        <a href="mailto:privacidade@tradexgg.com">DPO / Privacidade</a>
       </div>
     </div>
     <div class="footer-bottom">
       <span class="footer-server-badge"><span class="live-dot"></span>BR-01 Online</span>
-      <span class="footer-copy">© ${new Date().getFullYear()} tradexGG &middot; <a href="https://github.com/willSolareviczz/tradex-GG" style="color:inherit;text-decoration:none;">github.com/willSolareviczz</a></span>
+      <div class="footer-legal-links">
+        <a href="/termos.html">Termos</a>
+        <span>·</span>
+        <a href="/termos.html">Privacidade</a>
+        <span>·</span>
+        <span>© ${new Date().getFullYear()} tradexGG</span>
+      </div>
     </div>
   `;
 
@@ -585,6 +638,336 @@ function renderFooter() {
 
 document.addEventListener('DOMContentLoaded', renderNavbar);
 document.addEventListener('DOMContentLoaded', renderFooter);
+
+// ===== In-App Notifications =====
+(function initNotifications() {
+  let notifOpen  = false;
+  let unreadCount = 0;
+
+  function fmtTimeAgo(iso) {
+    const diff = Math.floor((Date.now() - new Date(iso)) / 1000);
+    if (diff < 60)   return `${diff}s`;
+    if (diff < 3600) return `${Math.floor(diff / 60)}m`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h`;
+    return `${Math.floor(diff / 86400)}d`;
+  }
+
+  const ICONS = { level_up: '⭐', battle: '⚔️', coinflip: '🪙', referral: '💰', default: '🔔' };
+
+  function iconFor(type) { return ICONS[type] || ICONS.default; }
+
+  function buildPanel() {
+    const el = document.createElement('div');
+    el.id = 'notif-panel';
+    el.className = 'notif-panel';
+    el.innerHTML = `
+      <div class="notif-panel-header">
+        <span class="notif-panel-title">Notificações</span>
+        <button class="notif-mark-all" id="notif-mark-all">Marcar todas lidas</button>
+      </div>
+      <div class="notif-list" id="notif-list"><div class="notif-empty">Carregando...</div></div>`;
+    document.body.appendChild(el);
+
+    document.getElementById('notif-mark-all').addEventListener('click', async () => {
+      try { await apiFetch('/notifications/read-all', { method: 'POST' }); } catch {}
+      document.querySelectorAll('.notif-item.unread').forEach(el => el.classList.remove('unread'));
+      unreadCount = 0;
+      updateBadge();
+    });
+
+    document.addEventListener('click', e => {
+      const bell = document.getElementById('nav-bell');
+      const panel = document.getElementById('notif-panel');
+      if (panel && bell && !bell.contains(e.target) && !panel.contains(e.target)) {
+        closePanel();
+      }
+    });
+  }
+
+  function closePanel() {
+    notifOpen = false;
+    const p = document.getElementById('notif-panel');
+    if (p) p.classList.remove('open');
+  }
+
+  function updateBadge() {
+    const badge = document.getElementById('nav-bell-badge');
+    if (!badge) return;
+    if (unreadCount > 0) {
+      badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+      badge.style.display = 'flex';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  function renderNotifList(notifications) {
+    const list = document.getElementById('notif-list');
+    if (!list) return;
+    if (!notifications.length) {
+      list.innerHTML = '<div class="notif-empty">Sem notificações.</div>';
+      return;
+    }
+    list.innerHTML = notifications.map(n => `
+      <div class="notif-item${n.is_read ? '' : ' unread'}" data-id="${n.id}" data-url="${n.url || ''}">
+        <div class="notif-icon">${iconFor(n.type)}</div>
+        <div class="notif-body">
+          <div class="notif-title">${escapeHtml(n.title)}</div>
+          ${n.body ? `<div class="notif-sub">${escapeHtml(n.body)}</div>` : ''}
+        </div>
+        <div class="notif-time">${fmtTimeAgo(n.created_at)}</div>
+      </div>`).join('');
+
+    list.querySelectorAll('.notif-item[data-url]').forEach(item => {
+      item.addEventListener('click', () => {
+        const url = item.dataset.url;
+        apiFetch(`/notifications/${item.dataset.id}/read`, { method: 'POST' }).catch(() => {});
+        item.classList.remove('unread');
+        closePanel();
+        if (url) window.location.href = url;
+      });
+    });
+  }
+
+  async function loadNotifications() {
+    if (!isLoggedIn?.()) return;
+    try {
+      const data = await apiFetch('/notifications');
+      unreadCount = data.unread;
+      updateBadge();
+      renderNotifList(data.notifications || []);
+    } catch {}
+  }
+
+  function prependNotif(notif) {
+    const list = document.getElementById('notif-list');
+    if (!list) return;
+    const empty = list.querySelector('.notif-empty');
+    if (empty) empty.remove();
+    const div = document.createElement('div');
+    div.innerHTML = `
+      <div class="notif-item unread" data-id="${notif.id}" data-url="${notif.url || ''}">
+        <div class="notif-icon">${iconFor(notif.type)}</div>
+        <div class="notif-body">
+          <div class="notif-title">${escapeHtml(notif.title)}</div>
+          ${notif.body ? `<div class="notif-sub">${escapeHtml(notif.body)}</div>` : ''}
+        </div>
+        <div class="notif-time">agora</div>
+      </div>`;
+    const item = div.firstElementChild;
+    item.addEventListener('click', () => {
+      const url = item.dataset.url;
+      apiFetch(`/notifications/${item.dataset.id}/read`, { method: 'POST' }).catch(() => {});
+      item.classList.remove('unread');
+      closePanel();
+      if (url) window.location.href = url;
+    });
+    list.prepend(item);
+    // keep max 30
+    const items = list.querySelectorAll('.notif-item');
+    if (items.length > 30) items[items.length - 1].remove();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!isLoggedIn?.()) return;
+    buildPanel();
+    loadNotifications();
+
+    // Bell toggle
+    document.addEventListener('click', e => {
+      const bell = document.getElementById('nav-bell');
+      if (bell && bell.contains(e.target)) {
+        notifOpen = !notifOpen;
+        const panel = document.getElementById('notif-panel');
+        if (panel) panel.classList.toggle('open', notifOpen);
+        if (notifOpen) loadNotifications();
+      }
+    });
+
+    // SSE — listen for notification events on the existing live-drops stream
+    const existingSSE = window.__liveDropsSSE;
+    function attachNotifSSE(sse) {
+      if (!sse) return;
+      sse.addEventListener('notification', e => {
+        const data = JSON.parse(e.data);
+        const currentUser = getUser?.();
+        if (!currentUser || data.user_id !== currentUser.id) return;
+        unreadCount++;
+        updateBadge();
+        prependNotif(data.notification);
+        showToast?.(data.notification.title, 'info');
+      });
+    }
+
+    // Try attaching to the coinflip/battle SSE that may already exist
+    // If not available, open a dedicated one
+    if (window.__liveDropsSSE) {
+      attachNotifSSE(window.__liveDropsSSE);
+    } else {
+      const sse = new EventSource('/api/events/live-drops');
+      window.__liveDropsSSE = sse;
+      attachNotifSSE(sse);
+    }
+  });
+})();
+
+// ===== Live Chat Widget =====
+(function initChat() {
+  const MAX_VISIBLE = 50;
+  let chatSse      = null;
+  let chatOpen     = false;
+  let unread       = 0;
+  let lastUserId   = null;
+
+  function fmtTime(iso) {
+    const d = new Date(iso);
+    return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+  }
+
+  function buildMsgEl(msg) {
+    const div = document.createElement('div');
+    div.className = 'chat-msg';
+    div.dataset.id = msg.id;
+    const initial = (msg.username || '?')[0].toUpperCase();
+    div.innerHTML = `
+      <div class="chat-avatar">${initial}</div>
+      <div class="chat-msg-body">
+        <span class="chat-username">${escapeHtml(msg.username)}</span>
+        <span class="chat-time">${fmtTime(msg.created_at)}</span>
+        <div class="chat-text">${escapeHtml(msg.message)}</div>
+      </div>`;
+    return div;
+  }
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function appendMsg(msg, scroll) {
+    const list = document.getElementById('chat-messages');
+    if (!list) return;
+    list.appendChild(buildMsgEl(msg));
+    // prune
+    while (list.children.length > MAX_VISIBLE) list.removeChild(list.firstChild);
+    if (scroll) list.scrollTop = list.scrollHeight;
+  }
+
+  function updateBadge() {
+    const badge = document.getElementById('chat-badge');
+    if (!badge) return;
+    if (!chatOpen && unread > 0) {
+      badge.textContent = unread > 9 ? '9+' : unread;
+      badge.style.display = 'flex';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  async function loadHistory() {
+    try {
+      const data = await apiFetch('/chat');
+      const list = document.getElementById('chat-messages');
+      if (!list) return;
+      list.innerHTML = '';
+      (data.messages || []).forEach(m => appendMsg(m, false));
+      list.scrollTop = list.scrollHeight;
+    } catch { /* silent */ }
+  }
+
+  function connectSSE() {
+    if (chatSse) return;
+    chatSse = new EventSource('/api/events/live-drops');
+    chatSse.addEventListener('chat-message', e => {
+      const msg = JSON.parse(e.data);
+      const atBottom = (() => {
+        const l = document.getElementById('chat-messages');
+        return l ? l.scrollHeight - l.scrollTop - l.clientHeight < 40 : true;
+      })();
+      appendMsg(msg, chatOpen || atBottom);
+      if (!chatOpen) { unread++; updateBadge(); }
+    });
+    chatSse.onerror = () => { chatSse.close(); chatSse = null; setTimeout(connectSSE, 5000); };
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById('chat-input');
+    if (!input) return;
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+    input.disabled = true;
+    try {
+      await apiFetch('/chat', { method: 'POST', body: JSON.stringify({ message: text }) });
+    } catch (err) {
+      showToast?.(err.message || 'Erro ao enviar mensagem', 'error');
+      input.value = text;
+    } finally {
+      input.disabled = false;
+      input.focus();
+    }
+  }
+
+  function renderWidget() {
+    const wrap = document.createElement('div');
+    wrap.id = 'chat-widget';
+    wrap.innerHTML = `
+      <button class="chat-fab" id="chat-fab" aria-label="Chat">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        <span class="chat-badge" id="chat-badge" style="display:none">0</span>
+      </button>
+      <div class="chat-panel" id="chat-panel">
+        <div class="chat-panel-header">
+          <span class="chat-panel-title">Chat ao Vivo</span>
+          <button class="chat-panel-close" id="chat-close">✕</button>
+        </div>
+        <div class="chat-messages" id="chat-messages"></div>
+        <div class="chat-input-row">
+          <input class="chat-input" id="chat-input" type="text" maxlength="200" placeholder="Mensagem...">
+          <button class="chat-send" id="chat-send">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+          </button>
+        </div>
+      </div>`;
+    document.body.appendChild(wrap);
+
+    document.getElementById('chat-fab').addEventListener('click', () => {
+      chatOpen = !chatOpen;
+      document.getElementById('chat-panel').classList.toggle('open', chatOpen);
+      if (chatOpen) {
+        unread = 0;
+        updateBadge();
+        const list = document.getElementById('chat-messages');
+        if (list) list.scrollTop = list.scrollHeight;
+        document.getElementById('chat-input').focus();
+      }
+    });
+
+    document.getElementById('chat-close').addEventListener('click', () => {
+      chatOpen = false;
+      document.getElementById('chat-panel').classList.remove('open');
+    });
+
+    document.getElementById('chat-send').addEventListener('click', sendMessage);
+
+    document.getElementById('chat-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    renderWidget();
+    loadHistory();
+    connectSSE();
+  });
+})();
 
 // ===== Auto-scale weapon images based on actual pixel bounds =====
 // Uses fetch() to bypass browser cache CORS taint issue

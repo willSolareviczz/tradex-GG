@@ -3,45 +3,318 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Depositar - tradexGG</title>
+  <title>Carteira — tradexGG</title>
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/loader.css">
+  <style>
+    .wallet-hero {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 2rem 0 1.5rem;
+    }
+    .wallet-hero-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .wallet-hero-title {
+      font-family: var(--font-display);
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .wallet-hero-balance {
+      font-family: 'Rajdhani', var(--font-mono);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--brass);
+      font-variant-numeric: tabular-nums;
+    }
+    .wallet-hero-balance-label {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 0.2rem;
+    }
+    .wallet-layout {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 2rem;
+      padding-top: 2rem;
+      padding-bottom: 4rem;
+    }
+    .wallet-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .wallet-tab {
+      padding: 0.5rem 1.1rem;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      font-weight: 600;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      margin-bottom: -1px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .wallet-tab.active {
+      color: var(--brass);
+      border-bottom-color: var(--brass);
+    }
+    .wallet-tab:hover { color: var(--text-primary); }
+    .wallet-panel { display: none; }
+    .wallet-panel.active { display: block; }
+    .amount-presets {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.6rem;
+      margin-bottom: 1.25rem;
+    }
+    .amount-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--r-sm);
+      padding: 0.7rem 0.5rem;
+      font-family: 'Rajdhani', var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+      text-align: center;
+    }
+    .amount-btn:hover, .amount-btn.active {
+      border-color: var(--brass);
+      color: var(--brass);
+      background: rgba(201,168,106,0.06);
+    }
+    .tx-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border-soft);
+      gap: 1rem;
+    }
+    .tx-item:last-child { border-bottom: none; }
+    .tx-type-badge {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0.15rem 0.5rem;
+      border-radius: var(--r-xs);
+      border: 1px solid;
+      white-space: nowrap;
+    }
+    .tx-status {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-left: 0.35rem;
+    }
+    .tx-amount { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .tx-desc { font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.1rem; }
+    .tx-date { font-size: 0.72rem; color: var(--text-tertiary); white-space: nowrap; }
+    .tx-filter-bar { display: flex; gap: 0.4rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .tx-filter-btn {
+      padding: 0.25rem 0.75rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .tx-filter-btn.active { border-color: var(--brass); color: var(--brass); }
+    .wallet-info-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .wallet-info-title {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-tertiary);
+      margin-bottom: 1rem;
+    }
+    .wallet-info-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.6rem;
+    }
+    .wallet-info-row span:last-child { color: var(--text-primary); font-weight: 600; }
+    .tx-pagination {
+      display: flex;
+      gap: 0.4rem;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1rem;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+    }
+    @media (max-width: 900px) {
+      .wallet-layout { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
+  <!-- Hero -->
+  <div class="wallet-hero">
+    <div class="wallet-hero-inner">
+      <div>
+        <div style="font-family:var(--font-mono);font-size:0.6rem;text-transform:uppercase;letter-spacing:0.2em;color:var(--text-tertiary);margin-bottom:0.4rem;">CARTEIRA VIRTUAL</div>
+        <h1 class="wallet-hero-title">Depositar &amp; Sacar</h1>
+      </div>
+      <div style="text-align:right;">
+        <div class="wallet-hero-balance-label">Saldo disponível</div>
+        <div class="wallet-hero-balance" id="hero-balance">—</div>
+      </div>
+    </div>
+  </div>
+
   <div class="container">
-    <div class="form-container" style="max-width: 500px;">
-      <div class="card">
-        <h2>Adicionar Saldo</h2>
-        <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.9rem; text-align: center;">
-          Adicione saldo virtual à sua conta para abrir caixas.
-        </p>
+    <div class="wallet-layout">
 
-        <div class="deposit-amounts" id="preset-amounts">
-          <button class="deposit-amount-btn" data-amount="500">R$5</button>
-          <button class="deposit-amount-btn" data-amount="1000">R$10</button>
-          <button class="deposit-amount-btn" data-amount="2500">R$25</button>
-          <button class="deposit-amount-btn" data-amount="5000">R$50</button>
-          <button class="deposit-amount-btn" data-amount="10000">R$100</button>
-          <button class="deposit-amount-btn" data-amount="50000">R$500</button>
+      <!-- Left: tabs -->
+      <div>
+        <div class="wallet-tabs">
+          <button class="wallet-tab active" data-panel="deposit"  onclick="switchPanel('deposit',this)">Depositar</button>
+          <button class="wallet-tab"        data-panel="withdraw" onclick="switchPanel('withdraw',this)">Sacar</button>
+          <button class="wallet-tab"        data-panel="history"  onclick="switchPanel('history',this)">Histórico</button>
         </div>
 
-        <div class="form-group">
-          <label for="custom-amount">Ou digite um valor personalizado:</label>
-          <input type="number" id="custom-amount" placeholder="Valor em R$" min="1" step="0.01">
+        <!-- Deposit panel -->
+        <div class="wallet-panel active" id="panel-deposit">
+          <div class="card">
+            <h3 style="margin-bottom:1rem;font-size:1rem;">Escolha o valor</h3>
+            <div class="amount-presets">
+              <button class="amount-btn" data-amount="500">R$5</button>
+              <button class="amount-btn" data-amount="1000">R$10</button>
+              <button class="amount-btn" data-amount="2500">R$25</button>
+              <button class="amount-btn" data-amount="5000">R$50</button>
+              <button class="amount-btn" data-amount="10000">R$100</button>
+              <button class="amount-btn" data-amount="50000">R$500</button>
+            </div>
+            <div class="form-group">
+              <label for="custom-amount">Valor personalizado (R$)</label>
+              <input type="number" id="custom-amount" placeholder="Ex: 75.00" min="1" step="0.01">
+            </div>
+            <button class="btn btn-primary" style="width:100%;padding:0.85rem;font-size:1rem;" id="btn-deposit">
+              Adicionar Saldo
+            </button>
+            <p style="font-size:0.72rem;color:var(--text-muted);text-align:center;margin-top:0.75rem;">
+              Mínimo R$1,00 · Máximo R$100.000,00/depósito · Limite diário R$50.000,00
+            </p>
+          </div>
+
+          <!-- Promo code -->
+          <div class="card" style="margin-top:1.25rem;">
+            <h3 style="margin-bottom:0.5rem;font-size:0.95rem;">Código Promocional</h3>
+            <p style="color:var(--text-secondary);font-size:0.82rem;margin-bottom:0.85rem;">Resgate um código para adicionar bônus à conta.</p>
+            <div style="display:flex;gap:0.6rem;">
+              <input type="text" id="promo-input" placeholder="Ex: TRADEX10"
+                style="flex:1;background:var(--bg-secondary);border:1px solid var(--border-strong);
+                       border-radius:var(--r-sm);color:var(--text-primary);font-size:0.88rem;
+                       padding:0.5rem 0.75rem;outline:none;text-transform:uppercase;"
+                maxlength="32">
+              <button class="btn btn-primary btn-sm" id="btn-promo" style="white-space:nowrap;">Resgatar</button>
+            </div>
+            <div id="promo-result" style="margin-top:0.65rem;font-size:0.82rem;display:none;"></div>
+          </div>
         </div>
 
-        <button class="btn btn-primary" style="width: 100%; padding: 0.8rem; font-size: 1rem;" id="btn-deposit">
-          Adicionar Saldo
-        </button>
+        <!-- Withdraw panel -->
+        <div class="wallet-panel" id="panel-withdraw">
+          <div class="card">
+            <h3 style="margin-bottom:0.5rem;font-size:1rem;">Saque via PIX</h3>
+            <p style="color:var(--text-secondary);font-size:0.82rem;margin-bottom:1.25rem;">
+              Processamento em até 24h úteis. O saldo é debitado imediatamente ao solicitar.
+            </p>
+            <div class="form-group">
+              <label for="withdraw-amount">Valor (R$)</label>
+              <input type="number" id="withdraw-amount" placeholder="Ex: 50.00" min="10" step="0.01">
+            </div>
+            <div class="form-group">
+              <label for="pix-key">Chave PIX</label>
+              <input type="text" id="pix-key" placeholder="CPF, e-mail, telefone ou chave aleatória" maxlength="100">
+            </div>
+            <button class="btn btn-primary" style="width:100%;padding:0.85rem;font-size:1rem;" id="btn-withdraw">
+              Solicitar Saque
+            </button>
+            <p style="font-size:0.72rem;color:var(--text-muted);text-align:center;margin-top:0.75rem;">
+              Mínimo R$10,00 · Máximo R$100.000,00 por saque
+            </p>
+          </div>
+        </div>
 
-        <div id="deposit-result" style="display: none; margin-top: 1.5rem; text-align: center;"></div>
+        <!-- History panel -->
+        <div class="wallet-panel" id="panel-history">
+          <div class="tx-filter-bar">
+            <button class="tx-filter-btn active" data-type="" onclick="filterTx('',this)">Todas</button>
+            <button class="tx-filter-btn" data-type="deposit"    onclick="filterTx('deposit',this)">Depósitos</button>
+            <button class="tx-filter-btn" data-type="withdrawal" onclick="filterTx('withdrawal',this)">Saques</button>
+            <button class="tx-filter-btn" data-type="case_open"  onclick="filterTx('case_open',this)">Aberturas</button>
+          </div>
+          <div id="tx-list"><div class="loading">Carregando...</div></div>
+          <div class="tx-pagination" id="tx-pagination"></div>
+        </div>
       </div>
 
-      <!-- Transaction history -->
-      <div class="card" style="margin-top: 1.5rem;">
-        <h3 style="margin-bottom: 1rem;">Histórico de Transações</h3>
-        <div id="transactions-list">
-          <div class="loading">Carregando...</div>
+      <!-- Right: info -->
+      <div>
+        <div class="wallet-info-card">
+          <div class="wallet-info-title">Sua Carteira</div>
+          <div class="wallet-info-row"><span>Saldo disponível</span><span id="info-balance">—</span></div>
+          <div class="wallet-info-row"><span>Limite diário</span><span>R$50.000</span></div>
+          <div class="wallet-info-row"><span>Saque mínimo</span><span>R$10,00</span></div>
+          <div class="wallet-info-row"><span>Prazo de saque</span><span>até 24h</span></div>
+        </div>
+
+        <div class="wallet-info-card">
+          <div class="wallet-info-title">Como funciona</div>
+          <ol style="padding-left:1.2rem;font-size:0.84rem;color:var(--text-secondary);line-height:1.7;">
+            <li>Adicione saldo virtual à sua conta.</li>
+            <li>Use o saldo para abrir caixas, batalhas, coinflips e upgrades.</li>
+            <li>Venda skins do seu inventário para converter em saldo.</li>
+            <li>Solicite um saque PIX quando quiser.</li>
+          </ol>
+        </div>
+
+        <div class="wallet-info-card" style="border-left:2px solid var(--brass);">
+          <div class="wallet-info-title">Bônus de Indicação</div>
+          <p style="font-size:0.84rem;color:var(--text-secondary);line-height:1.6;margin-bottom:0.75rem;">
+            Convide amigos usando seu link de referral e ganhe <strong style="color:var(--brass);">R$10</strong> quando eles fizerem o primeiro depósito.
+          </p>
+          <a href="/profile.html" class="btn btn-secondary btn-sm" style="width:100%;text-align:center;">Ver meu código de indicação</a>
+        </div>
+
+        <div style="font-size:0.72rem;color:var(--text-muted);line-height:1.6;margin-top:1rem;">
+          tradexGG é uma plataforma de entretenimento virtual. Saldo e skins não têm valor fora da plataforma.
+          Ao depositar você concorda com os <a href="/termos.html" style="color:var(--text-muted);text-decoration:underline;">Termos de Uso</a>.
         </div>
       </div>
     </div>
@@ -50,118 +323,202 @@
   <script src="/js/api.js"></script>
   <script>
     let selectedAmount = 0;
+    let currentTxType  = '';
+    let currentTxPage  = 1;
 
     document.addEventListener('DOMContentLoaded', async () => {
-      if (!isLoggedIn()) {
-        window.location.href = '/login.html';
-        return;
-      }
+      if (!isLoggedIn()) { window.location.href = '/login.html'; return; }
 
-      // Preset amount buttons
-      document.querySelectorAll('.deposit-amount-btn').forEach(btn => {
+      // Load current balance
+      try {
+        const me = await apiFetch('/users/me');
+        const fmt = formatPrice(me.balance);
+        const heroEl = document.getElementById('hero-balance');
+        const infoEl = document.getElementById('info-balance');
+        if (heroEl) heroEl.textContent = fmt;
+        if (infoEl) infoEl.textContent = fmt;
+      } catch {}
+
+      // Preset buttons
+      document.querySelectorAll('.amount-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-          document.querySelectorAll('.deposit-amount-btn').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
           selectedAmount = parseInt(btn.dataset.amount);
           document.getElementById('custom-amount').value = '';
         });
       });
 
-      // Custom amount clears preset selection
       document.getElementById('custom-amount').addEventListener('input', () => {
-        document.querySelectorAll('.deposit-amount-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
         selectedAmount = 0;
       });
 
-      // Deposit button
-      document.getElementById('btn-deposit').addEventListener('click', handleDeposit);
+      document.getElementById('btn-deposit').addEventListener('click',  handleDeposit);
+      document.getElementById('btn-withdraw').addEventListener('click', handleWithdraw);
+      document.getElementById('btn-promo').addEventListener('click', handlePromo);
+      document.getElementById('promo-input').addEventListener('keydown', e => { if (e.key === 'Enter') handlePromo(); });
 
-      // Load transactions
+      // Handle URL hash for direct tab linking (e.g., /deposit.html#withdraw)
+      const hash = window.location.hash.replace('#', '');
+      if (hash === 'withdraw') {
+        const btn = document.querySelector('.wallet-tab[data-panel="withdraw"]');
+        if (btn) switchPanel('withdraw', btn);
+      } else if (hash === 'history') {
+        const btn = document.querySelector('.wallet-tab[data-panel="history"]');
+        if (btn) switchPanel('history', btn);
+      }
+
       await loadTransactions();
     });
 
-    async function handleDeposit() {
-      const customInput = document.getElementById('custom-amount');
-      const customVal = parseFloat(customInput.value);
-      const amount = selectedAmount || (customVal ? Math.round(customVal * 100) : 0);
-
-      if (!amount || amount < 100) {
-        showToast('Valor mínimo: R$1,00', 'error');
-        return;
-      }
-
-      const btn = document.getElementById('btn-deposit');
-      btn.disabled = true;
-      btn.textContent = 'Processando...';
-
-      try {
-        const result = await apiFetch('/wallet/deposit', {
-          method: 'POST',
-          body: JSON.stringify({ amount }),
-        });
-
-        // Update navbar balance
-        const balEl = document.getElementById('nav-balance');
-        if (balEl) balEl.textContent = formatPrice(result.new_balance);
-
-        // Update stored user
-        const user = getUser();
-        if (user) {
-          user.balance = result.new_balance;
-          localStorage.setItem('tradexgg_user', JSON.stringify(user));
-        }
-
-        showToast(`${formatPrice(result.added)} adicionado ao saldo!`);
-
-        // Reset form
-        selectedAmount = 0;
-        customInput.value = '';
-        document.querySelectorAll('.deposit-amount-btn').forEach(b => b.classList.remove('active'));
-
-        // Reload transactions
-        await loadTransactions();
-      } catch (err) {
-        showToast(err.message, 'error');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Adicionar Saldo';
-      }
+    function switchPanel(name, btn) {
+      document.querySelectorAll('.wallet-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.wallet-tab').forEach(b => b.classList.remove('active'));
+      document.getElementById(`panel-${name}`).classList.add('active');
+      btn.classList.add('active');
+      if (name === 'history') loadTransactions(currentTxType, 1);
     }
 
-    async function loadTransactions() {
-      const container = document.getElementById('transactions-list');
+    async function handleDeposit() {
+      const customVal = parseFloat(document.getElementById('custom-amount').value);
+      const amount    = selectedAmount || (customVal ? Math.round(customVal * 100) : 0);
+      if (!amount || amount < 100) { showToast('Valor mínimo: R$1,00', 'error'); return; }
+
+      const btn = document.getElementById('btn-deposit');
+      btn.disabled = true; btn.textContent = 'Processando...';
+      try {
+        const res = await apiFetch('/wallet/deposit', { method: 'POST', body: JSON.stringify({ amount }) });
+        updateBalance(res.new_balance);
+        showToast(`${formatPrice(res.added)} adicionado ao saldo!`);
+        selectedAmount = 0;
+        document.getElementById('custom-amount').value = '';
+        document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
+        await loadTransactions(currentTxType, 1);
+      } catch (err) { showToast(err.message, 'error'); }
+      finally { btn.disabled = false; btn.textContent = 'Adicionar Saldo'; }
+    }
+
+    async function handleWithdraw() {
+      const amountVal = parseFloat(document.getElementById('withdraw-amount').value);
+      const pixKey    = document.getElementById('pix-key').value.trim();
+      const amount    = amountVal ? Math.round(amountVal * 100) : 0;
+      if (!amount || amount < 1000) { showToast('Valor mínimo para saque: R$10,00', 'error'); return; }
+      if (!pixKey || pixKey.length < 5) { showToast('Informe uma chave PIX válida', 'error'); return; }
+      if (!confirm(`Confirma o saque de ${formatPrice(amount)} para a chave PIX:\n${pixKey}?`)) return;
+
+      const btn = document.getElementById('btn-withdraw');
+      btn.disabled = true; btn.textContent = 'Solicitando...';
+      try {
+        const res = await apiFetch('/wallet/withdraw', { method: 'POST', body: JSON.stringify({ amount, pix_key: pixKey }) });
+        updateBalance(res.new_balance);
+        showToast('Saque solicitado! Processamento em até 24h.');
+        document.getElementById('withdraw-amount').value = '';
+        document.getElementById('pix-key').value = '';
+        await loadTransactions(currentTxType, 1);
+      } catch (err) { showToast(err.message, 'error'); }
+      finally { btn.disabled = false; btn.textContent = 'Solicitar Saque'; }
+    }
+
+    async function handlePromo() {
+      const input  = document.getElementById('promo-input');
+      const result = document.getElementById('promo-result');
+      const btn    = document.getElementById('btn-promo');
+      const code   = input.value.trim().toUpperCase();
+      if (!code) return;
+      btn.disabled = true; btn.textContent = '...'; result.style.display = 'none';
+      try {
+        const data = await apiFetch('/promo/redeem', { method: 'POST', body: JSON.stringify({ code }) });
+        updateBalance(data.new_balance);
+        input.value = '';
+        result.style.display = 'block'; result.style.color = 'var(--accent)';
+        result.textContent = `✓ Bônus de ${formatPrice(data.bonus)} adicionado!${data.description ? ' — ' + data.description : ''}`;
+        showToast(`Código resgatado! +${formatPrice(data.bonus)}`, 'success');
+        await loadTransactions(currentTxType, 1);
+      } catch (err) {
+        result.style.display = 'block'; result.style.color = 'var(--danger)';
+        result.textContent = err.message || 'Código inválido';
+      } finally { btn.disabled = false; btn.textContent = 'Resgatar'; }
+    }
+
+    function updateBalance(newBalance) {
+      const fmt = formatPrice(newBalance);
+      const heroEl = document.getElementById('hero-balance');
+      const infoEl = document.getElementById('info-balance');
+      const navEl  = document.getElementById('nav-balance');
+      if (heroEl) heroEl.textContent = fmt;
+      if (infoEl) infoEl.textContent = fmt;
+      if (navEl)  navEl.textContent  = fmt;
+      const user = getUser();
+      if (user) { user.balance = newBalance; localStorage.setItem('tradexgg_user', JSON.stringify(user)); }
+    }
+
+    async function filterTx(type, btn) {
+      currentTxType = type;
+      document.querySelectorAll('.tx-filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      await loadTransactions(type, 1);
+    }
+
+    async function loadTransactions(type = currentTxType, page = 1) {
+      currentTxPage = page;
+      const container = document.getElementById('tx-list');
+      container.innerHTML = '<div class="loading">Carregando...</div>';
 
       try {
-        const txs = await apiFetch('/wallet/transactions');
+        const params = new URLSearchParams({ page, limit: 20 });
+        if (type) params.set('type', type);
+        const data = await apiFetch(`/wallet/transactions?${params}`);
+        const txs  = data.transactions || [];
 
-        if (txs.length === 0) {
-          container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 1rem;">Nenhuma transação ainda.</p>';
+        if (!txs.length) {
+          container.innerHTML = '<p style="color:var(--text-secondary);text-align:center;padding:1.5rem 0;">Nenhuma transação encontrada.</p>';
+          document.getElementById('tx-pagination').innerHTML = '';
           return;
         }
 
-        const typeLabels = {
-          deposit: { label: 'Depósito', color: 'var(--accent)', prefix: '+' },
-          case_open: { label: 'Abertura', color: 'var(--danger)', prefix: '-' },
-          sell: { label: 'Venda', color: 'var(--accent)', prefix: '+' },
+        const typeInfo = {
+          deposit:    { label: 'Depósito',  color: '#22c55e', prefix: '+', borderColor: '#22c55e22' },
+          withdrawal: { label: 'Saque',     color: '#5e98d9', prefix: '-', borderColor: '#5e98d922' },
+          case_open:  { label: 'Abertura',  color: 'var(--danger)', prefix: '-', borderColor: '#c0503e22' },
+          sell:       { label: 'Venda',     color: '#22c55e', prefix: '+', borderColor: '#22c55e22' },
         };
 
-        container.innerHTML = txs.map(tx => {
-          const date = new Date(tx.created_at);
-          const dateStr = date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-          const info = typeLabels[tx.type] || { label: tx.type, color: 'var(--text-secondary)', prefix: '' };
+        const statusColors = { completed: '#22c55e', pending: 'var(--brass)', rejected: 'var(--danger)' };
+        const statusLabels = { completed: 'Concluído', pending: 'Pendente', rejected: 'Rejeitado' };
 
+        container.innerHTML = txs.map(tx => {
+          const info = typeInfo[tx.type] || { label: tx.type, color: 'var(--text-secondary)', prefix: '', borderColor: 'transparent' };
+          const date = new Date(tx.created_at);
+          const dateStr = date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+          const amountColor = info.prefix === '+' ? '#22c55e' : 'var(--danger)';
+          const statusBadge = tx.status && tx.status !== 'completed'
+            ? `<span class="tx-status" style="color:${statusColors[tx.status] || 'var(--text-muted)'};">${statusLabels[tx.status] || tx.status}</span>`
+            : '';
           return `
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid var(--border);">
-              <div>
-                <div style="font-weight: 600; font-size: 0.85rem;">${info.label}</div>
-                <div style="font-size: 0.75rem; color: var(--text-secondary);">${tx.description} &middot; ${dateStr}</div>
+            <div class="tx-item">
+              <div style="min-width:0;flex:1;">
+                <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.15rem;">
+                  <span class="tx-type-badge" style="color:${info.color};border-color:${info.color}44;">${info.label}</span>
+                  ${statusBadge}
+                </div>
+                <div class="tx-desc">${escapeHtml(tx.description || '—')}</div>
+                <div class="tx-date">${dateStr}</div>
               </div>
-              <div style="font-weight: 700; color: ${info.color};">${info.prefix}${formatPrice(tx.amount)}</div>
-            </div>
-          `;
+              <div class="tx-amount" style="color:${amountColor};">${info.prefix}${formatPrice(tx.amount)}</div>
+            </div>`;
         }).join('');
+
+        // Pagination
+        const pag = document.getElementById('tx-pagination');
+        if (data.pages > 1) {
+          const prev = page > 1 ? `<button class="btn btn-secondary btn-sm" onclick="loadTransactions('${type}',${page-1})">← Anterior</button>` : '';
+          const next = page < data.pages ? `<button class="btn btn-secondary btn-sm" onclick="loadTransactions('${type}',${page+1})">Próxima →</button>` : '';
+          pag.innerHTML = `${prev}<span>Página ${page} de ${data.pages}</span>${next}`;
+        } else { pag.innerHTML = ''; }
+
       } catch {
-        container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">Erro ao carregar transações.</p>';
+        container.innerHTML = '<p style="color:var(--text-secondary);text-align:center;">Erro ao carregar transações.</p>';
       }
     }
   </script>

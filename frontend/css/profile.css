@@ -1,0 +1,562 @@
+/* =====================================================
+   tradexGG — Profile Page
+   ===================================================== */
+
+/* ===== Hero ===== */
+.profile-hero {
+  display: flex;
+  align-items: flex-end;
+  gap: 1.75rem;
+  padding: 2.5rem 0 2rem;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.profile-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.profile-avatar-lg {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--bg-card-hi), var(--bg-card));
+  border: 2px solid var(--border-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--brass);
+  user-select: none;
+}
+
+.profile-level-badge {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--brass-dim);
+  border-radius: 99px;
+  padding: 0.1rem 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--brass);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.profile-hero-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-hero-name {
+  font-family: var(--font-display);
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profile-hero-meta {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.9rem;
+}
+
+.profile-xp-bar-wrap {
+  max-width: 340px;
+}
+
+.profile-xp-labels {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: var(--text-tertiary);
+  margin-bottom: 0.3rem;
+}
+
+.profile-xp-bar-track {
+  height: 6px;
+  background: var(--bg-well);
+  border-radius: 99px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.profile-xp-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--brass-dim), var(--brass));
+  border-radius: 99px;
+  transition: width 0.8s ease;
+}
+
+/* ===== Stats row ===== */
+.profile-stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.75rem;
+  padding: 1.75rem 0 0;
+}
+
+.profile-stat {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 1rem 1.1rem;
+}
+
+.profile-stat-value {
+  font-family: 'Rajdhani', var(--font-mono);
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  margin-bottom: 0.2rem;
+}
+
+.profile-stat-value.positive { color: #22c55e; }
+.profile-stat-value.negative { color: var(--danger); }
+
+.profile-stat-label {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-tertiary);
+}
+
+/* ===== Section title ===== */
+.profile-section-title {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--text-secondary);
+  margin: 2rem 0 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.profile-section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ===== ROI Chart ===== */
+.profile-chart-wrap {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 1.25rem 1.25rem 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.profile-chart-legend {
+  display: flex;
+  gap: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.chart-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.chart-canvas {
+  width: 100%;
+  display: block;
+}
+
+/* ===== Achievements ===== */
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.65rem;
+}
+
+.achievement-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 0.9rem 0.85rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  transition: border-color 0.15s;
+}
+
+.achievement-card.unlocked {
+  border-color: var(--border-strong);
+  background: var(--bg-card-hi);
+}
+
+.achievement-card.locked {
+  opacity: 0.38;
+  filter: grayscale(0.6);
+}
+
+.achievement-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.achievement-info { min-width: 0; }
+
+.achievement-name {
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.15rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.achievement-desc {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--text-tertiary);
+  line-height: 1.3;
+}
+
+/* ===== Showcase ===== */
+.showcase-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.75rem;
+}
+
+.showcase-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-bottom: 2px solid var(--item-rarity, var(--border-strong));
+  border-radius: var(--r-sm);
+  padding: 0.85rem 0.75rem;
+  text-align: center;
+  transition: transform 0.15s, background 0.15s;
+}
+
+.showcase-card:hover {
+  transform: translateY(-2px);
+  background: var(--bg-card-hi);
+}
+
+.showcase-rank {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 0.4rem;
+}
+
+.showcase-img {
+  width: 90px;
+  height: 68px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto 0.5rem;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.45));
+}
+
+.showcase-name {
+  font-family: 'Rajdhani', var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 0.15rem;
+}
+
+.showcase-wear {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 0.2rem;
+}
+
+.showcase-value {
+  font-family: 'Rajdhani', var(--font-mono);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--brass);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===== Recent openings ===== */
+.recent-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 0.65rem;
+  margin-bottom: 3rem;
+}
+
+.recent-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-bottom: 2px solid var(--item-rarity, var(--border));
+  border-radius: var(--r-sm);
+  padding: 0.65rem;
+  text-align: center;
+}
+
+.recent-img {
+  width: 76px;
+  height: 56px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto 0.4rem;
+}
+
+.recent-name {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 0.1rem;
+}
+
+.recent-rarity {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.recent-case {
+  font-size: 0.58rem;
+  color: var(--text-tertiary);
+  margin-top: 0.1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ===== Referral Panel ===== */
+.referral-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 1.1rem 1.25rem;
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+}
+.referral-info { flex: 1; min-width: 0; }
+.referral-info-row { margin-bottom: 0.6rem; }
+.referral-info-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+  display: block;
+  margin-bottom: 0.15rem;
+}
+.referral-info-sub {
+  font-size: 0.78rem;
+  color: var(--text-tertiary);
+  line-height: 1.4;
+}
+.referral-link-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.referral-link-input {
+  flex: 1;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.45rem 0.65rem;
+  outline: none;
+  min-width: 0;
+  cursor: text;
+}
+.referral-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+.referral-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 0.6rem 1rem;
+  min-width: 80px;
+}
+.referral-stat-val {
+  font-family: 'Rajdhani', var(--font-mono);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--brass);
+}
+.referral-stat-label {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 0.1rem;
+}
+
+/* ===== Wallet Card ===== */
+.profile-wallet-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.profile-wallet-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-tertiary);
+  margin-bottom: 0.3rem;
+}
+
+.profile-wallet-value {
+  font-family: 'Rajdhani', var(--font-mono);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--brass);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.profile-wallet-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+/* ===== Provably Fair Card ===== */
+.profile-fair-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  margin-bottom: 3rem;
+}
+
+.profile-fair-desc {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.profile-fair-seed-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.profile-fair-field {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-fair-field label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-tertiary);
+  margin-bottom: 0.3rem;
+}
+
+.profile-fair-seed {
+  display: block;
+  background: var(--bg-well);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 0.5rem 0.8rem;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--brass);
+  word-break: break-all;
+}
+
+.profile-fair-link {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--brass-dim);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.profile-fair-link:hover { color: var(--brass); }
+
+/* ===== Responsive ===== */
+@media (max-width: 600px) {
+  .profile-hero { gap: 1.25rem; }
+  .profile-hero-name { font-size: 1.45rem; }
+  .profile-stats-row { grid-template-columns: repeat(2, 1fr); }
+  .achievements-grid { grid-template-columns: repeat(2, 1fr); }
+  .referral-panel { flex-direction: column; }
+  .referral-stats { flex-direction: row; }
+  .profile-wallet-card { flex-direction: column; align-items: flex-start; }
+}
+

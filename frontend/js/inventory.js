@@ -10,72 +10,146 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-  await loadInventory();
+  await loadInventory(1);
+
+  const btnSellAll = document.getElementById('btn-sell-all');
+  if (btnSellAll) btnSellAll.addEventListener('click', sellAll);
 });
 
-async function loadInventory() {
+let _allInventoryItems = [];
+
+async function loadInventory(page) {
   const grid = document.getElementById('inventory-grid');
 
   try {
-    const items = await apiFetch('/inventory');
+    const data = await apiFetch(`/inventory?page=${page}&limit=24`);
+    const { items, total, pages } = data;
 
-    if (items.length === 0) {
+    if (total === 0) {
       grid.innerHTML = `
         <div class="empty-state" style="grid-column: 1 / -1;">
           <p>Seu inventário está vazio.</p>
           <a href="/cases.html" class="btn btn-primary">Abrir Caixas</a>
         </div>`;
+      document.getElementById('inventory-summary').style.display = 'none';
       return;
     }
 
+    // Update summary bar (load all items for accurate total value on page 1)
+    if (page === 1) {
+      apiFetch(`/inventory?page=1&limit=9999`).then(allData => {
+        _allInventoryItems = allData.items;
+        const totalVal = allData.items.reduce((s, i) => s + (i.site_price || i.market_price || 0), 0);
+        const summary = document.getElementById('inventory-summary');
+        const totalItemsEl = document.getElementById('inv-total-items');
+        const totalValEl = document.getElementById('inv-total-value');
+        if (summary)      summary.style.display = 'flex';
+        if (totalItemsEl) totalItemsEl.textContent = `${allData.total} ${allData.total === 1 ? 'item' : 'itens'}`;
+        if (totalValEl)   totalValEl.textContent = formatPrice(totalVal);
+      }).catch(() => {});
+    }
+
     const wearLabels = { FN: 'Factory New', MW: 'Minimal Wear', FT: 'Field-Tested', WW: 'Well-Worn', BS: 'Battle-Scarred' };
-    grid.innerHTML = items.map(item => {
+    const cards = items.map(item => {
       const price = item.site_price || item.market_price;
       const wearText = wearLabels[item.wear] || item.wear || '';
       return `
       <div class="skin-card" style="border-color: ${item.rarity_color}">
         <div class="skin-card-visual">
-          <img src="/api/image/weapon-crop?url=${encodeURIComponent(item.image_url)}" alt="${item.name}" class="skin-card-img">
+          <img src="/api/image/weapon-crop?url=${encodeURIComponent(item.image_url)}" alt="${escapeHtml(item.name)}" class="skin-card-img">
         </div>
         <div class="skin-card-info">
-          <div class="skin-card-name">${item.weapon} | ${item.skin_name}</div>
+          <div class="skin-card-name">${escapeHtml(item.weapon)} | ${escapeHtml(item.skin_name)}</div>
           <div class="skin-card-rarity-row">
             <span class="skin-card-rarity" style="color: ${item.rarity_color}">${item.rarity.replace('_', ' ')}</span>
             ${item.wear ? `<span class="wear-badge wear-${item.wear}">${wearText}</span>` : ''}
           </div>
           <div class="skin-card-price">${formatPrice(price)}</div>
-          <div class="skin-card-case">de: ${item.case_name}</div>
+          <div class="skin-card-case">de: ${escapeHtml(item.case_name)}</div>
         </div>
         <div class="skin-card-actions">
           <button class="btn btn-primary btn-sm" style="width: 100%;" onclick="sellItem(${item.opening_id}, this)">
             Vender por ${formatPrice(price)}
           </button>
         </div>
-      </div>`
+      </div>`;
     }).join('');
+
+    const paginationHtml = pages > 1 ? `
+      <div class="pagination" style="grid-column: 1 / -1;">
+        ${page > 1
+          ? `<button class="btn btn-secondary btn-sm" onclick="loadInventory(${page - 1})">← Anterior</button>`
+          : `<button class="btn btn-secondary btn-sm" disabled>← Anterior</button>`}
+        <span class="pagination-info">Página ${page} de ${pages} · ${total} itens</span>
+        ${page < pages
+          ? `<button class="btn btn-secondary btn-sm" onclick="loadInventory(${page + 1})">Próxima →</button>`
+          : `<button class="btn btn-secondary btn-sm" disabled>Próxima →</button>`}
+      </div>` : '';
+
+    grid.innerHTML = cards + paginationHtml;
   } catch {
     grid.innerHTML = '<div class="empty-state"><p>Erro ao carregar inventário.</p></div>';
   }
 }
 
+const _sellingIds = new Set();
+
+async function sellAll() {
+  if (_allInventoryItems.length === 0) {
+    showToast('Nenhum item para vender.', 'error');
+    return;
+  }
+  const totalVal = _allInventoryItems.reduce((s, i) => s + (i.site_price || i.market_price || 0), 0);
+  if (!confirm(`Vender todos os ${_allInventoryItems.length} itens por ${formatPrice(totalVal)}?`)) return;
+
+  const btn = document.getElementById('btn-sell-all');
+  if (btn) { btn.disabled = true; btn.textContent = 'Vendendo...'; }
+
+  let sold = 0;
+  let lastBalance = null;
+  for (const item of _allInventoryItems) {
+    try {
+      const res = await apiFetch(`/inventory/${item.opening_id}/sell`, { method: 'POST' });
+      lastBalance = res.new_balance;
+      sold++;
+    } catch {}
+  }
+
+  if (lastBalance !== null) {
+    const balEl = document.getElementById('nav-balance');
+    if (balEl) balEl.textContent = formatPrice(lastBalance);
+  }
+
+  showToast(`${sold} item(s) vendido(s)!`);
+  await loadInventory(1);
+
+  if (btn) { btn.disabled = false; btn.textContent = 'Vender Tudo'; }
+}
+
 async function sellItem(openingId, btn) {
+  const priceText = btn.textContent.trim();
+  if (!confirm(`Confirma a venda do item por ${priceText}?`)) return;
+  if (_sellingIds.has(openingId)) return;
+  _sellingIds.add(openingId);
   btn.disabled = true;
   btn.textContent = 'Vendendo...';
 
   try {
     const result = await apiFetch(`/inventory/${openingId}/sell`, { method: 'POST' });
 
-    // Update balance in navbar
     const balEl = document.getElementById('nav-balance');
     if (balEl) balEl.textContent = formatPrice(result.new_balance);
 
     showToast(`Vendido por ${formatPrice(result.sell_price)}!`);
 
-    // Reload inventory
-    await loadInventory();
+    // Recarrega a mesma página
+    const currentPage = parseInt(document.querySelector('.pagination-info')?.textContent?.match(/\d+/)?.[0]) || 1;
+    await loadInventory(currentPage);
   } catch (err) {
     showToast(err.message, 'error');
     btn.disabled = false;
     btn.textContent = 'Vender';
+  } finally {
+    _sellingIds.delete(openingId);
   }
 }

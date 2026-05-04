@@ -83,7 +83,7 @@ exports.listCases = async (req, res) => {
         ORDER BY COALESCE(s.site_price, s.market_price) DESC
         LIMIT 1
       ) top_skin ON true
-      WHERE c.is_active = true
+      WHERE c.is_active = true AND c.is_deleted = false
       ORDER BY c.id
     `);
     res.json(result.rows);
@@ -98,7 +98,7 @@ exports.getCaseDetail = async (req, res) => {
     const { id } = req.params;
 
     const caseResult = await pool.query(
-      'SELECT id, name, slug, image_url, price FROM cases WHERE id = $1 AND is_active = true',
+      'SELECT id, name, slug, image_url, price FROM cases WHERE id = $1 AND is_active = true AND is_deleted = false',
       [id]
     );
 
@@ -191,6 +191,38 @@ exports.openBatch = async (req, res) => {
       return res.status(err.status).json({ error: err.message });
     }
     console.error('Erro ao abrir caixas em lote:', err);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+};
+
+exports.verifyOpening = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await pool.query(
+      `SELECT o.id, o.server_seed, o.server_seed_hash, o.client_seed, o.nonce,
+              s.name AS skin_name, s.weapon, s.skin_name AS skin_skin_name,
+              COALESCE(s.site_price, s.market_price) AS value
+       FROM openings o
+       JOIN skins s ON o.skin_id = s.id
+       WHERE o.id = $1`, [id]
+    );
+
+    if (!result.rows[0]) return res.status(404).json({ error: 'Abertura não encontrada' });
+
+    const opening = result.rows[0];
+    if (!opening.server_seed) return res.status(400).json({ error: 'Abertura não possui dados de seed (abertura antiga)' });
+
+    res.json({
+      opening_id:       opening.id,
+      server_seed:      opening.server_seed,
+      server_seed_hash: opening.server_seed_hash,
+      client_seed:      opening.client_seed,
+      nonce:            opening.nonce,
+      skin:             `${opening.weapon} | ${opening.skin_skin_name}`,
+    });
+  } catch (err) {
+    console.error('verifyOpening:', err);
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 };

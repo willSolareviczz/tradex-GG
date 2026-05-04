@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coinflip - tradexGG</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/coinflip.css">
+</head>
+<body>
+
+  <!-- Hero -->
+  <div class="coinflip-hero">
+    <div class="container">
+      <div class="coinflip-hero-label">MODO</div>
+      <h1 class="coinflip-hero-title">Coinflip</h1>
+      <p class="coinflip-hero-sub">Aposte uma skin do seu inventário. Cara ou coroa decide quem leva as duas.</p>
+      <button class="btn btn-primary" id="btn-open-create" style="margin-top:0.5rem;">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:0.3rem"><path d="M12 5v14M5 12h14"/></svg>
+        Criar Coinflip
+      </button>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- Waiting coinflips -->
+    <div class="cf-section-head">
+      <span class="cf-section-title">Aguardando Oponente</span>
+      <span class="cf-section-count" id="waiting-count">—</span>
+    </div>
+    <div class="cf-waiting-list" id="waiting-list">
+      <div class="cf-empty">Carregando...</div>
+    </div>
+
+    <!-- Recent results -->
+    <div class="cf-section-head" style="margin-top:2.5rem;">
+      <span class="cf-section-title">Resultados Recentes</span>
+    </div>
+    <div class="cf-recent-list" id="recent-list">
+      <div class="cf-empty">Carregando...</div>
+    </div>
+
+  </div>
+
+  <!-- Inventory picker modal (create) -->
+  <div class="cf-modal-backdrop" id="create-modal">
+    <div class="cf-modal">
+      <div class="cf-modal-title">
+        Escolha uma Skin
+        <button class="cf-modal-close" id="btn-close-create-modal">✕</button>
+      </div>
+      <p class="cf-modal-sub">Selecione uma skin do seu inventário para apostar no coinflip.</p>
+      <div class="cf-inv-grid" id="create-inv-grid">
+        <div class="cf-empty">Carregando inventário...</div>
+      </div>
+      <div class="cf-modal-footer">
+        <button class="btn btn-secondary" id="btn-cancel-create-modal">Cancelar</button>
+        <button class="btn btn-primary" id="btn-confirm-create" disabled>Criar Coinflip</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Inventory picker modal (join) -->
+  <div class="cf-modal-backdrop" id="join-modal">
+    <div class="cf-modal">
+      <div class="cf-modal-title">
+        Escolha uma Skin para Entrar
+        <button class="cf-modal-close" id="btn-close-join-modal">✕</button>
+      </div>
+      <p class="cf-modal-sub" id="join-modal-sub">Selecione uma skin com valor compatível para entrar neste coinflip.</p>
+      <div class="cf-inv-grid" id="join-inv-grid">
+        <div class="cf-empty">Carregando inventário...</div>
+      </div>
+      <div class="cf-modal-footer">
+        <button class="btn btn-secondary" id="btn-cancel-join-modal">Cancelar</button>
+        <button class="btn btn-primary" id="btn-confirm-join" disabled>Entrar no Coinflip</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Result overlay -->
+  <div class="cf-result-overlay" id="result-overlay">
+    <div class="cf-result-backdrop"></div>
+    <div class="cf-result-card">
+      <div class="cf-result-title" id="result-title">RESULTADO</div>
+
+      <div class="cf-coin-wrap">
+        <div class="cf-coin" id="result-coin">🪙</div>
+      </div>
+
+      <div class="cf-result-arena">
+
+        <div class="cf-result-side" id="result-creator-side">
+          <div class="cf-result-player" id="result-creator-name">—</div>
+          <div class="cf-result-skin-card" id="result-creator-card">
+            <img class="cf-result-skin-img" id="result-creator-img" src="" alt="">
+            <div class="cf-result-skin-name" id="result-creator-skin"></div>
+            <div class="cf-result-skin-value" id="result-creator-value"></div>
+          </div>
+          <div class="cf-result-badge" id="result-creator-badge"></div>
+        </div>
+
+        <div class="cf-result-vs">VS</div>
+
+        <div class="cf-result-side" id="result-joiner-side">
+          <div class="cf-result-player" id="result-joiner-name">—</div>
+          <div class="cf-result-skin-card" id="result-joiner-card">
+            <img class="cf-result-skin-img" id="result-joiner-img" src="" alt="">
+            <div class="cf-result-skin-name" id="result-joiner-skin"></div>
+            <div class="cf-result-skin-value" id="result-joiner-value"></div>
+          </div>
+          <div class="cf-result-badge" id="result-joiner-badge"></div>
+        </div>
+
+      </div>
+      <div class="cf-result-actions">
+        <button class="btn btn-primary" id="btn-result-close">Fechar</button>
+        <a href="/inventory.html" class="btn btn-secondary">Ver Inventário</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/coinflip.js"></script>
+</body>
+</html>
