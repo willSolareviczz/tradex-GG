@@ -12,7 +12,7 @@ exports.getInventory = async (req, res) => {
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 24));
     const offset = (page - 1) * limit;
 
-    const [countRes, dataRes] = await Promise.all([
+    const [countRes, dataRes, summaryRes] = await Promise.all([
       pool.query('SELECT COUNT(*) FROM openings WHERE user_id = $1 AND sold = false', [req.userId]),
       pool.query(
         `SELECT o.id as opening_id, o.created_at, s.id as skin_id, s.name, s.weapon,
@@ -28,6 +28,15 @@ exports.getInventory = async (req, res) => {
          LIMIT $2 OFFSET $3`,
         [req.userId, limit, offset]
       ),
+      pool.query(
+        `SELECT
+           COUNT(*)::int AS total_count,
+           COALESCE(SUM(COALESCE(s.site_price, s.market_price)), 0)::int AS total_value
+         FROM openings o
+         JOIN skins s ON o.skin_id = s.id
+         WHERE o.user_id = $1 AND o.sold = false`,
+        [req.userId]
+      ),
     ]);
 
     const total = parseInt(countRes.rows[0].count);
@@ -37,6 +46,7 @@ exports.getInventory = async (req, res) => {
       page,
       limit,
       pages: Math.ceil(total / limit),
+      summary: summaryRes.rows[0],
     });
   } catch (err) {
     console.error('Erro ao buscar inventário:', err);

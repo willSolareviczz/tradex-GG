@@ -33,17 +33,14 @@ async function loadInventory(page) {
       return;
     }
 
-    // Update summary bar (load all items for accurate total value on page 1)
-    if (page === 1) {
-      apiFetch(`/inventory?page=1&limit=9999`).then(allData => {
-        const totalVal = allData.items.reduce((s, i) => s + (i.site_price || i.market_price || 0), 0);
-        const summary = document.getElementById('inventory-summary');
-        const totalItemsEl = document.getElementById('inv-total-items');
-        const totalValEl = document.getElementById('inv-total-value');
-        if (summary)      summary.style.display = 'flex';
-        if (totalItemsEl) totalItemsEl.textContent = `${allData.total} ${allData.total === 1 ? 'item' : 'itens'}`;
-        if (totalValEl)   totalValEl.textContent = formatPrice(totalVal);
-      }).catch(() => {});
+    if (data.summary) {
+      const { total_count, total_value } = data.summary;
+      const summary      = document.getElementById('inventory-summary');
+      const totalItemsEl = document.getElementById('inv-total-items');
+      const totalValEl   = document.getElementById('inv-total-value');
+      if (summary)      summary.style.display = total_count > 0 ? 'flex' : 'none';
+      if (totalItemsEl) totalItemsEl.textContent = `${total_count} ${total_count === 1 ? 'item' : 'itens'}`;
+      if (totalValEl)   totalValEl.textContent = formatPrice(total_value);
     }
 
     const wearLabels = { FN: 'Factory New', MW: 'Minimal Wear', FT: 'Field-Tested', WW: 'Well-Worn', BS: 'Battle-Scarred' };
