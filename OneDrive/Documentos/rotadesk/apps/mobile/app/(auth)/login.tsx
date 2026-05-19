@@ -20,13 +20,14 @@ export default function LoginEntregador() {
   const [loading, setLoading] = useState(false)
 
   async function enviarOTP() {
-    if (!telefone.match(/^\+55\d{10,11}$/)) {
+    const telefoneFormatado = telefone.trim().replace(/\s/g, '')
+    if (!telefoneFormatado.match(/^\+55\d{10,11}$/)) {
       Alert.alert('Telefone inválido', 'Use o formato +5511999999999')
       return
     }
 
     setLoading(true)
-    const { error } = await supabase.auth.signInWithOtp({ phone: telefone })
+    const { error } = await supabase.auth.signInWithOtp({ phone: telefoneFormatado })
     setLoading(false)
 
     if (error) {
@@ -34,10 +35,16 @@ export default function LoginEntregador() {
       return
     }
 
+    setTelefone(telefoneFormatado)
     setStep('otp')
   }
 
   async function verificarOTP() {
+    if (!otp.trim() || otp.length < 6) {
+      Alert.alert('Código inválido', 'Digite os 6 dígitos do código.')
+      return
+    }
+
     setLoading(true)
     const { error } = await supabase.auth.verifyOtp({
       phone: telefone,
@@ -93,6 +100,7 @@ export default function LoginEntregador() {
               placeholder="000000"
               keyboardType="number-pad"
               maxLength={6}
+              autoFocus={true}
             />
             <TouchableOpacity
               style={[styles.button, loading && styles.buttonDisabled]}
