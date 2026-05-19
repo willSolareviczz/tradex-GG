@@ -1,0 +1,12 @@
+{
+  "name": "@rotadesk/supabase",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./types.ts",
+  "scripts": {
+    "generate-types": "supabase gen types typescript --local > types.ts"
+  },
+  "devDependencies": {
+    "supabase": "^1.170.0"
+  }
+}
