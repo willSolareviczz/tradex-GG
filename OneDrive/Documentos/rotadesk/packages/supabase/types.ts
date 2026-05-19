@@ -38,7 +38,6 @@ export type Database = {
           plano?: 'free' | 'starter' | 'pro'
           pacotes_mes?: number
           stripe_customer_id?: string | null
-          atualizado_em?: string
         }
       }
       entregadores: {
@@ -61,7 +60,6 @@ export type Database = {
           criado_em?: string
         }
         Update: {
-          user_id?: string | null
           nome?: string
           telefone?: string
           ativo?: boolean

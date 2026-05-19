@@ -52,7 +52,7 @@ create table pacotes (
     check (status in ('pendente', 'em_rota', 'entregue', 'falhou')),
   motivo_falha text,
   foto_comprovante_url text,
-  ordem_rota integer,
+  ordem_rota integer check (ordem_rota is null or ordem_rota > 0),
   criado_em timestamptz not null default now(),
   atualizado_em timestamptz not null default now()
 );
@@ -62,6 +62,7 @@ create index pacotes_operadora_id_idx on pacotes(operadora_id);
 create index pacotes_rota_id_idx on pacotes(rota_id);
 create index pacotes_status_idx on pacotes(status);
 create index rotas_operadora_data_idx on rotas(operadora_id, data);
+create index entregadores_user_id_idx on entregadores(user_id);
 
 -- Trigger para atualizar atualizado_em
 create or replace function set_atualizado_em()
