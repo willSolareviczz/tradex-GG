@@ -5,3 +5,15 @@ dist
 .env.local
 *.env
 .turbo
+
+# Expo / React Native
+.expo/
+.expo-shared/
+android/build/
+ios/Pods/
+
+# Test coverage
+coverage/
+
+# Logs
+pnpm-error.log
