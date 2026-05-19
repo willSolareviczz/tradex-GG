@@ -8,7 +8,11 @@ export default function RootLayout() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        // On error, treat as unauthenticated and let the user log in
+        console.warn('Failed to restore session:', error.message)
+      }
       setSession(session)
       setLoading(false)
     })
