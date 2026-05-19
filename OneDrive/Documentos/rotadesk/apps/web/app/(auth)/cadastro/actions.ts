@@ -2,16 +2,19 @@
 
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import type { Database } from '@rotadesk/supabase'
-
-type OperadoraInsert = Database['public']['Tables']['operadoras']['Insert']
-
 export async function cadastrar(formData: FormData) {
-  const supabase = await createClient()
-
-  const email = formData.get('email') as string
+  const email = (formData.get('email') as string)?.trim()
   const password = formData.get('password') as string
-  const nome = formData.get('nome') as string
+  const nome = (formData.get('nome') as string)?.trim()
+
+  if (!email || !password || !nome) {
+    return { error: 'Todos os campos são obrigatórios.' }
+  }
+  if (email.length > 255 || nome.length > 255) {
+    return { error: 'Entrada inválida.' }
+  }
+
+  const supabase = await createClient()
 
   const { data, error } = await supabase.auth.signUp({ email, password })
 
@@ -19,15 +22,14 @@ export async function cadastrar(formData: FormData) {
     return { error: error?.message ?? 'Erro ao criar conta.' }
   }
 
-  const payload: OperadoraInsert = { user_id: data.user.id, nome, email }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { error: insertError } = await supabase
     .from('operadoras')
-    .insert(payload as any)
+    .insert({ user_id: data.user.id, nome, email })
 
   if (insertError) {
-    return { error: 'Erro ao salvar dados da transportadora.' }
+    // Note: auth user is created but operadora insert failed.
+    // In production, use a DB trigger to create operadora on user signup.
+    return { error: 'Erro ao salvar dados da transportadora. Tente novamente.' }
   }
 
   redirect('/dashboard')

@@ -39,6 +39,7 @@ export type Database = {
           pacotes_mes?: number
           stripe_customer_id?: string | null
         }
+        Relationships: []
       }
       entregadores: {
         Row: {
@@ -64,6 +65,7 @@ export type Database = {
           telefone?: string
           ativo?: boolean
         }
+        Relationships: []
       }
       rotas: {
         Row: {
@@ -86,6 +88,7 @@ export type Database = {
           entregador_id?: string | null
           status?: 'ativa' | 'concluida'
         }
+        Relationships: []
       }
       pacotes: {
         Row: {
@@ -130,8 +133,11 @@ export type Database = {
           foto_comprovante_url?: string | null
           ordem_rota?: number | null
         }
+        Relationships: []
       }
     }
+    Views: Record<string, never>
+    Functions: Record<string, never>
   }
 }
 

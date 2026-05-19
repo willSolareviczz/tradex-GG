@@ -1,13 +1,29 @@
+'use client'
+
+import { useActionState } from 'react'
 import { cadastrar } from './actions'
 
 export default function CadastroPage() {
+  const [state, formAction, pending] = useActionState(
+    async (_prev: { error: string } | null, formData: FormData) => {
+      return (await cadastrar(formData)) ?? null
+    },
+    null
+  )
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="w-full max-w-md p-8 bg-white rounded-xl shadow-sm border">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Rotadesk</h1>
         <p className="text-gray-500 mb-8">Cadastre sua transportadora</p>
 
-        <form className="space-y-4">
+        {state?.error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+            {state.error}
+          </div>
+        )}
+
+        <form action={formAction} className="space-y-4">
           <div>
             <label htmlFor="nome" className="block text-sm font-medium text-gray-700 mb-1">
               Nome da transportadora
@@ -51,10 +67,11 @@ export default function CadastroPage() {
           </div>
 
           <button
-            formAction={cadastrar as unknown as (formData: FormData) => void}
-            className="w-full py-2 px-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+            type="submit"
+            disabled={pending}
+            className="w-full py-2 px-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
           >
-            Criar conta
+            {pending ? 'Criando conta...' : 'Criar conta'}
           </button>
         </form>
 

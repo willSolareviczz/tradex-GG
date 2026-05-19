@@ -1,13 +1,29 @@
+'use client'
+
+import { useActionState } from 'react'
 import { login } from './actions'
 
 export default function LoginPage() {
+  const [state, formAction, pending] = useActionState(
+    async (_prev: { error: string } | null, formData: FormData) => {
+      return (await login(formData)) ?? null
+    },
+    null
+  )
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="w-full max-w-md p-8 bg-white rounded-xl shadow-sm border">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Rotadesk</h1>
         <p className="text-gray-500 mb-8">Entre na sua conta</p>
 
-        <form className="space-y-4">
+        {state?.error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+            {state.error}
+          </div>
+        )}
+
+        <form action={formAction} className="space-y-4">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
               Email
@@ -36,10 +52,11 @@ export default function LoginPage() {
           </div>
 
           <button
-            formAction={login as unknown as (formData: FormData) => void}
-            className="w-full py-2 px-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+            type="submit"
+            disabled={pending}
+            className="w-full py-2 px-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
           >
-            Entrar
+            {pending ? 'Entrando...' : 'Entrar'}
           </button>
         </form>
 
