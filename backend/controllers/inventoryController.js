@@ -62,6 +62,20 @@ exports.sellSkin = async (req, res) => {
 
     const { id } = req.params;
 
+    // Verifica existência e propriedade separadamente (403 vs 404)
+    const existsResult = await client.query(
+      'SELECT o.id, o.user_id FROM openings o WHERE o.id = $1',
+      [id]
+    );
+
+    if (existsResult.rows.length === 0) {
+      throw { status: 404, message: 'Item não encontrado' };
+    }
+
+    if (existsResult.rows[0].user_id !== req.userId) {
+      throw { status: 403, message: 'Acesso negado' };
+    }
+
     // Get opening and lock it
     // Usa site_price (atualizado via API) com fallback para market_price
     const openingResult = await client.query(
